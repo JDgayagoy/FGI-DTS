@@ -30,7 +30,7 @@ export const emptyForm = {
     brand: '',
     incoterm: 'EXW',
     actual_time_of_arrival: '',
-    broker: '',
+    broker_id: '',
     brand_manager: '',
     shipment_type_id: '',
 };

@@ -32,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('edit-shipments', fn (User $user) => $user->hasPermission('edit', 'shipments'));
         Gate::define('delete-shipments', fn (User $user) => $user->hasPermission('delete', 'shipments'));
         Gate::define('create-user', fn (User $user) => $user->hasPermission('manage_users', 'rbac'));
+        Gate::define('manage-brokers', fn (User $user) => $user->hasPermission('manage_users', 'rbac') || $user->hasPermission('add', 'brokers'));
+        Gate::define('view-brokers', fn (User $user) => $user->hasPermission('view', 'brokers'));
     }
 
     /**

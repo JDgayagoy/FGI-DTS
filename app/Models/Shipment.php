@@ -7,45 +7,52 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shipment extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  protected $table = 'shipments';
-  protected $primaryKey = 'shipment_id';
-  public $timestamps = true;
+    protected $table = 'shipments';
 
-  protected $fillable = [
-    'year',
-    'month',
-    'shipment_reference',
-    'brand',
-    'incoterm',
-    'actual_time_of_arrival',
-    'broker',
-    'brand_manager',
-    'shipment_type_id',
-    'status_id',
-    'archived_at',
-  ];
+    protected $primaryKey = 'shipment_id';
 
-  protected $casts = [
-    'actual_time_of_arrival' => 'datetime',
-    'created_at' => 'datetime',
-    'updated_at' => 'datetime',
-    'archived_at' => 'datetime',
-  ];
+    public $timestamps = true;
 
-  public function status()
-  {
-    return $this->belongsTo(ShipmentStatusList::class, 'status_id', 'status_id');
-  }
+    protected $fillable = [
+        'year',
+        'month',
+        'shipment_reference',
+        'brand',
+        'incoterm',
+        'actual_time_of_arrival',
+        'broker_id',
+        'brand_manager',
+        'shipment_type_id',
+        'status_id',
+        'archived_at',
+    ];
 
-  public function documents()
-  {
-    return $this->hasMany(ShipmentDocument::class, 'shipment_id', 'shipment_id');
-  }
+    protected $casts = [
+        'actual_time_of_arrival' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'archived_at' => 'datetime',
+    ];
 
-  public function shipmentType()
-  {
-    return $this->belongsTo(ShipmentType::class, 'shipment_type_id', 'shipment_type_id');
-  }
+    public function status()
+    {
+        return $this->belongsTo(ShipmentStatusList::class, 'status_id', 'status_id');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(ShipmentDocument::class, 'shipment_id', 'shipment_id');
+    }
+
+    public function shipmentType()
+    {
+        return $this->belongsTo(ShipmentType::class, 'shipment_type_id', 'shipment_type_id');
+    }
+
+    public function broker()
+    {
+        return $this->belongsTo(Broker::class, 'broker_id', 'broker_id');
+    }
 }

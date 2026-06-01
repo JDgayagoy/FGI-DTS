@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Ship, BarChart3, List, HelpCircle, Package, Users, Shield } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Ship, BarChart3, List, HelpCircle, Package, Users, Shield, Truck } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -79,8 +79,15 @@ export function AppSidebar() {
                 <NavMain items={[
                     ...mainNavItems,
                     ...(hasPermission('manage_users') ? [
-                        { title: 'User Management', href: '/users', icon: Users },
-                        { title: 'Role Management', href: '/roles', icon: Shield }
+                        {
+                            title: 'Management',
+                            icon: BarChart3,
+                            items: [
+                                { title: 'User Management', href: '/users', icon: Users },
+                                { title: 'Role Management', href: '/roles', icon: Shield },
+                                { title: 'Broker Management', href: '/brokers', icon: Truck },
+                            ],
+                        },
                     ] : [])
                 ]} />
             </SidebarContent>

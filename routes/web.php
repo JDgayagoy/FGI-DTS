@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RoleManagementController;
@@ -23,6 +24,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/roles', [RoleManagementController::class, 'index'])->name('roles.index');
     Route::put('/roles/{role}/permissions', [RoleManagementController::class, 'updatePermissions'])->name('roles.permissions.update');
+
+    Route::resource('brokers', BrokerController::class)->parameters([
+        'brokers' => 'broker:broker_id',
+    ]);
 
     // These MUST be above Route::resource
     Route::post('shipments/documents/{shipment_doc_id}/upload', [ShipmentController::class, 'uploadDocument'])

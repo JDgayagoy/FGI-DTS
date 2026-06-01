@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Broker;
 use App\Models\CustomDoc;
 use App\Models\DocumentStatus;
 use App\Models\Shipment;
@@ -21,6 +22,7 @@ class ShipmentController extends Controller
         $shipments = Shipment::with([
             'status',
             'shipmentType',
+            'broker',
             'documents.customDoc',
             'documents.currentStatus.status',
         ])->get();
@@ -28,6 +30,7 @@ class ShipmentController extends Controller
         return Inertia::render('shipments/index', [
             'shipments' => $shipments,
             'shipmentTypes' => ShipmentType::all(),
+            'brokers' => Broker::where('is_active', true)->get(),
         ]);
     }
 
@@ -40,7 +43,7 @@ class ShipmentController extends Controller
             'brand' => 'required|string|max:255',
             'incoterm' => 'required|string|max:255',
             'actual_time_of_arrival' => 'nullable|date',
-            'broker' => 'nullable|string|max:255',
+            'broker_id' => 'nullable|exists:brokers,broker_id',
             'brand_manager' => 'nullable|string|max:255',
             'shipment_type_id' => 'required|exists:shipment_types,shipment_type_id',
         ]);
@@ -162,7 +165,7 @@ class ShipmentController extends Controller
             'brand' => 'sometimes|string|max:255',
             'incoterm' => 'sometimes|string|max:255',
             'actual_time_of_arrival' => 'nullable|date',
-            'broker' => 'nullable|string|max:255',
+            'broker_id' => 'nullable|exists:brokers,broker_id',
             'brand_manager' => 'nullable|string|max:255',
             'shipment_type_id' => 'sometimes|exists:shipment_types,shipment_type_id',
         ]);

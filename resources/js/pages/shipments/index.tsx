@@ -14,7 +14,7 @@ import { ModalShell } from '@/components/shipments/modal-shell';
 import { DocumentDialog } from '@/components/shipments/document-dialog';
 import { ShipmentsTable } from '@/components/shipments/shipments-table';
 
-export default function Shipments({ shipments, shipmentTypes }: Props) {
+export default function Shipments({ shipments, shipmentTypes, brokers }: Props) {
     const [activeDocPanel, setActiveDocPanel] = useState<number | null>(null);
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
     const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
@@ -40,7 +40,7 @@ export default function Shipments({ shipments, shipmentTypes }: Props) {
                     s.brand,
                     s.incoterm,
                     incotermName(s.incoterm),
-                    s.broker,
+                    s.broker?.broker_name ?? '',
                     s.brand_manager,
                     s.status.status_name,
                     s.shipment_type.shipment_type_name,
@@ -56,10 +56,13 @@ export default function Shipments({ shipments, shipmentTypes }: Props) {
                 switch (sortConfig.key) {
                     case 'shipment_reference':
                     case 'brand':
-                    case 'broker':
                     case 'brand_manager':
                         aVal = a[sortConfig.key as keyof Shipment];
                         bVal = b[sortConfig.key as keyof Shipment];
+                        break;
+                    case 'broker':
+                        aVal = a.broker?.broker_name ?? '';
+                        bVal = b.broker?.broker_name ?? '';
                         break;
                     case 'incoterm':
                         aVal = incotermName(a.incoterm);
@@ -118,7 +121,7 @@ export default function Shipments({ shipments, shipmentTypes }: Props) {
             brand: shipment.brand,
             incoterm: shipment.incoterm,
             actual_time_of_arrival: toDatetimeLocal(shipment.actual_time_of_arrival),
-            broker: shipment.broker,
+            broker_id: String(shipment.broker_id ?? ''),
             brand_manager: shipment.brand_manager,
             shipment_type_id: String(shipment.shipment_type.shipment_type_id),
         });
@@ -177,12 +180,12 @@ export default function Shipments({ shipments, shipmentTypes }: Props) {
             {/* Modals (Add, Edit, Archive) */}
             {showAddModal && (
                 <ModalShell title="Add Shipment" onClose={closeAddModal} onSubmit={handleAddSubmit} submitLabel="Create Shipment">
-                    <ShipmentFormFields form={addForm} setForm={setAddForm} shipmentTypes={shipmentTypes} />
+                    <ShipmentFormFields form={addForm} setForm={setAddForm} shipmentTypes={shipmentTypes} brokers={brokers} />
                 </ModalShell>
             )}
             {editingShipment && (
                 <ModalShell title="Edit Shipment" subtitle={editingShipment.shipment_reference} onClose={closeEditModal} onSubmit={handleEditSubmit} submitLabel="Save Changes">
-                    <ShipmentFormFields form={editForm} setForm={setEditForm} shipmentTypes={shipmentTypes} />
+                    <ShipmentFormFields form={editForm} setForm={setEditForm} shipmentTypes={shipmentTypes} brokers={brokers} />
                 </ModalShell>
             )}
             {archivingShipment && (

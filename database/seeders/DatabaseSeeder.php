@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             DocumentStatusListSeeder::class,
             CustomDocSeeder::class,
             ShipmentTypeSeeder::class,
+            BrokerSeeder::class,
             ShipmentSeeder::class,
             ShipmentDocumentSeeder::class, // add this
             DocumentStatusSeeder::class,
