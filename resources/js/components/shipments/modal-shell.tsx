@@ -8,6 +8,7 @@ interface ModalShellProps {
     onSubmit: () => void;
     submitLabel: string;
     children: ReactNode;
+    loading?: boolean;
 }
 
 export const ModalShell = ({
@@ -17,6 +18,7 @@ export const ModalShell = ({
     onSubmit,
     submitLabel,
     children,
+    loading = false,
 }: ModalShellProps) => (
     <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/20 backdrop-blur-sm"
@@ -51,9 +53,10 @@ export const ModalShell = ({
                 </button>
                 <button
                     onClick={onSubmit}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                    disabled={loading}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {submitLabel}
+                    {loading ? 'Processing...' : submitLabel}
                 </button>
             </div>
         </div>

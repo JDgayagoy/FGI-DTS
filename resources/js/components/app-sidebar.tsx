@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Ship, BarChart3, List, HelpCircle, Package } from 'lucide-react';
+import { BookOpen, FolderGit2, LayoutGrid, Ship, BarChart3, List, HelpCircle, Package, Users, Shield } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import { usePermissions } from '@/hooks/use-permissions';
 
 const mainNavItems: NavItem[] = [
     {
@@ -58,6 +59,8 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { hasPermission } = usePermissions();
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -73,7 +76,13 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={[
+                    ...mainNavItems,
+                    ...(hasPermission('manage_users') ? [
+                        { title: 'User Management', href: '/users', icon: Users },
+                        { title: 'Role Management', href: '/roles', icon: Shield }
+                    ] : [])
+                ]} />
             </SidebarContent>
 
             <SidebarFooter>

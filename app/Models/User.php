@@ -41,4 +41,33 @@ class User extends Authenticatable
     {
         return $this->hasMany(DocumentStatus::class, 'changed_by', 'id');
     }
+
+    /**
+     * Check if user has a specific role.
+     */
+    public function hasRole($roleName): bool
+    {
+        return $this->roles()->where('role_name', $roleName)->exists();
+    }
+
+    /**
+     * Check if user has a specific permission.
+     */
+    public function hasPermission(string $action, string $resource): bool
+    {
+        // Eager load roles and permissions if not loaded
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles.permissions');
+        }
+
+        foreach ($this->roles as $role) {
+            foreach ($role->permissions as $permission) {
+                if ($permission->action === $action && $permission->resource === $resource) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

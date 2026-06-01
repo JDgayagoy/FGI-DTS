@@ -5,6 +5,7 @@ import { formatDate, incotermName } from '@/pages/shipments/helpers';
 import { StatusIcon } from './status-icon';
 import { Highlight } from './highlight';
 import { useState } from 'react';
+import { usePermissions } from '@/hooks/use-permissions';
 
 interface SortConfig {
     key: string;
@@ -67,6 +68,7 @@ export const ShipmentsTable = ({
     setSelectedDocId,
 }: ShipmentsTableProps) => {
     const [activeTab, setActiveTab] = useState<string | null>(null);
+    const { hasPermission } = usePermissions();
 
     const tabFiltered = activeTab
         ? filteredShipments.filter((s) => s.status.status_name === activeTab)
@@ -233,20 +235,24 @@ export const ShipmentsTable = ({
                                                 <button className="rounded-lg border border-blue-200 dark:border-blue-800/40 px-2 py-1 text-[10px] font-bold text-blue-600 hover:bg-blue-50">
                                                     <Printer className="h-3 w-3 inline mr-1" /> Print
                                                 </button>
-                                                <button
-                                                    onClick={() => openEditModal(s)}
-                                                    className="rounded-lg border border-yellow-200 dark:border-yellow-800/40 px-2 py-1 text-[10px] font-bold text-yellow-600 hover:bg-yellow-50"
-                                                >
-                                                    <Pencil className="h-3 w-3 inline mr-1" /> Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => setArchivingShipment(s)}
-                                                    disabled={!!s.archived_at}
-                                                    className="rounded-lg border border-orange-200 dark:border-orange-800/40 px-2 py-1 text-[10px] font-bold text-orange-600 hover:bg-orange-50 disabled:opacity-40"
-                                                >
-                                                    <Archive className="h-3 w-3 inline mr-1" />
-                                                    {s.archived_at ? 'Archived' : 'Archive'}
-                                                </button>
+                                                {hasPermission('edit_shipments') && (
+                                                    <button
+                                                        onClick={() => openEditModal(s)}
+                                                        className="rounded-lg border border-yellow-200 dark:border-yellow-800/40 px-2 py-1 text-[10px] font-bold text-yellow-600 hover:bg-yellow-50"
+                                                    >
+                                                        <Pencil className="h-3 w-3 inline mr-1" /> Edit
+                                                    </button>
+                                                )}
+                                                {hasPermission('delete_shipments') && (
+                                                    <button
+                                                        onClick={() => setArchivingShipment(s)}
+                                                        disabled={!!s.archived_at}
+                                                        className="rounded-lg border border-orange-200 dark:border-orange-800/40 px-2 py-1 text-[10px] font-bold text-orange-600 hover:bg-orange-50 disabled:opacity-40"
+                                                    >
+                                                        <Archive className="h-3 w-3 inline mr-1" />
+                                                        {s.archived_at ? 'Archived' : 'Archive'}
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>

@@ -10,8 +10,9 @@ use App\Models\ShipmentType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class ShipmentController extends Controller
 {
@@ -32,6 +33,8 @@ class ShipmentController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('add-shipments');
+
         $validated = $request->validate([
             'shipment_reference' => 'required|string|max:255',
             'brand' => 'required|string|max:255',
@@ -65,6 +68,8 @@ class ShipmentController extends Controller
 
     public function destroy(Shipment $shipment)
     {
+        Gate::authorize('delete-shipments');
+
         $shipment->delete();
 
         return redirect()->route('shipments.index');
@@ -72,6 +77,8 @@ class ShipmentController extends Controller
 
     public function updateDocumentStatus(Request $request, $shipment_doc_id)
     {
+        Gate::authorize('edit-shipments');
+
         $request->validate([
             'status_id' => 'required|exists:document_status_list,status_id',
         ]);
@@ -107,6 +114,8 @@ class ShipmentController extends Controller
 
     public function uploadDocument(Request $request, int $shipment_doc_id)
     {
+        Gate::authorize('edit-shipments');
+
         $request->validate([
             'file' => 'required|file|mimes:pdf|max:10240',
         ]);
@@ -133,7 +142,7 @@ class ShipmentController extends Controller
     {
         $doc = ShipmentDocument::findOrFail($shipment_doc_id);
 
-        if (!$doc->file_path || !Storage::disk('public')->exists($doc->file_path)) {
+        if (! $doc->file_path || ! Storage::disk('public')->exists($doc->file_path)) {
             abort(404);
         }
 
@@ -144,6 +153,8 @@ class ShipmentController extends Controller
 
     public function update(Request $request, Shipment $shipment)
     {
+        Gate::authorize('edit-shipments');
+
         $validated = $request->validate([
             'year' => 'sometimes|integer',
             'month' => 'sometimes|integer',
@@ -163,6 +174,8 @@ class ShipmentController extends Controller
 
     public function archive(Shipment $shipment)
     {
+        Gate::authorize('delete-shipments');
+
         $shipment->update(['archived_at' => now()]);
 
         return redirect()->route('shipments.index');

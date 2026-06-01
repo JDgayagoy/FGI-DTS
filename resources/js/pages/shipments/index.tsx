@@ -3,6 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import { Calendar, Download, Eye, Package, Plus } from 'lucide-react';
 import { type ReactNode, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { usePermissions } from '@/hooks/use-permissions';
 
 import { type Props, type Shipment } from './types';
 import { breadcrumbs, emptyForm } from './constants';
@@ -23,6 +24,8 @@ export default function Shipments({ shipments, shipmentTypes }: Props) {
     const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
     const [editForm, setEditForm] = useState({ ...emptyForm });
     const [addForm, setAddForm] = useState({ ...emptyForm });
+
+    const { hasPermission } = usePermissions();
 
     const activeShipment = activeDocPanel !== null ? shipments[activeDocPanel] : null;
 
@@ -149,9 +152,11 @@ export default function Shipments({ shipments, shipmentTypes }: Props) {
                         {/* <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold gap-2"><Eye className="size-3.5" /> View All</Button>
                         <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold gap-2"><Calendar className="size-3.5" /> Last 30 Days</Button> */}
                         <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold gap-2"><Download className="size-3.5" /> Export</Button>
-                        <button onClick={openAddModal} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700">
-                            <Plus className="h-4 w-4" /> Add Shipment
-                        </button>
+                        {hasPermission('add_shipments') && (
+                            <button onClick={openAddModal} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700">
+                                <Plus className="h-4 w-4" /> Add Shipment
+                            </button>
+                        )}
                     </div>
                 </div>
 

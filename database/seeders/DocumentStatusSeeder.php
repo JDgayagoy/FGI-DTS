@@ -10,13 +10,12 @@ class DocumentStatusSeeder extends Seeder
     public function run(): void
     {
         $shipmentDocs = DB::table('shipment_documents')->get();
-        $statusIds = DB::table('document_status_list')->pluck('status_id')->toArray();
-
+        $pendingStatus = DB::table('document_status_list')->where('status_name', 'Pending')->first();
         $rows = [];
         foreach ($shipmentDocs as $doc) {
             $rows[] = [
                 'shipment_doc_id' => $doc->shipment_doc_id,
-                'status_id' => $statusIds[array_rand($statusIds)],
+                'status_id' => $pendingStatus->status_id,
                 'is_current' => true,
                 'changed_at' => now(),
                 'changed_by' => null,
