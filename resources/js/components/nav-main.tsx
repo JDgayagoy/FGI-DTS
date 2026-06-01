@@ -13,7 +13,11 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import type { NavItem } from '@/types';
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
@@ -25,13 +29,15 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
         setExpandedItems((prev) =>
             prev.includes(title)
                 ? prev.filter((t) => t !== title)
-                : [...prev, title]
+                : [...prev, title],
         );
     };
 
     const hasActiveSubItem = (item: NavItem): boolean => {
         if (!item.items) return false;
-        return item.items.some((subItem) => subItem.href && isCurrentUrl(subItem.href));
+        return item.items.some(
+            (subItem) => subItem.href && isCurrentUrl(subItem.href),
+        );
     };
 
     return (
@@ -64,14 +70,32 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
                                             {item.items.map((subItem) => (
-                                                <SidebarMenuSubItem key={subItem.title}>
+                                                <SidebarMenuSubItem
+                                                    key={subItem.title}
+                                                >
                                                     <SidebarMenuSubButton
                                                         asChild
-                                                        isActive={subItem.href ? isCurrentUrl(subItem.href) : false}
+                                                        isActive={
+                                                            subItem.href
+                                                                ? isCurrentUrl(
+                                                                      subItem.href,
+                                                                  )
+                                                                : false
+                                                        }
                                                     >
-                                                        <Link href={subItem.href || '#'} prefetch>
-                                                            {subItem.icon && <subItem.icon />}
-                                                            <span>{subItem.title}</span>
+                                                        <Link
+                                                            href={
+                                                                subItem.href ||
+                                                                '#'
+                                                            }
+                                                            prefetch
+                                                        >
+                                                            {subItem.icon && (
+                                                                <subItem.icon />
+                                                            )}
+                                                            <span>
+                                                                {subItem.title}
+                                                            </span>
                                                         </Link>
                                                     </SidebarMenuSubButton>
                                                 </SidebarMenuSubItem>
@@ -87,7 +111,9 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                         <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton
                                 asChild
-                                isActive={item.href ? isCurrentUrl(item.href) : false}
+                                isActive={
+                                    item.href ? isCurrentUrl(item.href) : false
+                                }
                                 tooltip={{ children: item.title }}
                             >
                                 <Link href={item.href || '#'} prefetch>
