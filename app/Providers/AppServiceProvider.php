@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,7 +28,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-
+        // Share user permissions with all Inertia responses
+        Inertia::share([
+            'userPermissions' => fn () => Auth::check() ? Auth::user()->getPermissionNames() : [],
+        ]);
         Gate::define('manage-rbac', fn(User $user) => $user->hasPermission('manage_roles', 'rbac'));
         Gate::define('add-shipments', fn(User $user) => $user->hasPermission('add', 'shipments'));
         Gate::define('edit-shipments', fn(User $user) => $user->hasPermission('edit', 'shipments'));

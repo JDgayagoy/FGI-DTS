@@ -70,4 +70,21 @@ class User extends Authenticatable
 
         return false;
     }
+
+    /**
+     * Get all permission names for the user.
+     */
+    public function getPermissionNames(): array
+    {
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles.permissions');
+        }
+
+        return $this->roles
+            ->flatMap(fn ($role) => $role->permissions)
+            ->pluck('name')
+            ->unique()
+            ->values()
+            ->toArray();
+    }
 }
