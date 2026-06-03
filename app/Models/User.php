@@ -81,7 +81,7 @@ class User extends Authenticatable
         }
 
         return $this->roles
-            ->flatMap(fn ($role) => $role->permissions)
+            ->flatMap(fn($role) => $role->permissions)
             ->pluck('name')
             ->unique()
             ->values()

@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         // Share user permissions with all Inertia responses
         Inertia::share([
-            'userPermissions' => fn () => Auth::check() ? Auth::user()->getPermissionNames() : [],
+            'userPermissions' => fn() => Auth::check() ? Auth::user()->getPermissionNames() : [],
         ]);
         Gate::define('manage-rbac', fn(User $user) => $user->hasPermission('manage_roles', 'rbac'));
         Gate::define('add-shipments', fn(User $user) => $user->hasPermission('add', 'shipments'));

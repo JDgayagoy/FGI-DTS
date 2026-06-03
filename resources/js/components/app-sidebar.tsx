@@ -72,35 +72,42 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
     const { userPermissions } = usePage().props;
-    const hasPermissionName = (name: string) => userPermissions?.includes(name) ?? false;
+    const hasPermissionName = (name: string) =>
+        userPermissions?.includes(name) ?? false;
 
     const filteredMainItems = mainNavItems.filter((item) => {
-        if (item.title === 'Shipments') return hasPermissionName('view_all_shipments');
-        if (item.title === 'Reports') return hasPermissionName('view_all_shipments');
+        if (item.title === 'Shipments')
+            return hasPermissionName('view_all_shipments');
+        if (item.title === 'Reports')
+            return hasPermissionName('view_all_shipments');
         return true; // Dashboard and others always visible
     });
 
     const managementItems: NavItem[] = [
-        ...(hasPermissionName('manage_users') ? [
-            { title: 'User Management', href: '/users', icon: Users },
-        ] : []),
-        ...(hasPermissionName('manage_roles') ? [
-            { title: 'Role Management', href: '/roles', icon: Shield },
-        ] : []),
-        ...((hasPermissionName('add_brokers') || hasPermissionName('edit_brokers') || hasPermissionName('delete_brokers')) ? [
-            { title: 'Broker Management', href: '/brokers', icon: Truck },
-        ] : []),
+        ...(hasPermissionName('manage_users')
+            ? [{ title: 'User Management', href: '/users', icon: Users }]
+            : []),
+        ...(hasPermissionName('manage_roles')
+            ? [{ title: 'Role Management', href: '/roles', icon: Shield }]
+            : []),
+        ...(hasPermissionName('add_brokers') ||
+        hasPermissionName('edit_brokers') ||
+        hasPermissionName('delete_brokers')
+            ? [{ title: 'Broker Management', href: '/brokers', icon: Truck }]
+            : []),
     ];
 
     const navItems = [
         ...filteredMainItems,
-        ...(managementItems.length > 0 ? [
-            {
-                title: 'Management',
-                icon: BarChart3,
-                items: managementItems,
-            },
-        ] : []),
+        ...(managementItems.length > 0
+            ? [
+                  {
+                      title: 'Management',
+                      icon: BarChart3,
+                      items: managementItems,
+                  },
+              ]
+            : []),
     ];
 
     return (
