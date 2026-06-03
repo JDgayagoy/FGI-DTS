@@ -27,15 +27,15 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        Gate::define('manage-rbac', fn (User $user) => $user->hasPermission('manage_roles', 'rbac'));
-        Gate::define('add-shipments', fn (User $user) => $user->hasPermission('add', 'shipments'));
-        Gate::define('edit-shipments', fn (User $user) => $user->hasPermission('edit', 'shipments'));
-        Gate::define('delete-shipments', fn (User $user) => $user->hasPermission('delete', 'shipments'));
-        Gate::define('create-user', fn (User $user) => $user->hasPermission('manage_users', 'rbac'));
-        Gate::define('view-brokers', fn (User $user) => $user->hasPermission('view', 'brokers'));
-        Gate::define('add-brokers', fn (User $user) => $user->hasPermission('add', 'brokers'));
-        Gate::define('edit-brokers', fn (User $user) => $user->hasPermission('edit', 'brokers'));
-        Gate::define('delete-brokers', fn (User $user) => $user->hasPermission('delete', 'brokers'));
+        Gate::define('manage-rbac', fn(User $user) => $user->hasPermission('manage_roles', 'rbac'));
+        Gate::define('add-shipments', fn(User $user) => $user->hasPermission('add', 'shipments'));
+        Gate::define('edit-shipments', fn(User $user) => $user->hasPermission('edit', 'shipments'));
+        Gate::define('delete-shipments', fn(User $user) => $user->hasPermission('delete', 'shipments'));
+        Gate::define('create-user', fn(User $user) => $user->hasPermission('manage_users', 'rbac'));
+        Gate::define('view-brokers', fn(User $user) => $user->hasPermission('view', 'brokers'));
+        Gate::define('add-brokers', fn(User $user) => $user->hasPermission('add', 'brokers'));
+        Gate::define('edit-brokers', fn(User $user) => $user->hasPermission('edit', 'brokers'));
+        Gate::define('delete-brokers', fn(User $user) => $user->hasPermission('delete', 'brokers'));
     }
 
     /**
@@ -49,14 +49,15 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
+        Password::defaults(
+            fn(): ?Password => app()->isProduction()
+                ? Password::min(12)
                 ->mixedCase()
                 ->letters()
                 ->numbers()
                 ->symbols()
                 ->uncompromised()
-            : null,
+                : null,
         );
     }
 }

@@ -32,11 +32,19 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // 2. Create Roles
+        $superAdmin = Role::firstOrCreate(['role_name' => 'Super Admin']);
         $logisAssoc = Role::firstOrCreate(['role_name' => 'Logis Assoc']);
         $brandManager = Role::firstOrCreate(['role_name' => 'Brand manager']);
         $supplyChainManager = Role::firstOrCreate(['role_name' => 'Supply chain manager']);
 
         // 3. Assign Permissions to Roles
+        // Super Admin: User and Role management only
+        $superAdminPermissionIds = Permission::whereIn('name', [
+            'manage_users',
+            'manage_roles'
+        ])->pluck('permission_id')->toArray();
+        $superAdmin->permissions()->sync($superAdminPermissionIds);
+
         // Supply Chain Manager: All permissions except RBAC (manage users/roles)
         $scmPermissionIds = Permission::whereIn('name', [
             'view_all_shipments',
