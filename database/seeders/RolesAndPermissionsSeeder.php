@@ -37,19 +37,36 @@ class RolesAndPermissionsSeeder extends Seeder
         $supplyChainManager = Role::firstOrCreate(['role_name' => 'Supply chain manager']);
 
         // 3. Assign Permissions to Roles
-        // Supply Chain Manager: All permissions
-        $allPermissionIds = Permission::pluck('permission_id')->toArray();
-        $supplyChainManager->permissions()->sync($allPermissionIds);
+        // Supply Chain Manager: All permissions except RBAC (manage users/roles)
+        $scmPermissionIds = Permission::whereIn('name', [
+            'view_all_shipments',
+            'add_shipments',
+            'edit_shipments',
+            'delete_shipments',
+            'view_all_brokers',
+            'add_brokers',
+            'edit_brokers',
+            'delete_brokers'
+        ])->pluck('permission_id')->toArray();
+        $supplyChainManager->permissions()->sync($scmPermissionIds);
 
         // Logis Assoc: All shipment permissions + view brokers
-        $shipmentPermissionIds = Permission::where('resource', 'shipments')
-            ->orWhere('name', 'view_all_brokers')
-            ->pluck('permission_id')->toArray();
+        $shipmentPermissionIds = Permission::whereIn('name', [
+            'view_all_shipments',
+            'add_shipments',
+            'edit_shipments',
+            'delete_shipments',
+            'view_all_brokers'
+        ])->pluck('permission_id')->toArray();
         $logisAssoc->permissions()->sync($shipmentPermissionIds);
 
         // Brand Manager: add, view, edit shipments (no delete) + view brokers
-        $brandPermissionIds = Permission::whereIn('name', ['view_all_shipments', 'add_shipments', 'edit_shipments', 'view_all_brokers'])
-            ->pluck('permission_id')->toArray();
+        $brandPermissionIds = Permission::whereIn('name', [
+            'view_all_shipments',
+            'add_shipments',
+            'edit_shipments',
+            'view_all_brokers'
+        ])->pluck('permission_id')->toArray();
         $brandManager->permissions()->sync($brandPermissionIds);
     }
 }

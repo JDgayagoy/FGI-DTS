@@ -11,7 +11,7 @@ class BrokerController extends Controller
 {
     public function index()
     {
-        Gate::authorize('manage-brokers');
+        Gate::authorize('view-brokers');
 
         $brokers = Broker::all();
 
@@ -22,7 +22,7 @@ class BrokerController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('manage-brokers');
+        Gate::authorize('add-brokers');
 
         $validated = $request->validate([
             'broker_name' => 'required|string|max:255|unique:brokers,broker_name',
@@ -39,7 +39,7 @@ class BrokerController extends Controller
 
     public function update(Request $request, Broker $broker)
     {
-        Gate::authorize('manage-brokers');
+        Gate::authorize('edit-brokers');
 
         $validated = $request->validate([
             'broker_name' => 'required|string|max:255|unique:brokers,broker_name,'.$broker->broker_id.',broker_id',
@@ -56,7 +56,7 @@ class BrokerController extends Controller
 
     public function destroy(Broker $broker)
     {
-        Gate::authorize('manage-brokers');
+        Gate::authorize('delete-brokers');
 
         if ($broker->shipments()->exists()) {
             $broker->update(['is_active' => false]);
