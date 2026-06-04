@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,12 +28,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-
-        Gate::define('manage-rbac', fn (User $user) => $user->hasPermission('manage_roles', 'rbac'));
-        Gate::define('add-shipments', fn (User $user) => $user->hasPermission('add', 'shipments'));
-        Gate::define('edit-shipments', fn (User $user) => $user->hasPermission('edit', 'shipments'));
-        Gate::define('delete-shipments', fn (User $user) => $user->hasPermission('delete', 'shipments'));
-        Gate::define('create-user', fn (User $user) => $user->hasPermission('manage_users', 'rbac'));
+        // Share user permissions with all Inertia responses
+        Inertia::share([
+            'userPermissions' => fn() => Auth::check() ? Auth::user()->getPermissionNames() : [],
+        ]);
+        Gate::define('manage-rbac', fn(User $user) => $user->hasPermission('manage_roles', 'rbac'));
+        Gate::define('add-shipments', fn(User $user) => $user->hasPermission('add', 'shipments'));
+        Gate::define('edit-shipments', fn(User $user) => $user->hasPermission('edit', 'shipments'));
+        Gate::define('delete-shipments', fn(User $user) => $user->hasPermission('delete', 'shipments'));
+        Gate::define('create-user', fn(User $user) => $user->hasPermission('manage_users', 'rbac'));
+        Gate::define('view-brokers', fn(User $user) => $user->hasPermission('view', 'brokers'));
+        Gate::define('add-brokers', fn(User $user) => $user->hasPermission('add', 'brokers'));
+        Gate::define('edit-brokers', fn(User $user) => $user->hasPermission('edit', 'brokers'));
+        Gate::define('delete-brokers', fn(User $user) => $user->hasPermission('delete', 'brokers'));
     }
 
     /**
@@ -45,14 +54,15 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
+        Password::defaults(
+            fn(): ?Password => app()->isProduction()
+                ? Password::min(12)
                 ->mixedCase()
                 ->letters()
                 ->numbers()
                 ->symbols()
                 ->uncompromised()
-            : null,
+                : null,
         );
     }
 }

@@ -1,5 +1,17 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Ship, BarChart3, List, HelpCircle, Package, Users, Shield } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    LayoutGrid,
+    Ship,
+    BarChart3,
+    List,
+    HelpCircle,
+    Package,
+    Users,
+    Shield,
+    Truck,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
-import { usePermissions } from '@/hooks/use-permissions';
+import { usePage } from '@inertiajs/react';
 
 const mainNavItems: NavItem[] = [
     {
@@ -59,7 +71,44 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-    const { hasPermission } = usePermissions();
+    const { userPermissions } = usePage().props;
+    const hasPermissionName = (name: string) =>
+        userPermissions?.includes(name) ?? false;
+
+    const filteredMainItems = mainNavItems.filter((item) => {
+        if (item.title === 'Shipments')
+            return hasPermissionName('view_all_shipments');
+        if (item.title === 'Reports')
+            return hasPermissionName('view_all_shipments');
+        return true; // Dashboard and others always visible
+    });
+
+    const managementItems: NavItem[] = [
+        ...(hasPermissionName('manage_users')
+            ? [{ title: 'User Management', href: '/users', icon: Users }]
+            : []),
+        ...(hasPermissionName('manage_roles')
+            ? [{ title: 'Role Management', href: '/roles', icon: Shield }]
+            : []),
+        ...(hasPermissionName('add_brokers') ||
+        hasPermissionName('edit_brokers') ||
+        hasPermissionName('delete_brokers')
+            ? [{ title: 'Broker Management', href: '/brokers', icon: Truck }]
+            : []),
+    ];
+
+    const navItems = [
+        ...filteredMainItems,
+        ...(managementItems.length > 0
+            ? [
+                  {
+                      title: 'Management',
+                      icon: BarChart3,
+                      items: managementItems,
+                  },
+              ]
+            : []),
+    ];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -76,13 +125,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={[
-                    ...mainNavItems,
-                    ...(hasPermission('manage_users') ? [
-                        { title: 'User Management', href: '/users', icon: Users },
-                        { title: 'Role Management', href: '/roles', icon: Shield }
-                    ] : [])
-                ]} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>

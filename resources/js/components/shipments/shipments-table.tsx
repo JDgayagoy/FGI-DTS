@@ -197,7 +197,7 @@ export const ShipmentsTable = ({
                                             {formatDate(s.actual_time_of_arrival)}
                                         </td>
                                         <td className="px-4 py-3 text-xs">
-                                            <Highlight text={s.broker} query={searchQuery} />
+                                            <Highlight text={s.broker?.broker_name ?? ''} query={searchQuery} />
                                         </td>
                                         <td className="px-4 py-3 text-xs">
                                             <Highlight text={s.brand_manager} query={searchQuery} />

@@ -1,15 +1,17 @@
 import { BRAND_MANAGERS, emptyForm } from '@/pages/shipments/constants';
-import { type ShipmentType } from '@/pages/shipments/types';
+import { type Broker, type ShipmentType } from '@/pages/shipments/types';
 import { IncotermSelect } from './incoterm-select';
 
 export const ShipmentFormFields = ({
     form,
     setForm,
     shipmentTypes,
+    brokers,
 }: {
     form: typeof emptyForm;
     setForm: (f: typeof emptyForm) => void;
     shipmentTypes: ShipmentType[];
+    brokers: Broker[];
 }) => (
     <div className="grid grid-cols-2 gap-4 px-5 py-4">
         <div className="flex flex-col gap-1">
@@ -57,13 +59,18 @@ export const ShipmentFormFields = ({
         </div>
         <div className="flex flex-col gap-1">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Broker</label>
-            <input
-                type="text"
-                value={form.broker}
-                onChange={(e) => setForm({ ...form, broker: e.target.value })}
+            <select
+                value={form.broker_id}
+                onChange={(e) => setForm({ ...form, broker_id: e.target.value })}
                 className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. Grab Philippines"
-            />
+            >
+                <option value="">Select broker</option>
+                {brokers.map((b) => (
+                    <option key={b.broker_id} value={b.broker_id}>
+                        {b.broker_name}
+                    </option>
+                ))}
+            </select>
         </div>
         <div className="flex flex-col gap-1">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-400">

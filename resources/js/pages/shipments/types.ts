@@ -44,13 +44,23 @@ export interface ShipmentType {
     shipment_type_name: string;
 }
 
+export interface Broker {
+    broker_id: number;
+    broker_name: string;
+    contact_person: string | null;
+    email: string | null;
+    phone: string | null;
+    is_active: boolean;
+}
+
 export interface Shipment {
     shipment_id: number;
     shipment_reference: string;
     brand: string;
     incoterm: string;
     actual_time_of_arrival: string | null;
-    broker: string;
+    broker_id: number | null;
+    broker: Broker | null;
     brand_manager: string;
     created_at: string | null;
     archived_at: string | null;
@@ -62,4 +72,5 @@ export interface Shipment {
 export interface Props {
     shipments: Shipment[];
     shipmentTypes: ShipmentType[];
+    brokers: Broker[];
 }

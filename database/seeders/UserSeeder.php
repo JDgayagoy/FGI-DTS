@@ -17,8 +17,14 @@ class UserSeeder extends Seeder
         // 1. Define initial users
         $users = [
             [
+                'name' => 'Super Admin',
+                'email' => 'superadmin@example.com',
+                'password' => Hash::make('password'),
+                'role' => 'Super Admin',
+            ],
+            [
                 'name' => 'Supply Chain Admin',
-                'email' => 'admin@example.com',
+                'email' => 'supply@example.com',
                 'password' => Hash::make('password'),
                 'role' => 'Supply chain manager',
             ],
