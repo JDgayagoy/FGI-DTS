@@ -36,6 +36,16 @@ class Shipment extends Model
         'archived_at' => 'datetime',
     ];
 
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
     public function status()
     {
         return $this->belongsTo(ShipmentStatusList::class, 'status_id', 'status_id');
