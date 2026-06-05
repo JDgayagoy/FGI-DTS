@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Broker;
+use App\Models\DocumentStatus;
 use App\Models\Shipment;
 use App\Models\ShipmentDocument;
-use App\Models\DocumentStatus;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ReportsController extends Controller
 {
@@ -16,28 +17,28 @@ class ReportsController extends Controller
         $brand = $request->input('brand');
         $brandManager = $request->input('brand_manager');
         $serviceType = $request->input('service_type');
+        $brokerId = $request->input('broker_id');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
 
-        // ── Base shipment query with filters ──────────────────────────────
-        $shipments = Shipment::query()
-            ->with(['status', 'shipmentType', 'documents.currentStatus.status'])
-            ->when($brand, fn($q) => $q->where('brand', $brand))
-            ->when($brandManager, fn($q) => $q->where('brand_manager', $brandManager))
-            ->when($serviceType, fn($q) => $q->whereHas('shipmentType', fn($q2) => $q2->where('shipment_type_name', $serviceType)))
-            ->when($dateFrom, fn($q) => $q->where('actual_time_of_arrival', '>=', $dateFrom))
-            ->when($dateTo, fn($q) => $q->where('actual_time_of_arrival', '<=', $dateTo))
-            ->get();
+        $applyShipmentFilters = fn ($query) => $query
+            ->when($brand, fn ($q) => $q->where('brand', $brand))
+            ->when($brandManager, fn ($q) => $q->where('brand_manager', $brandManager))
+            ->when($serviceType, fn ($q) => $q->whereHas('shipmentType', fn ($q2) => $q2->where('shipment_type_name', $serviceType)))
+            ->when($brokerId, fn ($q) => $q->where('broker_id', $brokerId))
+            ->when($dateFrom, fn ($q) => $q->whereDate('actual_time_of_arrival', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('actual_time_of_arrival', '<=', $dateTo));
 
-        // ── Shipment Metrics ──────────────────────────────────────────────
+        $shipments = $applyShipmentFilters(
+            Shipment::query()->with(['status', 'shipmentType', 'documents.currentStatus.status'])
+        )->get();
+
         $totalShipments = $shipments->count();
-        $completedShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Completed')->count();
-        $pendingShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Pending')->count();
-        $processingShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Processing')->count();
-        $failedShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Failed')->count();
+        $completedShipments = $shipments->filter(fn ($s) => $s->status?->status_name === 'Completed')->count();
+        $pendingShipments = $shipments->filter(fn ($s) => $s->status?->status_name === 'Pending')->count();
+        $processingShipments = $shipments->filter(fn ($s) => $s->status?->status_name === 'Processing')->count();
+        $failedShipments = $shipments->filter(fn ($s) => $s->status?->status_name === 'Failed')->count();
 
-        // ── Document Metrics ──────────────────────────────────────────────
-        // ── Document Metrics ──────────────────────────────────────────────
         $allDocIds = $shipments->pluck('shipment_id');
 
         $allShipmentDocIds = ShipmentDocument::whereIn('shipment_id', $allDocIds)
@@ -64,47 +65,52 @@ class ReportsController extends Controller
             ->count('shipment_doc_id');
 
         $docsWithNoStatus = $totalDocs - $docsWithAnyStatus;
-
         $pendingDocs = $explicitPendingDocs + $docsWithNoStatus;
 
         $completionRate = $totalDocs > 0
             ? round(($approvedDocs / $totalDocs) * 100)
             : 0;
-        // ── Complete vs Incomplete by Month ───────────────────────────────
-        $completeVsIncomplete = Shipment::query()
+
+        $completeVsIncomplete = $applyShipmentFilters(Shipment::query())
             ->selectRaw("DATE_FORMAT(actual_time_of_arrival, '%b') as month,
                          MONTH(actual_time_of_arrival) as month_num,
                          SUM(CASE WHEN status_id = (SELECT status_id FROM shipment_status_list WHERE status_name = 'Completed') THEN 1 ELSE 0 END) as completed,
                          SUM(CASE WHEN status_id != (SELECT status_id FROM shipment_status_list WHERE status_name = 'Completed') THEN 1 ELSE 0 END) as incomplete")
             ->whereNotNull('actual_time_of_arrival')
             ->groupByRaw("MONTH(actual_time_of_arrival), DATE_FORMAT(actual_time_of_arrival, '%b')")
-            ->orderByRaw("MONTH(actual_time_of_arrival)")
+            ->orderByRaw('MONTH(actual_time_of_arrival)')
             ->get()
-            ->map(fn($r) => [
+            ->map(fn ($r) => [
                 'month' => $r->month,
                 'completed' => (int) $r->completed,
                 'incomplete' => (int) $r->incomplete,
             ]);
 
-        // ── Completeness Rate over Time ───────────────────────────────────
-        $completenessOverTime = Shipment::query()
+        $completenessOverTime = $applyShipmentFilters(Shipment::query())
             ->selectRaw("DATE_FORMAT(actual_time_of_arrival, '%b') as month,
                          MONTH(actual_time_of_arrival) as month_num,
                          COUNT(*) as total_shipments")
             ->whereNotNull('actual_time_of_arrival')
             ->groupByRaw("MONTH(actual_time_of_arrival), DATE_FORMAT(actual_time_of_arrival, '%b')")
-            ->orderByRaw("MONTH(actual_time_of_arrival)")
+            ->orderByRaw('MONTH(actual_time_of_arrival)')
             ->get()
-            ->map(fn($r) => [
+            ->map(fn ($r) => [
                 'month' => $r->month,
                 'shipments' => (int) $r->total_shipments,
                 'documents' => (int) $r->total_shipments * 11,
             ]);
 
-        // ── Filter options ────────────────────────────────────────────────
         $brands = Shipment::distinct()->pluck('brand')->sort()->values();
         $brandManagers = Shipment::distinct()->pluck('brand_manager')->sort()->values();
         $serviceTypes = DB::table('shipment_types')->pluck('shipment_type_name')->sort()->values();
+        $brokers = Broker::where('is_active', true)
+            ->orderBy('broker_name')
+            ->get(['broker_id', 'broker_name'])
+            ->map(fn ($broker) => [
+                'id' => (string) $broker->broker_id,
+                'name' => $broker->broker_name,
+            ])
+            ->values();
 
         return Inertia::render('reports/index', [
             'metrics' => [
@@ -132,11 +138,13 @@ class ReportsController extends Controller
                 'brands' => $brands,
                 'brandManagers' => $brandManagers,
                 'serviceTypes' => $serviceTypes,
+                'brokers' => $brokers,
             ],
             'activeFilters' => [
                 'brand' => $brand,
                 'brandManager' => $brandManager,
                 'serviceType' => $serviceType,
+                'brokerId' => $brokerId,
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,
             ],

@@ -29,12 +29,17 @@ export interface FilterOptions {
     brands: string[];
     brandManagers: string[];
     serviceTypes: string[];
+    brokers: {
+        id: string;
+        name: string;
+    }[];
 }
 
 export interface ActiveFilters {
     brand: string | null;
     brandManager: string | null;
     serviceType: string | null;
+    brokerId: string | null;
     dateFrom: string | null;
     dateTo: string | null;
 }
