@@ -6,6 +6,7 @@ import { StatusIcon } from '@/components/shipments/status-icon';
 interface Shipment {
     date: string;
     ref: string;
+    broker: string;
     incoterm: string;
     status: 'completed' | 'pending' | 'warning' | 'error';
     docs: Record<string, string>;
@@ -86,6 +87,7 @@ export function ShipmentsTable({
                         <tr className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/20">
                             <th className="px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">ATA</th>
                             <th className="px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">SR#</th>
+                            <th className="px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Broker</th>
                             <th className="px-6 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Incoterm</th>
                             {columns.map((col) => (
                                 <th key={col.key} className="px-2 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">{col.label}</th>
@@ -101,6 +103,7 @@ export function ShipmentsTable({
                                     {new Date(shipment.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}
                                 </td>
                                 <td className="px-6 py-3 text-xs font-black tracking-tighter text-blue-900 dark:text-blue-300">{shipment.ref}</td>
+                                <td className="px-6 py-3 text-[11px] font-bold text-slate-500">{shipment.broker}</td>
                                 <td className="px-6 py-3 text-[11px] font-bold text-slate-500">{shipment.incoterm}</td>
                                 {columns.map((col) => (
                                     <td key={col.key} className="px-2 py-3">
