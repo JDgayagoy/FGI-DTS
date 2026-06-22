@@ -17,20 +17,38 @@ use Inertia\Inertia;
 
 class ShipmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $archiveFilter = $request->query('archive', 'active');
+
+        if (! in_array($archiveFilter, ['active', 'archived', 'all'], true)) {
+            $archiveFilter = 'active';
+        }
+
         $shipments = Shipment::with([
             'status',
             'shipmentType',
             'broker',
             'documents.customDoc',
             'documents.currentStatus.status',
-        ])->get();
+        ])
+            ->when($archiveFilter === 'active', fn ($query) => $query->active())
+            ->when($archiveFilter === 'archived', fn ($query) => $query->archived())
+            ->latest()
+            ->get();
 
         return Inertia::render('shipments/index', [
             'shipments' => $shipments,
             'shipmentTypes' => ShipmentType::all(),
             'brokers' => Broker::where('is_active', true)->get(),
+            'filters' => [
+                'archive' => $archiveFilter,
+            ],
+            'archiveCounts' => [
+                'active' => Shipment::active()->count(),
+                'archived' => Shipment::archived()->count(),
+                'all' => Shipment::count(),
+            ],
         ]);
     }
 
@@ -181,6 +199,6 @@ class ShipmentController extends Controller
 
         $shipment->update(['archived_at' => now()]);
 
-        return redirect()->route('shipments.index');
+        return back();
     }
 }

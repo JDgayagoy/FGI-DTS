@@ -95,6 +95,7 @@ class DashboardController extends Controller
                 'shipment_id' => $shipment->shipment_id,
                 'ref' => $shipment->shipment_reference,
                 'date' => $shipment->actual_time_of_arrival,
+                'broker' => $shipment->broker?->broker_name ?? 'N/A',
                 'incoterm' => $shipment->incoterm,
                 'status' => $status,
                 'docs' => $docs,

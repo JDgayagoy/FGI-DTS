@@ -73,4 +73,12 @@ export interface Props {
     shipments: Shipment[];
     shipmentTypes: ShipmentType[];
     brokers: Broker[];
+    filters: {
+        archive: 'active' | 'archived' | 'all';
+    };
+    archiveCounts: {
+        active: number;
+        archived: number;
+        all: number;
+    };
 }
