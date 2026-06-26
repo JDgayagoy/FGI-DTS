@@ -70,7 +70,7 @@ export const ShipmentsTable = ({
     setArchivingShipment,
     setActiveDocPanel,
     setSelectedDocId,
-    brokers,
+    brokers = [],
     currentFilter,
     onFilterChange,
 }: ShipmentsTableProps) => {
