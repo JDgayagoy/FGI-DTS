@@ -42,6 +42,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('shipments/{shipment}/archive', [ShipmentController::class, 'archive'])
         ->name('shipments.archive');
 
+    Route::patch('shipments/{shipment}/restore', [ShipmentController::class, 'restore'])
+        ->name('shipments.restore');
+
     // Resource route LAST
     Route::resource('shipments', ShipmentController::class)->parameters([
         'shipments' => 'shipment:shipment_id',

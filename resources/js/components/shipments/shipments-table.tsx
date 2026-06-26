@@ -26,6 +26,7 @@ interface ShipmentsTableProps {
     brokers: Broker[];
     currentFilter: string;
     onFilterChange: (value: string) => void;
+    onRestore: (shipment: Shipment) => void;
 }
 
 const SortableHeader = ({
@@ -73,6 +74,7 @@ export const ShipmentsTable = ({
     brokers = [],
     currentFilter,
     onFilterChange,
+    onRestore,
 }: ShipmentsTableProps) => {
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const { hasPermission } = usePermissions();
@@ -374,22 +376,23 @@ export const ShipmentsTable = ({
                                                 {hasPermission(
                                                     'delete_shipments',
                                                 ) && (
-                                                    <button
-                                                        onClick={() =>
-                                                            setArchivingShipment(
-                                                                s,
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !!s.archived_at
-                                                        }
-                                                        className="rounded-lg border border-orange-200 px-2 py-1 text-[10px] font-bold text-orange-600 hover:bg-orange-50 disabled:opacity-40 dark:border-orange-800/40"
-                                                    >
-                                                        <Archive className="mr-1 inline h-3 w-3" />
-                                                        {s.archived_at
-                                                            ? 'Archived'
-                                                            : 'Archive'}
-                                                    </button>
+                                                    s.archived_at ? (
+                                                        <button
+                                                            onClick={() => onRestore(s)}
+                                                            className="rounded-lg border border-green-200 px-2 py-1 text-[10px] font-bold text-green-600 hover:bg-green-50 dark:border-green-800/40"
+                                                        >
+                                                            <Archive className="mr-1 inline h-3 w-3" />
+                                                            Restore
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setArchivingShipment(s)}
+                                                            className="rounded-lg border border-orange-200 px-2 py-1 text-[10px] font-bold text-orange-600 hover:bg-orange-50 dark:border-orange-800/40"
+                                                        >
+                                                            <Archive className="mr-1 inline h-3 w-3" />
+                                                            Archive
+                                                        </button>
+                                                    )
                                                 )}
                                             </div>
                                         </td>

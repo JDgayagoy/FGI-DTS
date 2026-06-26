@@ -265,6 +265,13 @@ export default function Shipments({
                     brokers={brokers}
                     currentFilter={currentFilter}
                     onFilterChange={handleFilterChange}
+                    onRestore={(shipment) =>
+                        router.patch(
+                            `/shipments/${shipment.shipment_id}/restore`,
+                            undefined,
+                            { preserveScroll: true },
+                        )
+                    }
                 />
             </div>
 
