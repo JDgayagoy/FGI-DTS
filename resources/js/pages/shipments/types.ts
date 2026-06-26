@@ -75,6 +75,7 @@ export interface Props {
     brokers: Broker[];
     filters: {
         archive: 'active' | 'archived' | 'all';
+        broker_id: string | null;
     };
     archiveCounts: {
         active: number;
