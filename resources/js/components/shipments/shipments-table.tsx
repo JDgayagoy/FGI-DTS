@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { usePermissions } from '@/hooks/use-permissions';
 import { cn } from '@/lib/utils';
 import { formatDate, incotermName } from '@/pages/shipments/helpers';
-import type { Shipment } from '@/pages/shipments/types';
+import type { Broker, Shipment } from '@/pages/shipments/types';
 import { Highlight } from './highlight';
 import { StatusIcon } from './status-icon';
 
@@ -23,13 +23,9 @@ interface ShipmentsTableProps {
     setArchivingShipment: (shipment: Shipment) => void;
     setActiveDocPanel: (index: number) => void;
     setSelectedDocId: (id: null) => void;
-    archiveFilter: 'active' | 'archived' | 'all';
-    archiveCounts: {
-        active: number;
-        archived: number;
-        all: number;
-    };
-    setArchiveFilter: (filter: 'active' | 'archived' | 'all') => void;
+    brokers: Broker[];
+    currentFilter: string;
+    onFilterChange: (value: string) => void;
 }
 
 const SortableHeader = ({
@@ -63,12 +59,6 @@ const TABS = [
     { label: 'Failed', filter: 'Failed' },
 ];
 
-const ARCHIVE_FILTERS = [
-    { label: 'Active', value: 'active' },
-    { label: 'Archived', value: 'archived' },
-    { label: 'All', value: 'all' },
-] as const;
-
 export const ShipmentsTable = ({
     shipments,
     filteredShipments,
@@ -80,9 +70,9 @@ export const ShipmentsTable = ({
     setArchivingShipment,
     setActiveDocPanel,
     setSelectedDocId,
-    archiveFilter,
-    archiveCounts,
-    setArchiveFilter,
+    brokers,
+    currentFilter,
+    onFilterChange,
 }: ShipmentsTableProps) => {
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const { hasPermission } = usePermissions();
@@ -135,38 +125,26 @@ export const ShipmentsTable = ({
                     })}
                 </div>
                 <div className="mb-1 flex flex-wrap items-center justify-end gap-2">
-                    <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-800 dark:bg-slate-950/40">
-                        {ARCHIVE_FILTERS.map((filter) => {
-                            const isActive = archiveFilter === filter.value;
-
-                            return (
-                                <button
-                                    key={filter.value}
-                                    onClick={() =>
-                                        setArchiveFilter(filter.value)
-                                    }
-                                    className={cn(
-                                        'flex h-8 items-center gap-1.5 rounded-md px-3 text-[10px] font-black tracking-wider uppercase transition-colors',
-                                        isActive
-                                            ? 'bg-white text-blue-600 shadow-sm dark:bg-slate-800 dark:text-blue-400'
-                                            : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200',
-                                    )}
-                                >
-                                    {filter.label}
-                                    <span
-                                        className={cn(
-                                            'rounded-full px-1.5 py-0.5 text-[9px]',
-                                            isActive
-                                                ? 'bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300'
-                                                : 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
-                                        )}
-                                    >
-                                        {archiveCounts[filter.value]}
-                                    </span>
-                                </button>
-                            );
-                        })}
-                    </div>
+                    <select
+                        value={currentFilter}
+                        onChange={(e) => onFilterChange(e.target.value)}
+                        className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300"
+                    >
+                        <option value="">Active (Default)</option>
+                        <optgroup label="Visibility">
+                            <option value="archived">Archived</option>
+                            <option value="all">All</option>
+                        </optgroup>
+                        {brokers.length > 0 && (
+                            <optgroup label="Brokers">
+                                {brokers.map((b) => (
+                                    <option key={b.broker_id} value={`broker:${b.broker_id}`}>
+                                        {b.broker_name}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        )}
+                    </select>
                     <div className="relative">
                         <Search className="absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-slate-400" />
                         <input
