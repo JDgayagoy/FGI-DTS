@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import {
     Search, Download, Ship, FileText, X, Printer,
 } from 'lucide-react';
@@ -42,14 +42,24 @@ interface ShipmentRow {
     shipment_id: number;
     ref: string;
     date: string;
+    broker: string;
     incoterm: string;
     status: 'completed' | 'warning' | 'pending' | 'error';
     docs: Record<string, DocInfo>;
 }
 
+interface BrokerOption {
+    broker_id: number;
+    broker_name: string;
+}
+
 interface Props {
     metrics: Metrics;
     shipmentRows: ShipmentRow[];
+    brokers: BrokerOption[];
+    activeFilters: {
+        brokerId: string | null;
+    };
 }
 
 const columns = [
@@ -66,7 +76,7 @@ const columns = [
     { key: 'DH', label: 'DH' },
 ];
 
-export default function Dashboard({ metrics, shipmentRows }: Props) {
+export default function Dashboard({ metrics, shipmentRows, brokers, activeFilters }: Props) {
     const [activeTab, setActiveTab] = useState('All tasks');
     const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date } | undefined>();
     const [searchQuery, setSearchQuery] = useState('');
@@ -76,6 +86,15 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
     const itemsPerPage = 20;
 
     useEffect(() => { setCurrentPage(1); }, [activeTab, dateRange, searchQuery]);
+
+    const handleBrokerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        router.get(
+            '/dashboard',
+            value ? { broker_id: value } : {},
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
+    };
 
     useEffect(() => {
         if (activeShipmentIndex !== null) {
@@ -156,6 +175,18 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
                             />
                         </div>
                         <DatePickerWithRange onRangeChange={setDateRange} />
+                        <select
+                            value={activeFilters.brokerId ?? ''}
+                            onChange={handleBrokerChange}
+                            className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300"
+                        >
+                            <option value="">All Brokers</option>
+                            {brokers.map((b) => (
+                                <option key={b.broker_id} value={String(b.broker_id)}>
+                                    {b.broker_name}
+                                </option>
+                            ))}
+                        </select>
                         <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200 dark:border-slate-800 rounded-lg gap-2 px-3 bg-white dark:bg-slate-900/50">
                             <Download className="size-3.5" /> Export
                         </Button>

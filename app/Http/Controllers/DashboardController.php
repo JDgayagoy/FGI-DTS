@@ -22,13 +22,12 @@ class DashboardController extends Controller
             'documents.customDoc',
             'documents.currentStatus.status',
         ])
+            ->active()
             ->when($brokerId, fn ($query) => $query->where('broker_id', $brokerId))
             ->get();
 
-        // --- All existing metric calculations remain unchanged from here ---
         $totalShipments = $shipments->count();
-        $archivedShipments = $shipments->filter(fn($s) => $s->archived_at !== null)->count();
-        $activeShipments = $totalShipments - $archivedShipments;
+        $activeShipments = $totalShipments;
 
         $completedShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Completed')->count();
         $pendingShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Pending')->count();
@@ -113,7 +112,7 @@ class DashboardController extends Controller
             'metrics' => [
                 'totalShipments' => $totalShipments,
                 'activeShipments' => $activeShipments,
-                'archivedShipments' => $archivedShipments,
+                'archivedShipments' => 0,
                 'completedShipments' => $completedShipments,
                 'pendingShipments' => $pendingShipments,
                 'processingShipments' => $processingShipments,
