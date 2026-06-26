@@ -1,4 +1,28 @@
 import { Head, router } from '@inertiajs/react';
+
+const DOC_KEYS = ['SH', 'SSDT', 'FAN', 'TAN', 'SAD', 'BL', 'FE', 'IV', 'PL', 'CI', 'DH'];
+
+function exportDashboardCSV(shipments: { ref: string; date: string; broker: string; incoterm: string; status: string; docs: Record<string, string> }[]) {
+    const headers = ['Reference', 'Date', 'Broker', 'Incoterm', 'Status', ...DOC_KEYS];
+    const rows = shipments.map(s => [
+        s.ref,
+        s.date ?? '',
+        s.broker,
+        s.incoterm,
+        s.status,
+        ...DOC_KEYS.map(k => s.docs[k] ?? 'missing'),
+    ]);
+    const csv = [headers, ...rows]
+        .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `dashboard-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
 import {
     Search, Download, Ship, FileText, X, Printer,
 } from 'lucide-react';
@@ -187,7 +211,7 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
                                 </option>
                             ))}
                         </select>
-                        <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200 dark:border-slate-800 rounded-lg gap-2 px-3 bg-white dark:bg-slate-900/50">
+                        <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200 dark:border-slate-800 rounded-lg gap-2 px-3 bg-white dark:bg-slate-900/50" onClick={() => exportDashboardCSV(filteredForTable)}>
                             <Download className="size-3.5" /> Export
                         </Button>
                     </div>

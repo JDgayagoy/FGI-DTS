@@ -11,8 +11,35 @@ import { usePermissions } from '@/hooks/use-permissions';
 
 import AppLayout from '@/layouts/app-layout';
 import { breadcrumbs, emptyForm } from './constants';
-import { toDatetimeLocal, incotermName } from './helpers';
+import { toDatetimeLocal, incotermName, formatDate } from './helpers';
 import type { Props, Shipment } from './types';
+
+function exportToCSV(shipments: Shipment[]) {
+    const headers = ['SR#', 'Brand', 'Service Type', 'Incoterm', 'ATA', 'Broker', 'Brand Manager', 'Status', 'Created At', 'Archived At', 'Docs Approved/Total'];
+    const rows = shipments.map(s => [
+        s.shipment_reference,
+        s.brand,
+        s.shipment_type.shipment_type_name,
+        incotermName(s.incoterm),
+        formatDate(s.actual_time_of_arrival),
+        s.broker?.broker_name ?? '',
+        s.brand_manager,
+        s.status.status_name,
+        formatDate(s.created_at),
+        formatDate(s.archived_at),
+        `${s.documents.filter(d => d.current_status?.status?.status_name === 'Approved').length}/${s.documents.length}`,
+    ]);
+    const csv = [headers, ...rows]
+        .map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `shipments-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
 
 export default function Shipments({
     shipments,
@@ -237,6 +264,7 @@ export default function Shipments({
                             variant="outline"
                             size="sm"
                             className="h-8 gap-2 text-[10px] font-bold"
+                            onClick={() => exportToCSV(filteredShipments)}
                         >
                             <Download className="size-3.5" /> Export
                         </Button>
