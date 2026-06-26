@@ -19,7 +19,6 @@ export default function Shipments({
     shipmentTypes,
     brokers,
     filters,
-    archiveCounts,
 }: Props) {
     const [activeDocPanel, setActiveDocPanel] = useState<number | null>(null);
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
@@ -194,17 +193,25 @@ export default function Shipments({
         );
     };
 
-    const handleArchiveFilterChange = (
-        archive: Props['filters']['archive'],
-    ) => {
+    const handleFilterChange = (value: string) => {
         setActiveDocPanel(null);
         setSelectedDocId(null);
-        router.get('/shipments', archive === 'active' ? {} : { archive }, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-        });
+
+        if (value === '') {
+            router.get('/shipments', {}, { preserveState: true, preserveScroll: true, replace: true });
+        } else if (value === 'archived' || value === 'all') {
+            router.get('/shipments', { archive: value }, { preserveState: true, preserveScroll: true, replace: true });
+        } else if (value.startsWith('broker:')) {
+            const brokerId = value.replace('broker:', '');
+            router.get('/shipments', { broker_id: brokerId }, { preserveState: true, preserveScroll: true, replace: true });
+        }
     };
+
+    const currentFilter = filters.broker_id
+        ? `broker:${filters.broker_id}`
+        : filters.archive === 'active'
+        ? ''
+        : filters.archive;
 
     const closePanel = () => {
         setActiveDocPanel(null);
@@ -255,9 +262,9 @@ export default function Shipments({
                     setArchivingShipment={setArchivingShipment}
                     setActiveDocPanel={setActiveDocPanel}
                     setSelectedDocId={setSelectedDocId}
-                    archiveFilter={filters.archive}
-                    archiveCounts={archiveCounts}
-                    setArchiveFilter={handleArchiveFilterChange}
+                    brokers={brokers}
+                    currentFilter={currentFilter}
+                    onFilterChange={handleFilterChange}
                 />
             </div>
 
