@@ -25,6 +25,8 @@ class ShipmentController extends Controller
             $archiveFilter = 'active';
         }
 
+        $brokerId = $request->query('broker_id');
+
         $shipments = Shipment::with([
             'status',
             'shipmentType',
@@ -34,6 +36,7 @@ class ShipmentController extends Controller
         ])
             ->when($archiveFilter === 'active', fn ($query) => $query->active())
             ->when($archiveFilter === 'archived', fn ($query) => $query->archived())
+            ->when($brokerId, fn ($query) => $query->where('broker_id', $brokerId))
             ->latest()
             ->get();
 
@@ -43,6 +46,7 @@ class ShipmentController extends Controller
             'brokers' => Broker::where('is_active', true)->get(),
             'filters' => [
                 'archive' => $archiveFilter,
+                'broker_id' => $brokerId,
             ],
             'archiveCounts' => [
                 'active' => Shipment::active()->count(),
