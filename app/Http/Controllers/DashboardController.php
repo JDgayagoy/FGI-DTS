@@ -5,20 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Shipment;
 use App\Models\ShipmentDocument;
 use App\Models\DocumentStatus;
+use App\Models\Broker;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $brokerId = $request->query('broker_id');
+
         $shipments = Shipment::with([
             'status',
             'shipmentType',
             'documents.customDoc',
             'documents.currentStatus.status',
-        ])->get();
+        ])
+            ->when($brokerId, fn ($query) => $query->where('broker_id', $brokerId))
+            ->get();
 
+        // --- All existing metric calculations remain unchanged from here ---
         $totalShipments = $shipments->count();
         $archivedShipments = $shipments->filter(fn($s) => $s->archived_at !== null)->count();
         $activeShipments = $totalShipments - $archivedShipments;
@@ -120,6 +127,10 @@ class DashboardController extends Controller
                 'completionRate' => $completionRate,
             ],
             'shipmentRows' => $shipmentRows,
+            'brokers' => Broker::where('is_active', true)->get(['broker_id', 'broker_name']),
+            'activeFilters' => [
+                'brokerId' => $brokerId,
+            ],
         ]);
     }
 }
