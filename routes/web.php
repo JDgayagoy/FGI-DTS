@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\ShipmentController;
+use App\Http\Controllers\ShipmentEmailController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -15,6 +17,11 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/shipment-emails/{shipmentEmail}/dismiss', [ShipmentEmailController::class, 'dismiss'])->name('shipment-emails.dismiss');
+    Route::post('/shipment-emails/{shipmentEmail}/created', [ShipmentEmailController::class, 'markCreated'])->name('shipment-emails.created');
 
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 
