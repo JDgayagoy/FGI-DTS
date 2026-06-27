@@ -44,6 +44,24 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $request->user() ? $request->user()->roles->flatMap->permissions->pluck('name')->unique()->values() : [],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'notifications' => fn () => $request->user()
+                ? $request->user()->unreadNotifications()
+                    ->where('type', \App\Notifications\ShipmentEmailDetectedNotification::class)
+                    ->latest()
+                    ->take(10)
+                    ->get()
+                    ->map(fn ($n) => [
+                        'id' => $n->id,
+                        'data' => $n->data,
+                        'read_at' => $n->read_at,
+                        'created_at' => $n->created_at?->toIso8601String(),
+                    ])
+                : [],
+            'unread_notification_count' => fn () => $request->user()
+                ? $request->user()->unreadNotifications()
+                    ->where('type', \App\Notifications\ShipmentEmailDetectedNotification::class)
+                    ->count()
+                : 0,
         ];
     }
 }
