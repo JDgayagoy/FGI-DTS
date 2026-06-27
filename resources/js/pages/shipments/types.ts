@@ -34,6 +34,17 @@ export interface ShipmentDocument {
     } | null;
 }
 
+export interface ShipmentEmail {
+    id: number;
+    from_address: string;
+    from_name: string | null;
+    subject: string;
+    body_excerpt: string;
+    matched_ref: string | null;
+    action_taken: string;
+    received_at: string | null;
+}
+
 export interface ShipmentStatus {
     status_id: number;
     status_name: string;
@@ -67,6 +78,7 @@ export interface Shipment {
     status: ShipmentStatus;
     shipment_type: ShipmentType;
     documents: ShipmentDocument[];
+    emails?: ShipmentEmail[];
 }
 
 export interface Props {

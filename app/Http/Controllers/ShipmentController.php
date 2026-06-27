@@ -33,6 +33,7 @@ class ShipmentController extends Controller
             'broker',
             'documents.customDoc',
             'documents.currentStatus.status',
+            'emails',
         ])
             ->when($archiveFilter === 'active', fn ($query) => $query->active())
             ->when($archiveFilter === 'archived', fn ($query) => $query->archived())

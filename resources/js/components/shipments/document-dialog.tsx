@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { type Shipment, type ShipmentDocument } from '@/pages/shipments/types';
 import { isApproved, isRejected } from '@/pages/shipments/helpers';
 import { DocStatusIndicator } from './doc-status-indicator';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { router } from '@inertiajs/react';
 
 interface DocumentDialogProps {
@@ -23,6 +23,10 @@ export const DocumentDialog = ({
 }: DocumentDialogProps) => {
     const selectedDoc: ShipmentDocument | null =
         activeShipment.documents.find((d) => d.shipment_doc_id === selectedDocId) ?? null;
+
+    const [tab, setTab] = useState<'documents' | 'emails'>('documents');
+    const [expandedEmailId, setExpandedEmailId] = useState<number | null>(null);
+    const emails = activeShipment.emails ?? [];
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,7 +67,31 @@ export const DocumentDialog = ({
                         </button>
                     </div>
 
-                    <ul className="flex flex-col gap-1 overflow-y-auto p-3 flex-1">
+                    {emails.length > 0 && (
+                        <div className="flex gap-1 border-b border-slate-100 px-3 py-2 dark:border-slate-800/60">
+                            <button
+                                onClick={() => setTab('documents')}
+                                className={cn(
+                                    'rounded-md px-2 py-1 text-[10px] font-black uppercase',
+                                    tab === 'documents' ? 'bg-slate-200 dark:bg-slate-700' : 'text-slate-400',
+                                )}
+                            >
+                                Documents
+                            </button>
+                            <button
+                                onClick={() => setTab('emails')}
+                                className={cn(
+                                    'rounded-md px-2 py-1 text-[10px] font-black uppercase',
+                                    tab === 'emails' ? 'bg-slate-200 dark:bg-slate-700' : 'text-slate-400',
+                                )}
+                            >
+                                Emails
+                            </button>
+                        </div>
+                    )}
+
+                    {tab === 'documents' ? (
+                        <ul className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
                         {activeShipment.documents.map((doc) => {
                             const isSelected = selectedDocId === doc.shipment_doc_id;
                             return (
@@ -94,7 +122,35 @@ export const DocumentDialog = ({
                                 </li>
                             );
                         })}
-                    </ul>
+                        </ul>
+                    ) : (
+                        <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-3">
+                            {emails.map((email) => (
+                                <li
+                                    key={email.id}
+                                    onClick={() =>
+                                        setExpandedEmailId((id) => (id === email.id ? null : email.id))
+                                    }
+                                    className="cursor-pointer rounded-xl border border-slate-200/60 p-2 hover:bg-white/50 dark:border-slate-800/60"
+                                >
+                                    <p className="text-[10px] font-bold text-slate-700 dark:text-slate-200">
+                                        {email.from_address}
+                                    </p>
+                                    <p className="text-[9px] text-slate-400">
+                                        {email.subject}
+                                        {email.received_at
+                                            ? ` · ${new Date(email.received_at).toLocaleString()}`
+                                            : ''}
+                                    </p>
+                                    {expandedEmailId === email.id && (
+                                        <p className="mt-1 text-[9px] text-slate-500">
+                                            {email.body_excerpt}
+                                        </p>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
 
                     <div className="border-t border-slate-100 dark:border-slate-800/60 px-5 py-4">
                         <button
