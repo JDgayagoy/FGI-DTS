@@ -56,6 +56,11 @@ class Shipment extends Model
         return $this->hasMany(ShipmentDocument::class, 'shipment_id', 'shipment_id');
     }
 
+    public function emails()
+    {
+        return $this->hasMany(ShipmentEmail::class, 'shipment_id', 'shipment_id');
+    }
+
     public function shipmentType()
     {
         return $this->belongsTo(ShipmentType::class, 'shipment_type_id', 'shipment_type_id');
