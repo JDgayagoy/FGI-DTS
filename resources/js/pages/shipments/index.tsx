@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Download, Package, Plus } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { DocumentDialog } from '@/components/shipments/document-dialog';
 import { ModalShell } from '@/components/shipments/modal-shell';
@@ -65,6 +65,27 @@ export default function Shipments({
     const [addForm, setAddForm] = useState({ ...emptyForm });
 
     const { hasPermission } = usePermissions();
+
+    // Open Add modal pre-filled when arriving from an email notification.
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const newRef = params.get('new_ref');
+        const emailId = params.get('email_id');
+        if (newRef) {
+            setAddForm({
+                ...emptyForm,
+                shipment_reference: newRef,
+                shipment_type_id: String(shipmentTypes[0]?.shipment_type_id ?? ''),
+            });
+            setShowAddModal(true);
+            if (emailId) {
+                (window as Window & { __emailId?: string }).__emailId = emailId;
+            }
+            // Strip query params so a refresh doesn't reopen the modal.
+            window.history.replaceState({}, '', '/shipments');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const activeShipment =
         activeDocPanel !== null ? shipments[activeDocPanel] : null;
@@ -185,7 +206,16 @@ export default function Shipments({
     };
     const closeAddModal = () => setShowAddModal(false);
     const handleAddSubmit = () =>
-        router.post('/shipments', addForm, { onSuccess: closeAddModal });
+        router.post('/shipments', addForm, {
+            onSuccess: () => {
+                closeAddModal();
+                const emailId = (window as Window & { __emailId?: string }).__emailId;
+                if (emailId) {
+                    router.post(`/shipment-emails/${emailId}/created`, {}, { preserveScroll: true });
+                    delete (window as Window & { __emailId?: string }).__emailId;
+                }
+            },
+        });
 
     const openEditModal = (shipment: Shipment) => {
         setEditingShipment(shipment);
