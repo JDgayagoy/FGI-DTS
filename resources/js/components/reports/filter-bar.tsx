@@ -19,6 +19,7 @@ export function FilterBar({ filterOptions, activeFilters }: Props) {
     const [brokerId, setBrokerId] = useState(activeFilters.brokerId ?? '');
     const [dateFrom, setDateFrom] = useState(activeFilters.dateFrom ?? '');
     const [dateTo, setDateTo] = useState(activeFilters.dateTo ?? '');
+    const [archiveStatus, setArchiveStatus] = useState(activeFilters.archiveStatus ?? '');
 
     const apply = () => {
         router.get(
@@ -30,6 +31,7 @@ export function FilterBar({ filterOptions, activeFilters }: Props) {
                 broker_id: brokerId || undefined,
                 date_from: dateFrom || undefined,
                 date_to: dateTo || undefined,
+                archive_status: archiveStatus || undefined,
             },
             { preserveState: true },
         );
@@ -42,6 +44,7 @@ export function FilterBar({ filterOptions, activeFilters }: Props) {
         setBrokerId('');
         setDateFrom('');
         setDateTo('');
+        setArchiveStatus('');
         router.get('/reports');
     };
 
@@ -138,6 +141,22 @@ export function FilterBar({ filterOptions, activeFilters }: Props) {
                     {filterOptions.serviceTypes.map((s) => (
                         <option key={s}>{s}</option>
                     ))}
+                </select>
+            </div>
+
+            {/* Archive Status */}
+            <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                    Status
+                </label>
+                <select
+                    value={archiveStatus}
+                    onChange={(e) => setArchiveStatus(e.target.value)}
+                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
+                >
+                    <option value="">All Shipments</option>
+                    <option value="active">Active Only</option>
+                    <option value="archived">Archived Only</option>
                 </select>
             </div>
 

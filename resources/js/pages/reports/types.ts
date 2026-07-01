@@ -42,6 +42,7 @@ export interface ActiveFilters {
     brokerId: string | null;
     dateFrom: string | null;
     dateTo: string | null;
+    archiveStatus: string | null;
 }
 
 export interface Props {

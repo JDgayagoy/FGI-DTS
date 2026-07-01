@@ -244,12 +244,14 @@ export const ShipmentsTable = ({
                                 sortConfig={sortConfig}
                                 onSort={handleSort}
                             />
-                            <SortableHeader
-                                label="Archived"
-                                sortKey="archived_at"
-                                sortConfig={sortConfig}
-                                onSort={handleSort}
-                            />
+                            {archiveFilter !== 'active' && (
+                                <SortableHeader
+                                    label="Archived"
+                                    sortKey="archived_at"
+                                    sortConfig={sortConfig}
+                                    onSort={handleSort}
+                                />
+                            )}
                             <th className="px-4 py-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                                 Documents
                             </th>
@@ -262,7 +264,7 @@ export const ShipmentsTable = ({
                         {tabFiltered.length === 0 ? (
                             <tr>
                                 <td
-                                    colSpan={12}
+                                    colSpan={archiveFilter === 'active' ? 11 : 12}
                                     className="px-4 py-10 text-center text-sm text-slate-400"
                                 >
                                     {searchQuery
@@ -343,9 +345,11 @@ export const ShipmentsTable = ({
                                         <td className="px-4 py-3 text-xs">
                                             {formatDate(s.created_at)}
                                         </td>
-                                        <td className="px-4 py-3 text-xs">
-                                            {formatDate(s.archived_at)}
-                                        </td>
+                                        {archiveFilter !== 'active' && (
+                                            <td className="px-4 py-3 text-xs">
+                                                {formatDate(s.archived_at)}
+                                            </td>
+                                        )}
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-2">
                                                 <span

@@ -12,16 +12,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $shipments = Shipment::with([
+        $allShipments = Shipment::with([
             'status',
             'shipmentType',
             'documents.customDoc',
             'documents.currentStatus.status',
         ])->get();
 
-        $totalShipments = $shipments->count();
-        $archivedShipments = $shipments->filter(fn($s) => $s->archived_at !== null)->count();
+        $totalShipments = $allShipments->count();
+        $archivedShipments = $allShipments->filter(fn($s) => $s->archived_at !== null)->count();
         $activeShipments = $totalShipments - $archivedShipments;
+
+        // Use ONLY active shipments for the table and subsequent metrics
+        $shipments = $allShipments->filter(fn($s) => $s->archived_at === null);
 
         $completedShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Completed')->count();
         $pendingShipments = $shipments->filter(fn($s) => $s->status?->status_name === 'Pending')->count();

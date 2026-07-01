@@ -20,6 +20,7 @@ class ReportsController extends Controller
         $brokerId = $request->input('broker_id');
         $dateFrom = $request->input('date_from');
         $dateTo = $request->input('date_to');
+        $archiveStatus = $request->input('archive_status');
 
         $applyShipmentFilters = fn ($query) => $query
             ->when($brand, fn ($q) => $q->where('brand', $brand))
@@ -27,7 +28,9 @@ class ReportsController extends Controller
             ->when($serviceType, fn ($q) => $q->whereHas('shipmentType', fn ($q2) => $q2->where('shipment_type_name', $serviceType)))
             ->when($brokerId, fn ($q) => $q->where('broker_id', $brokerId))
             ->when($dateFrom, fn ($q) => $q->whereDate('actual_time_of_arrival', '>=', $dateFrom))
-            ->when($dateTo, fn ($q) => $q->whereDate('actual_time_of_arrival', '<=', $dateTo));
+            ->when($dateTo, fn ($q) => $q->whereDate('actual_time_of_arrival', '<=', $dateTo))
+            ->when($archiveStatus === 'active', fn ($q) => $q->whereNull('archived_at'))
+            ->when($archiveStatus === 'archived', fn ($q) => $q->whereNotNull('archived_at'));
 
         $shipments = $applyShipmentFilters(
             Shipment::query()->with(['status', 'shipmentType', 'documents.currentStatus.status'])
@@ -147,6 +150,7 @@ class ReportsController extends Controller
                 'brokerId' => $brokerId,
                 'dateFrom' => $dateFrom,
                 'dateTo' => $dateTo,
+                'archiveStatus' => $archiveStatus,
             ],
         ]);
     }
