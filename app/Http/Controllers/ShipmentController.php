@@ -8,6 +8,7 @@ use App\Models\DocumentStatus;
 use App\Models\Shipment;
 use App\Models\ShipmentDocument;
 use App\Models\ShipmentType;
+use App\Services\ActivityLogger;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -84,10 +85,10 @@ class ShipmentController extends Controller
             ]);
         }
 
+        ActivityLogger::log('created', "Created shipment \"{$shipment->shipment_reference}\".", $shipment);
+
         return redirect()->route('shipments.index');
     }
-
-
 
     public function updateDocumentStatus(Request $request, $shipment_doc_id)
     {
@@ -123,6 +124,13 @@ class ShipmentController extends Controller
         $newStatusId = ($totalDocs > 0 && $approvedDocs === $totalDocs) ? 4 : 2;
         $shipment->update(['status_id' => $newStatusId]);
 
+        ActivityLogger::log(
+            'document_status_updated',
+            "Updated document status for shipment \"{$shipment->shipment_reference}\" (doc #{$shipment_doc_id}).",
+            $shipment,
+            ['shipment_doc_id' => $shipment_doc_id, 'new_status_id' => $request->status_id],
+        );
+
         return redirect()->route('shipments.index');
     }
 
@@ -148,6 +156,13 @@ class ShipmentController extends Controller
             'file_path' => $path,
             'file_name' => $file->getClientOriginalName(),
         ]);
+
+        $shipment = Shipment::find($doc->shipment_id);
+        ActivityLogger::log(
+            'document_uploaded',
+            "Uploaded document \"{$file->getClientOriginalName()}\" for shipment \"{$shipment?->shipment_reference}\" (doc #{$shipment_doc_id}).",
+            $doc,
+        );
 
         return back();
     }
@@ -181,7 +196,15 @@ class ShipmentController extends Controller
             'shipment_type_id' => 'sometimes|exists:shipment_types,shipment_type_id',
         ]);
 
+        $old = $shipment->only(array_keys($validated));
         $shipment->update($validated);
+
+        ActivityLogger::log(
+            'updated',
+            "Updated shipment \"{$shipment->shipment_reference}\".",
+            $shipment,
+            ['old' => $old, 'new' => $validated],
+        );
 
         return redirect()->route('shipments.index');
     }
@@ -191,6 +214,8 @@ class ShipmentController extends Controller
         Gate::authorize('archive-shipments');
 
         $shipment->update(['archived_at' => now()]);
+
+        ActivityLogger::log('archived', "Archived shipment \"{$shipment->shipment_reference}\".", $shipment);
 
         return back();
     }

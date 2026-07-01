@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -45,6 +46,8 @@ class UserManagementController extends Controller
 
         $user->roles()->sync($validated['role_ids']);
 
+        ActivityLogger::log('created', "Created user \"{$user->name}\" ({$user->email}).", $user);
+
         return redirect()->back()->with('success', 'User created successfully.');
     }
 
@@ -58,6 +61,13 @@ class UserManagementController extends Controller
         ]);
 
         $user->roles()->sync($validated['role_ids']);
+
+        ActivityLogger::log(
+            'roles_updated',
+            "Updated roles for user \"{$user->name}\" ({$user->email}).",
+            $user,
+            ['role_ids' => $validated['role_ids']],
+        );
 
         return redirect()->back()->with('success', 'User roles updated successfully.');
     }

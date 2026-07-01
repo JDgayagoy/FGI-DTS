@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -33,6 +34,13 @@ class RoleManagementController extends Controller
         ]);
 
         $role->permissions()->sync($validated['permission_ids']);
+
+        ActivityLogger::log(
+            'permissions_updated',
+            "Updated permissions for role \"{$role->role_name}\".",
+            $role,
+            ['permission_ids' => $validated['permission_ids']],
+        );
 
         return redirect()->back()->with('success', 'Role permissions updated successfully.');
     }

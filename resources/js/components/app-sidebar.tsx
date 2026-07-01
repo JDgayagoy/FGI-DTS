@@ -47,7 +47,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Logs',
-        href: '#',
+        href: '/logs',
         icon: List,
     },
     {
@@ -67,6 +67,8 @@ export function AppSidebar() {
             return hasPermissionName('view_all_shipments');
         if (item.title === 'Reports')
             return hasPermissionName('view_all_shipments');
+        if (item.title === 'Logs')
+            return hasPermissionName('view_logs');
         return true; // Dashboard and others always visible
     });
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LogController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\ShipmentController;
@@ -17,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
 
     Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
     Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');

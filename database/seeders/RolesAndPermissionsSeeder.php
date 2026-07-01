@@ -25,6 +25,8 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'add_brokers', 'resource' => 'brokers', 'action' => 'add'],
             ['name' => 'edit_brokers', 'resource' => 'brokers', 'action' => 'edit'],
             ['name' => 'delete_brokers', 'resource' => 'brokers', 'action' => 'delete'],
+            // Logs
+            ['name' => 'view_logs', 'resource' => 'logs', 'action' => 'view'],
         ];
 
         foreach ($permissions as $perm) {
@@ -38,10 +40,11 @@ class RolesAndPermissionsSeeder extends Seeder
         $supplyChainManager = Role::firstOrCreate(['role_name' => 'Supply chain manager']);
 
         // 3. Assign Permissions to Roles
-        // Super Admin: User and Role management only
+        // Super Admin: User/role management + view logs
         $superAdminPermissionIds = Permission::whereIn('name', [
             'manage_users',
-            'manage_roles'
+            'manage_roles',
+            'view_logs',
         ])->pluck('permission_id')->toArray();
         $superAdmin->permissions()->sync($superAdminPermissionIds);
 
@@ -54,7 +57,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_all_brokers',
             'add_brokers',
             'edit_brokers',
-            'delete_brokers'
+            'delete_brokers',
+            'view_logs',
         ])->pluck('permission_id')->toArray();
         $supplyChainManager->permissions()->sync($scmPermissionIds);
 
@@ -64,7 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'add_shipments',
             'edit_shipments',
             'archive_shipments',
-            'view_all_brokers'
+            'view_all_brokers',
         ])->pluck('permission_id')->toArray();
         $logisAssoc->permissions()->sync($shipmentPermissionIds);
 
@@ -73,7 +77,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_all_shipments',
             'add_shipments',
             'edit_shipments',
-            'view_all_brokers'
+            'view_all_brokers',
         ])->pluck('permission_id')->toArray();
         $brandManager->permissions()->sync($brandPermissionIds);
     }
