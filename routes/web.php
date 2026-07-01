@@ -9,7 +9,7 @@ use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome', [
+Route::inertia('/', 'auth/login', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
