@@ -43,7 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('shipments.archive');
 
     // Resource route LAST
-    Route::resource('shipments', ShipmentController::class)->parameters([
+    Route::resource('shipments', ShipmentController::class)->except(['destroy'])->parameters([
         'shipments' => 'shipment:shipment_id',
     ]);
 });

@@ -87,14 +87,7 @@ class ShipmentController extends Controller
         return redirect()->route('shipments.index');
     }
 
-    public function destroy(Shipment $shipment)
-    {
-        Gate::authorize('delete-shipments');
 
-        $shipment->delete();
-
-        return redirect()->route('shipments.index');
-    }
 
     public function updateDocumentStatus(Request $request, $shipment_doc_id)
     {
@@ -195,7 +188,7 @@ class ShipmentController extends Controller
 
     public function archive(Shipment $shipment)
     {
-        Gate::authorize('delete-shipments');
+        Gate::authorize('archive-shipments');
 
         $shipment->update(['archived_at' => now()]);
 

@@ -16,7 +16,7 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'view_all_shipments', 'resource' => 'shipments', 'action' => 'view'],
             ['name' => 'add_shipments', 'resource' => 'shipments', 'action' => 'add'],
             ['name' => 'edit_shipments', 'resource' => 'shipments', 'action' => 'edit'],
-            ['name' => 'delete_shipments', 'resource' => 'shipments', 'action' => 'delete'],
+            ['name' => 'archive_shipments', 'resource' => 'shipments', 'action' => 'archive'],
             // RBAC
             ['name' => 'manage_users', 'resource' => 'rbac', 'action' => 'manage_users'],
             ['name' => 'manage_roles', 'resource' => 'rbac', 'action' => 'manage_roles'],
@@ -50,7 +50,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_all_shipments',
             'add_shipments',
             'edit_shipments',
-            'delete_shipments',
+            'archive_shipments',
             'view_all_brokers',
             'add_brokers',
             'edit_brokers',
@@ -63,7 +63,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_all_shipments',
             'add_shipments',
             'edit_shipments',
-            'delete_shipments',
+            'archive_shipments',
             'view_all_brokers'
         ])->pluck('permission_id')->toArray();
         $logisAssoc->permissions()->sync($shipmentPermissionIds);

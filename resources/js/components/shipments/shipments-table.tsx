@@ -394,7 +394,7 @@ export const ShipmentsTable = ({
                                                     </button>
                                                 )}
                                                 {hasPermission(
-                                                    'delete_shipments',
+                                                    'archive_shipments',
                                                 ) && (
                                                     <button
                                                         onClick={() =>
