@@ -44,7 +44,48 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Create a user with a specific role.
+ */
+function createUserWithRole(string $roleName): \App\Models\User
 {
-    // ..
+    $user = \App\Models\User::factory()->create();
+    $role = \App\Models\Role::firstOrCreate(
+        ['role_name' => $roleName],
+        ['role_name' => $roleName]
+    );
+    $user->roles()->attach($role);
+
+    return $user;
+}
+
+/**
+ * Create a user with a specific permission.
+ *
+ * @param  string  $action  Action name (e.g., 'view', 'add', 'edit')
+ * @param  string  $resource  Resource name (e.g., 'shipments', 'brokers')
+ */
+function createUserWithPermission(string $action, string $resource): \App\Models\User
+{
+    $user = \App\Models\User::factory()->create();
+
+    // Build permission name from action and resource
+    // Format: action-resource (e.g., 'view-shipments', 'add-brokers')
+    $permissionName = "{$action}-{$resource}";
+
+    $permission = \App\Models\Permission::firstOrCreate(
+        ['name' => $permissionName],
+        [
+            'name' => $permissionName,
+            'action' => $action,
+            'resource' => $resource,
+        ]
+    );
+
+    // Create a temporary role and attach permission
+    $role = \App\Models\Role::factory()->create();
+    $role->permissions()->attach($permission);
+    $user->roles()->attach($role);
+
+    return $user;
 }

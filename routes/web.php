@@ -15,38 +15,86 @@ Route::inertia('/', 'auth/login', [
 ])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Public to authenticated users (no specific permission required)
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
 
-    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
-    Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
-    Route::put('/users/{user}/roles', [UserManagementController::class, 'updateRoles'])->name('users.roles.update');
+    // ======= RBAC Management =======
+    Route::middleware('check.permission:manage-rbac')->group(function () {
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::put('/users/{user}/roles', [UserManagementController::class, 'updateRoles'])->name('users.roles.update');
 
-    Route::get('/roles', [RoleManagementController::class, 'index'])->name('roles.index');
-    Route::put('/roles/{role}/permissions', [RoleManagementController::class, 'updatePermissions'])->name('roles.permissions.update');
+        Route::get('/roles', [RoleManagementController::class, 'index'])->name('roles.index');
+        Route::put('/roles/{role}/permissions', [RoleManagementController::class, 'updatePermissions'])->name('roles.permissions.update');
+    });
 
-    Route::resource('brokers', BrokerController::class)->parameters([
-        'brokers' => 'broker:broker_id',
-    ]);
+    // User Creation (create-user permission required)
+    Route::post('/users', [UserManagementController::class, 'store'])
+        ->middleware('check.permission:create-user')
+        ->name('users.store');
 
-    // These MUST be above Route::resource
+    // ======= Broker Management =======
+    // View brokers
+    Route::get('brokers', [BrokerController::class, 'index'])
+        ->middleware('check.permission:view-brokers')
+        ->name('brokers.index');
+
+    Route::get('brokers/{broker}', [BrokerController::class, 'show'])
+        ->middleware('check.permission:view-brokers')
+        ->name('brokers.show');
+
+    // Create broker
+    Route::post('brokers', [BrokerController::class, 'store'])
+        ->middleware('check.permission:add-brokers')
+        ->name('brokers.store');
+
+    // Update broker
+    Route::patch('brokers/{broker}', [BrokerController::class, 'update'])
+        ->middleware('check.permission:edit-brokers')
+        ->name('brokers.update');
+
+    // Delete broker
+    Route::delete('brokers/{broker}', [BrokerController::class, 'destroy'])
+        ->middleware('check.permission:delete-brokers')
+        ->name('brokers.destroy');
+
+    // ======= Shipment & Document Management =======
+    // Document routes (must be above resource route for specificity)
     Route::post('shipments/documents/{shipment_doc_id}/upload', [ShipmentController::class, 'uploadDocument'])
+        ->middleware('check.permission:upload-documents')
         ->name('shipments.documents.upload');
 
     Route::get('shipments/documents/{shipment_doc_id}/file', [ShipmentController::class, 'viewDocument'])
+        ->middleware('check.permission:view-shipments')
         ->name('shipments.documents.file');
 
     Route::post('shipments/documents/{shipment_doc_id}/status', [ShipmentController::class, 'updateDocumentStatus'])
+        ->middleware('check.permission:approve-documents,reject-documents,edit-shipments')
         ->name('shipments.documents.status');
 
     Route::patch('shipments/{shipment}/archive', [ShipmentController::class, 'archive'])
+        ->middleware('check.permission:archive-shipments')
         ->name('shipments.archive');
 
-    // Resource route LAST
-    Route::resource('shipments', ShipmentController::class)->except(['destroy'])->parameters([
-        'shipments' => 'shipment:shipment_id',
-    ]);
+    // View shipments
+    Route::get('shipments', [ShipmentController::class, 'index'])
+        ->middleware('check.permission:view-shipments')
+        ->name('shipments.index');
+
+    Route::get('shipments/{shipment}', [ShipmentController::class, 'show'])
+        ->middleware('check.permission:view-shipments')
+        ->name('shipments.show');
+
+    // Create shipment
+    Route::post('shipments', [ShipmentController::class, 'store'])
+        ->middleware('check.permission:add-shipments')
+        ->name('shipments.store');
+
+    // Update shipment
+    Route::patch('shipments/{shipment}', [ShipmentController::class, 'update'])
+        ->middleware('check.permission:edit-shipments')
+        ->name('shipments.update');
 });
+
 require __DIR__.'/settings.php';
