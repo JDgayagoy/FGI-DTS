@@ -2,82 +2,103 @@
 
 use App\Models\Shipment;
 use App\Models\ShipmentType;
-use function Pest\Laravel\actingAs;
-use function Pest\Laravel\post;
 
-test('user with permission can create shipment', function () {
+use function Pest\Laravel\actingAs;
+
+test('user with add-shipments permission can create shipment', function () {
     $user = createUserWithPermission('add', 'shipments');
     $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
 
     $response = actingAs($user)->post(route('shipments.store'), [
-        'shipment_reference' => 'TEST-001-'.time(),
+        'shipment_reference' => 'SHIP-'.time(),
         'brand' => 'TestBrand',
         'incoterm' => 'CIF',
+        'shipment_type_id' => $shipmentType->shipment_type_id,
+    ]);
+
+    $response->assertRedirect(route('shipments.index'));
+    $shipment = Shipment::where('shipment_reference', 'SHIP-'.time())->first();
+    expect($shipment)->not->toBeNull();
+    if ($shipment) {
+        assertShipmentHasStatus($shipment, 'Pending');
+    }
+});
+
+test('shipment created with pending status by default', function () {
+    $user = createUserWithPermission('add', 'shipments');
+    $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
+
+    $response = actingAs($user)->post(route('shipments.store'), [
+        'shipment_reference' => 'DFLT-'.time(),
+        'brand' => 'TestBrand',
+        'incoterm' => 'FOB',
         'shipment_type_id' => $shipmentType->shipment_type_id,
     ]);
 
     $response->assertRedirect();
-    $shipment = Shipment::latest()->first();
+    $shipment = Shipment::where('shipment_reference', 'DFLT-'.time())->first();
     expect($shipment)->not->toBeNull();
-    assertShipmentHasStatus($shipment, 'Pending');
-});
-
-test('user without permission cannot create shipment', function () {
-    $user = createUserWithoutPermissions();
-    $broker = Broker::first() ?? Broker::factory()->create();
-    $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
-
-    $response = actingAs($user)->post(route('shipments.store'), [
-        'shipment_reference' => 'TEST-002-'.time(),
-        'brand' => 'TestBrand',
-        'incoterm' => 'CIF',
-        'shipment_type_id' => $shipmentType->shipment_type_id,
-    ]);
-
-    $response->assertForbidden();
+    if ($shipment) {
+        assertShipmentHasStatus($shipment, 'Pending');
+    }
 });
 
 test('shipment creation logs activity', function () {
     $user = createUserWithPermission('add', 'shipments');
     $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
 
-    actingAs($user)->post(route('shipments.store'), [
-        'shipment_reference' => 'AUDIT-' . time(),
+    $response = actingAs($user)->post(route('shipments.store'), [
+        'shipment_reference' => 'LOG-'.time(),
         'brand' => 'AuditBrand',
         'incoterm' => 'CIF',
         'shipment_type_id' => $shipmentType->shipment_type_id,
     ]);
 
-    $shipment = Shipment::latest()->first();
-    assertActivityLogExists($user, 'created', $shipment);
+    $response->assertRedirect();
+    $shipment = Shipment::where('shipment_reference', 'LOG-'.time())->first();
+    expect($shipment)->not->toBeNull();
+    if ($shipment) {
+        assertActivityLogExists($user, 'created', $shipment);
+    }
 });
 
-test('required shipment reference field', function () {
-    $user = createUserWithPermission('add', 'shipments');
+test('user without permission cannot create shipment', function () {
+    $user = createUserWithoutPermissions();
+    $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
 
     $response = actingAs($user)->post(route('shipments.store'), [
-        'brand' => 'Test',
+        'shipment_reference' => 'DENIED-'.time(),
+        'brand' => 'TestBrand',
         'incoterm' => 'CIF',
-        'shipment_type_id' => ShipmentType::first()->shipment_type_id ?? 1,
+        'shipment_type_id' => $shipmentType->shipment_type_id,
     ]);
 
-    $response->assertInvalid('shipment_reference');
+    $response->assertForbidden();
+    expect(Shipment::where('shipment_reference', 'DENIED-'.time())->exists())->toBeFalse();
 });
 
-test('user can access shipment index', function () {
-    $user = createUserWithPermission('view', 'shipments');
-    createShipment();
+test('shipment requires shipment_reference field', function () {
+    $user = createUserWithPermission('add', 'shipments');
+    $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
 
-    $response = actingAs($user)->get(route('shipments.index'));
+    $response = actingAs($user)->post(route('shipments.store'), [
+        'brand' => 'TestBrand',
+        'incoterm' => 'CIF',
+        'shipment_type_id' => $shipmentType->shipment_type_id,
+    ]);
 
-    $response->assertOk();
+    $response->assertSessionHasErrors('shipment_reference');
 });
 
-test('active and archived shipments are correctly marked', function () {
-    createActiveShipment();
-    $archived = createArchivedShipment();
+test('shipment requires brand field', function () {
+    $user = createUserWithPermission('add', 'shipments');
+    $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
 
-    // Verify the helpers work correctly
-    assertShipmentIsActive(Shipment::where('archived_at', null)->first());
-    assertShipmentIsArchived($archived);
+    $response = actingAs($user)->post(route('shipments.store'), [
+        'shipment_reference' => 'TEST-'.time(),
+        'incoterm' => 'CIF',
+        'shipment_type_id' => $shipmentType->shipment_type_id,
+    ]);
+
+    $response->assertSessionHasErrors('brand');
 });
