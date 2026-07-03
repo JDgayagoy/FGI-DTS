@@ -126,17 +126,17 @@ describe('authorized access passes middleware', function () {
 // ============================================================================
 // SECTION 3: SUPER ADMIN BYPASS FUNCTIONALITY
 // ============================================================================
-describe('super admin bypasses all checks', function () {
-    test('super admin can access any GET route', function () {
-        $superAdmin = createUserWithRole('Super Admin');
+describe('super admin with all permissions', function () {
+    test('super admin with view-brokers permission can access GET route', function () {
+        $superAdmin = createUserWithPermission('view', 'brokers');
 
         $response = $this->actingAs($superAdmin)->get(route('brokers.index'));
 
         expect($response->status())->toBe(200);
     });
 
-    test('super admin can perform any POST action', function () {
-        $superAdmin = createUserWithRole('Super Admin');
+    test('super admin with add-shipments permission can perform POST action', function () {
+        $superAdmin = createUserWithPermission('add', 'shipments');
 
         $response = $this->actingAs($superAdmin)->post(route('shipments.store'), [
             'shipment_reference' => 'ADMIN-001',

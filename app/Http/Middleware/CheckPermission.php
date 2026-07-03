@@ -26,6 +26,11 @@ class CheckPermission
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
+        // Super Admin bypass: allow all permissions
+        if ($user->hasRole('Super Admin')) {
+            return $next($request);
+        }
+
         // Check if user has ANY of the provided permissions
         foreach ($permissions as $permission) {
             if ($this->userHasPermission($user, $permission)) {

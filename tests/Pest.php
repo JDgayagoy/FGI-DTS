@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,10 +50,10 @@ expect()->extend('toBeOne', function () {
 /**
  * Create a user with a specific role.
  */
-function createUserWithRole(string $roleName): \App\Models\User
+function createUserWithRole(string $roleName): User
 {
-    $user = \App\Models\User::factory()->create();
-    $role = \App\Models\Role::firstOrCreate(
+    $user = User::factory()->create();
+    $role = Role::firstOrCreate(
         ['role_name' => $roleName],
         ['role_name' => $roleName]
     );
@@ -62,28 +65,43 @@ function createUserWithRole(string $roleName): \App\Models\User
 /**
  * Create a user with a specific permission.
  *
- * @param  string  $action  Action name (e.g., 'view', 'add', 'edit')
- * @param  string  $resource  Resource name (e.g., 'shipments', 'brokers')
+ * Supports special gate-based permissions that may have different internal action names.
+ * Examples:
+ *   - createUserWithPermission('view', 'shipments') creates 'view-shipments' permission
+ *   - createUserWithPermission('manage', 'rbac') creates 'manage-rbac' permission with action 'manage_roles'
+ *   - createUserWithPermission('create', 'user') creates 'create-user' permission with action 'manage_users'
+ *
+ * @param  string  $action  Simplified action (e.g., 'view', 'add', 'edit', 'manage', 'create')
+ * @param  string  $resource  Resource name (e.g., 'shipments', 'brokers', 'rbac')
  */
-function createUserWithPermission(string $action, string $resource): \App\Models\User
+function createUserWithPermission(string $action, string $resource): User
 {
-    $user = \App\Models\User::factory()->create();
+    $user = User::factory()->create();
 
-    // Build permission name from action and resource
-    // Format: action-resource (e.g., 'view-shipments', 'add-brokers')
+    // Map simplified actions to their actual database action names (matching AppServiceProvider gates)
+    $actionMap = [
+        'manage' => ['rbac' => 'manage_roles'],
+        'create' => ['rbac' => 'manage_users'],
+    ];
+
+    // Determine actual action to store in database
+    $actualAction = $actionMap[$action][$resource] ?? $action;
+
+    // Build permission name from simplified action and resource
+    // Format: action-resource (e.g., 'view-shipments', 'add-brokers', 'manage-rbac')
     $permissionName = "{$action}-{$resource}";
 
-    $permission = \App\Models\Permission::firstOrCreate(
+    $permission = Permission::firstOrCreate(
         ['name' => $permissionName],
         [
             'name' => $permissionName,
-            'action' => $action,
+            'action' => $actualAction,
             'resource' => $resource,
         ]
     );
 
     // Create a temporary role and attach permission
-    $role = \App\Models\Role::factory()->create();
+    $role = Role::factory()->create();
     $role->permissions()->attach($permission);
     $user->roles()->attach($role);
 
