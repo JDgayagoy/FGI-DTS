@@ -7,6 +7,7 @@ use App\Models\DocumentStatus;
 use App\Models\Shipment;
 use App\Models\ShipmentDocument;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -75,33 +76,41 @@ class ReportsController extends Controller
             : 0;
 
         $completeVsIncomplete = $applyShipmentFilters(Shipment::query())
-            ->selectRaw("DATE_FORMAT(actual_time_of_arrival, '%b') as month,
-                         MONTH(actual_time_of_arrival) as month_num,
-                         SUM(CASE WHEN status_id = (SELECT status_id FROM shipment_status_list WHERE status_name = 'Completed') THEN 1 ELSE 0 END) as completed,
-                         SUM(CASE WHEN status_id != (SELECT status_id FROM shipment_status_list WHERE status_name = 'Completed') THEN 1 ELSE 0 END) as incomplete")
+            ->select('actual_time_of_arrival', 'status_id')
             ->whereNotNull('actual_time_of_arrival')
-            ->groupByRaw("MONTH(actual_time_of_arrival), DATE_FORMAT(actual_time_of_arrival, '%b')")
-            ->orderByRaw('MONTH(actual_time_of_arrival)')
             ->get()
-            ->map(fn ($r) => [
-                'month' => $r->month,
-                'completed' => (int) $r->completed,
-                'incomplete' => (int) $r->incomplete,
-            ]);
+            ->groupBy(fn ($shipment) => $shipment->actual_time_of_arrival->format('Y-m'))
+            ->sortKeys()
+            ->map(function ($group, $yearMonth) {
+                $completed = $group->filter(fn ($s) => $s->status?->status_name === 'Completed')->count();
+                $incomplete = $group->count() - $completed;
+                [$year, $month] = explode('-', $yearMonth);
+
+                return [
+                    'month' => Carbon::createFromDate($year, $month, 1)->format('M'),
+                    'completed' => $completed,
+                    'incomplete' => $incomplete,
+                ];
+            })
+            ->values();
 
         $completenessOverTime = $applyShipmentFilters(Shipment::query())
-            ->selectRaw("DATE_FORMAT(actual_time_of_arrival, '%b') as month,
-                         MONTH(actual_time_of_arrival) as month_num,
-                         COUNT(*) as total_shipments")
+            ->select('actual_time_of_arrival')
             ->whereNotNull('actual_time_of_arrival')
-            ->groupByRaw("MONTH(actual_time_of_arrival), DATE_FORMAT(actual_time_of_arrival, '%b')")
-            ->orderByRaw('MONTH(actual_time_of_arrival)')
             ->get()
-            ->map(fn ($r) => [
-                'month' => $r->month,
-                'shipments' => (int) $r->total_shipments,
-                'documents' => (int) $r->total_shipments * 11,
-            ]);
+            ->groupBy(fn ($shipment) => $shipment->actual_time_of_arrival->format('Y-m'))
+            ->sortKeys()
+            ->map(function ($group, $yearMonth) {
+                $count = $group->count();
+                [$year, $month] = explode('-', $yearMonth);
+
+                return [
+                    'month' => Carbon::createFromDate($year, $month, 1)->format('M'),
+                    'shipments' => $count,
+                    'documents' => $count * 11,
+                ];
+            })
+            ->values();
 
         $brands = Shipment::distinct()->pluck('brand')->sort()->values();
         $brandManagers = Shipment::distinct()->pluck('brand_manager')->sort()->values();

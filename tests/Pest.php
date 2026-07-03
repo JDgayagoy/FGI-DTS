@@ -1,10 +1,11 @@
 <?php
 
 use App\Models\ActivityLog;
+use App\Models\Broker;
 use App\Models\Shipment;
 use App\Models\ShipmentDocument;
 use App\Models\User;
-use Database\Seeders\RolesAndPermissionsSeeder;
+use Database\Seeders\DatabaseSeeder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Helpers\ActivityLogHelper;
@@ -28,7 +29,7 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->beforeEach(function () {
         // Seed all required test data (statuses, permissions, roles, etc.)
-        $this->seed(\Database\Seeders\DatabaseSeeder::class);
+        $this->seed(DatabaseSeeder::class);
     })
     ->in('Feature');
 
@@ -338,4 +339,13 @@ function getDocumentStatuses(): array
 function countDocumentsByStatus(Shipment $shipment, string $statusName): int
 {
     return DocumentTestHelper::countDocumentsByStatus($shipment, $statusName);
+}
+
+// ============================================================================
+// GLOBAL BROKER HELPERS
+// ============================================================================
+
+function createBroker(array $overrides = [])
+{
+    return Broker::factory()->create($overrides);
 }
