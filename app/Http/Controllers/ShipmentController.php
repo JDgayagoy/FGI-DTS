@@ -92,11 +92,17 @@ class ShipmentController extends Controller
 
     public function updateDocumentStatus(Request $request, $shipment_doc_id)
     {
-        Gate::authorize('edit-shipments');
-
         $request->validate([
             'status_id' => 'required|exists:document_status_list,status_id',
         ]);
+
+        if ((int)$request->status_id === 1) {
+            Gate::authorize('approve-documents');
+        } elseif ((int)$request->status_id === 3) {
+            Gate::authorize('reject-documents');
+        } else {
+            Gate::authorize('edit-shipments');
+        }
 
         // Set all previous statuses for this doc to not current
         DocumentStatus::where('shipment_doc_id', $shipment_doc_id)
@@ -136,7 +142,7 @@ class ShipmentController extends Controller
 
     public function uploadDocument(Request $request, int $shipment_doc_id)
     {
-        Gate::authorize('edit-shipments');
+        Gate::authorize('upload-documents');
 
         $request->validate([
             'file' => 'required|file|mimes:pdf|max:10240',

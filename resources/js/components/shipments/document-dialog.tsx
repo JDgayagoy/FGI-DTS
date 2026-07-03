@@ -4,7 +4,7 @@ import { type Shipment, type ShipmentDocument } from '@/pages/shipments/types';
 import { isApproved, isRejected } from '@/pages/shipments/helpers';
 import { DocStatusIndicator } from './doc-status-indicator';
 import { useRef } from 'react';
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 
 interface DocumentDialogProps {
     activeShipment: Shipment;
@@ -23,6 +23,12 @@ export const DocumentDialog = ({
 }: DocumentDialogProps) => {
     const selectedDoc: ShipmentDocument | null =
         activeShipment.documents.find((d) => d.shipment_doc_id === selectedDocId) ?? null;
+
+    const { auth } = usePage().props as any;
+    const permissions = auth?.permissions || [];
+    const canUpload = permissions.includes('upload_documents');
+    const canApprove = permissions.includes('approve_documents');
+    const canReject = permissions.includes('reject_documents');
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -112,7 +118,7 @@ export const DocumentDialog = ({
                         <h3 className="text-sm font-black">
                             {selectedDoc ? selectedDoc.custom_doc.doc_full_name : 'DOCUMENT PREVIEW'}
                         </h3>
-                        {selectedDoc && (
+                        {selectedDoc && canUpload && (
                             <>
                                 <input
                                     ref={fileInputRef}
@@ -144,12 +150,14 @@ export const DocumentDialog = ({
                                 <div className="flex h-full flex-col items-center justify-center gap-4 text-slate-300">
                                     <FileText className="size-10" />
                                     <p className="text-[10px] font-black uppercase">No PDF uploaded yet</p>
-                                    <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700"
-                                    >
-                                        <Upload className="h-3.5 w-3.5" /> Upload PDF
-                                    </button>
+                                    {canUpload && (
+                                        <button
+                                            onClick={() => fileInputRef.current?.click()}
+                                            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700"
+                                        >
+                                            <Upload className="h-3.5 w-3.5" /> Upload PDF
+                                        </button>
+                                    )}
                                 </div>
                             )
                         ) : (
@@ -172,22 +180,28 @@ export const DocumentDialog = ({
                                     {selectedDoc.current_status?.status?.status_name || 'No status'}
                                 </span>
                             </div>
-                            <div className="flex gap-2">
-                                <button
-                                    disabled={isApproved(selectedDoc)}
-                                    onClick={() => handleStatusUpdate(selectedDoc.shipment_doc_id, 1)}
-                                    className="rounded-lg border border-green-500 px-3 py-1 text-[10px] font-bold text-green-600 disabled:opacity-40"
-                                >
-                                    <CheckCircle className="h-3 w-3 inline mr-1" /> Approve
-                                </button>
-                                <button
-                                    disabled={isRejected(selectedDoc)}
-                                    onClick={() => handleStatusUpdate(selectedDoc.shipment_doc_id, 3)}
-                                    className="rounded-lg border border-red-500 px-3 py-1 text-[10px] font-bold text-red-600 disabled:opacity-40"
-                                >
-                                    <XCircle className="h-3 w-3 inline mr-1" /> Reject
-                                </button>
-                            </div>
+                            {(canApprove || canReject) && (
+                                <div className="flex gap-2">
+                                    {canApprove && (
+                                        <button
+                                            disabled={isApproved(selectedDoc)}
+                                            onClick={() => handleStatusUpdate(selectedDoc.shipment_doc_id, 1)}
+                                            className="rounded-lg border border-green-500 px-3 py-1 text-[10px] font-bold text-green-600 disabled:opacity-40"
+                                        >
+                                            <CheckCircle className="h-3 w-3 inline mr-1" /> Approve
+                                        </button>
+                                    )}
+                                    {canReject && (
+                                        <button
+                                            disabled={isRejected(selectedDoc)}
+                                            onClick={() => handleStatusUpdate(selectedDoc.shipment_doc_id, 3)}
+                                            className="rounded-lg border border-red-500 px-3 py-1 text-[10px] font-bold text-red-600 disabled:opacity-40"
+                                        >
+                                            <XCircle className="h-3 w-3 inline mr-1" /> Reject
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

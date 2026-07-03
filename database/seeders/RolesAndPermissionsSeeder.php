@@ -27,6 +27,10 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'delete_brokers', 'resource' => 'brokers', 'action' => 'delete'],
             // Logs
             ['name' => 'view_logs', 'resource' => 'logs', 'action' => 'view'],
+            // Documents
+            ['name' => 'upload_documents', 'resource' => 'documents', 'action' => 'upload'],
+            ['name' => 'approve_documents', 'resource' => 'documents', 'action' => 'approve'],
+            ['name' => 'reject_documents', 'resource' => 'documents', 'action' => 'reject'],
         ];
 
         foreach ($permissions as $perm) {
@@ -45,6 +49,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_users',
             'manage_roles',
             'view_logs',
+            'upload_documents',
+            'approve_documents',
+            'reject_documents',
         ])->pluck('permission_id')->toArray();
         $superAdmin->permissions()->sync($superAdminPermissionIds);
 
