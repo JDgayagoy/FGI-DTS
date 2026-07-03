@@ -3,7 +3,8 @@
 **Last Updated:** July 3, 2026  
 **Overall Progress:** 18/65 tests (28%)  
 **Time Spent:** ~12 hours (Phase 1 + Phase 2)  
-**Estimated Remaining:** ~58 hours (Phases 3-7)
+**Estimated Remaining:** ~58 hours (Phases 3-7)  
+**Documentation Location:** `docs/audit-and-implementation/` (new) and `docs/test-coverage/completion-reports/` (moved)
 
 ---
 
@@ -132,6 +133,11 @@ Deliverables:
 - **Developers:** 1-2
 - **Timeline:** 3 weeks (if 2 developers)
 
+### Documentation Organization
+- **Audit Report:** `docs/audit-and-implementation/AUDIT_REPORT.md` (22 issues, 3 critical)
+- **Critical Issue #3 Plan:** `docs/audit-and-implementation/CRITICAL_ISSUE_3_IMPLEMENTATION_PLAN.md`
+- **Phase Completion Reports:** `docs/test-coverage/completion-reports/`
+
 ---
 
 ## What's Working Well ✅
@@ -251,8 +257,10 @@ Full reference: See PHASE_1_COMPLETION_REPORT.md section "Test Helper Infrastruc
 ## Resources
 
 - **Implementation Plan:** `IMPLEMENTATION_PLAN.md` (phases 3-7 with code examples)
-- **Phase 1 Report:** `PHASE_1_COMPLETION_REPORT.md` (helper reference)
-- **Phase 2 Report:** `PHASE_2_COMPLETION_REPORT.md` (test patterns)
+- **Phase 1 Report:** `completion-reports/PHASE_1_COMPLETION_REPORT.md` (helper reference)
+- **Phase 2 Report:** `completion-reports/PHASE_2_COMPLETION_REPORT.md` (test patterns)
+- **Critical Issue #3:** `../audit-and-implementation/CRITICAL_ISSUE_3_IMPLEMENTATION_PLAN.md`
+- **Audit Report:** `../audit-and-implementation/AUDIT_REPORT.md`
 - **Current Status:** This file
 
 ---
