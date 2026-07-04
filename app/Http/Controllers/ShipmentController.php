@@ -67,7 +67,7 @@ class ShipmentController extends Controller
             'shipment_type_id' => 'required|exists:shipment_types,shipment_type_id',
         ]);
 
-        $ata = $validated['actual_time_of_arrival']
+        $ata = ($validated['actual_time_of_arrival'] ?? null)
             ? Carbon::parse($validated['actual_time_of_arrival'])
             : now();
 
@@ -96,9 +96,9 @@ class ShipmentController extends Controller
             'status_id' => 'required|exists:document_status_list,status_id',
         ]);
 
-        if ((int)$request->status_id === 1) {
+        if ((int) $request->status_id === 1) {
             Gate::authorize('approve-documents');
-        } elseif ((int)$request->status_id === 3) {
+        } elseif ((int) $request->status_id === 3) {
             Gate::authorize('reject-documents');
         } else {
             Gate::authorize('edit-shipments');

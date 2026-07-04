@@ -18,7 +18,16 @@ it('allows supply chain manager to view the broker management page', function ()
 });
 
 it('denies logis assoc from viewing the broker management page', function () {
+  
+//     $user = createUserWithPermission('view', 'shipments');
+    // Create a role with no permissions
+    $noPermRole = Role::firstOrCreate(['role_name' => 'No Broker Perms']);
+
+    $user = User::factory()->create();
+    $user->roles()->attach($noPermRole);
+  
     $user = createUserWithPermission('view', 'shipments');
+// >>>>>>> critical
 
     actingAs($user)
         ->get(route('brokers.index'))
