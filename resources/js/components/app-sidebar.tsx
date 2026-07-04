@@ -59,6 +59,8 @@ export function AppSidebar() {
     const hasPermissionName = (name: string) =>
         userPermissions?.includes(name) ?? false;
 
+    console.log(userPermissions);
+
     const filteredMainItems = mainNavItems.filter((item) => {
         if (item.title === 'Shipments') {
             return hasPermissionName('view-shipments');
