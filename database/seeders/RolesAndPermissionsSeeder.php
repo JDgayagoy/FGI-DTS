@@ -10,7 +10,7 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Permissions
+        // 1. Create Permissions (using kebab-case names + action/resource columns)
         $permissions = [
             // Shipments
             ['name' => 'view-shipments', 'resource' => 'shipments', 'action' => 'view'],
@@ -18,8 +18,8 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'edit-shipments', 'resource' => 'shipments', 'action' => 'edit'],
             ['name' => 'archive-shipments', 'resource' => 'shipments', 'action' => 'archive'],
             // RBAC
-            ['name' => 'create-user', 'resource' => 'rbac', 'action' => 'manage_users'],
             ['name' => 'manage-rbac', 'resource' => 'rbac', 'action' => 'manage_roles'],
+            ['name' => 'create-user', 'resource' => 'rbac', 'action' => 'manage_users'],
             // Brokers
             ['name' => 'view-brokers', 'resource' => 'brokers', 'action' => 'view'],
             ['name' => 'add-brokers', 'resource' => 'brokers', 'action' => 'add'],
@@ -44,26 +44,11 @@ class RolesAndPermissionsSeeder extends Seeder
         $supplyChainManager = Role::firstOrCreate(['role_name' => 'Supply chain manager']);
 
         // 3. Assign Permissions to Roles
-        // Super Admin: User/role management + view logs
-        $superAdminPermissionIds = Permission::whereIn('name', [
-            'create-user',
-            'manage-rbac',
-            'view-shipments',
-            'add-shipments',
-            'edit-shipments',
-            'archive-shipments',
-            'view-brokers',
-            'add-brokers',
-            'edit-brokers',
-            'delete-brokers',
-            'view-logs',
-            'upload-documents',
-            'approve-documents',
-            'reject-documents',
-        ])->pluck('permission_id')->toArray();
-        $superAdmin->permissions()->sync($superAdminPermissionIds);
+        // Super Admin: ALL permissions (complete access)
+        $allPermissionIds = Permission::pluck('permission_id')->toArray();
+        $superAdmin->permissions()->sync($allPermissionIds);
 
-        // Supply Chain Manager: All permissions except RBAC (manage users/roles)
+        // Supply Chain Manager: All permissions except RBAC
         $scmPermissionIds = Permission::whereIn('name', [
             'view-shipments',
             'add-shipments',
@@ -78,22 +63,22 @@ class RolesAndPermissionsSeeder extends Seeder
         $supplyChainManager->permissions()->sync($scmPermissionIds);
 
         // Logis Assoc: All shipment permissions + view brokers
-        $shipmentPermissionIds = Permission::whereIn('name', [
+        $logisAssocPermissionIds = Permission::whereIn('name', [
             'view-shipments',
             'add-shipments',
             'edit-shipments',
             'archive-shipments',
             'view-brokers',
         ])->pluck('permission_id')->toArray();
-        $logisAssoc->permissions()->sync($shipmentPermissionIds);
+        $logisAssoc->permissions()->sync($logisAssocPermissionIds);
 
         // Brand Manager: add, view, edit shipments (no delete) + view brokers
-        $brandPermissionIds = Permission::whereIn('name', [
+        $brandManagerPermissionIds = Permission::whereIn('name', [
             'view-shipments',
             'add-shipments',
             'edit-shipments',
             'view-brokers',
         ])->pluck('permission_id')->toArray();
-        $brandManager->permissions()->sync($brandPermissionIds);
+        $brandManager->permissions()->sync($brandManagerPermissionIds);
     }
 }

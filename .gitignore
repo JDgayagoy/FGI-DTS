@@ -27,4 +27,7 @@ yarn-error.log
 /.vscode
 /.zed
 MEMORY.md
-AUDIT_REPORT.md
+
+# Documentation is now in docs/ so these should be tracked
+# AUDIT_REPORT.md moved to docs/audit-and-implementation/
+# No exclusions needed for docs/ folder
