@@ -37,7 +37,7 @@ test('shipment update logs activity with before and after values', function () {
     $oldBrand = $shipment->brand;
     $newBrand = 'UpdatedBrand-'.time();
 
-    $response = actingAs($user)->put(route('shipments.update', $shipment->shipment_id), [
+    $response = actingAs($user)->patch(route('shipments.update', $shipment->shipment_id), [
         'brand' => $newBrand,
     ]);
 

@@ -13,7 +13,7 @@ test('user without add-shipments permission cannot create shipment', function ()
     $response = actingAs($user)->post(route('shipments.store'), [
         'shipment_reference' => 'TEST-'.time(),
         'brand' => 'TestBrand',
-        'incoterm' => 'CIF',
+        'incoterm' => 'FOB',
         'shipment_type_id' => $shipmentType->shipment_type_id,
     ]);
 
@@ -26,7 +26,7 @@ test('user without edit-shipments permission cannot update shipment', function (
     $shipment = createShipment('Processing');
 
     // ACT & ASSERT
-    $response = actingAs($user)->put(route('shipments.update', $shipment), [
+    $response = actingAs($user)->patch(route('shipments.update', $shipment), [
         'shipment_reference' => $shipment->shipment_reference,
         'brand' => 'UpdatedBrand',
         'incoterm' => 'DAP',

@@ -8,7 +8,7 @@ test('user can transition shipment from processing to completed', function () {
     $user = createUserWithPermission('edit', 'shipments');
     $shipment = createShipment('Processing');
 
-    actingAs($user)->put(route('shipments.update', $shipment), [
+    actingAs($user)->patch(route('shipments.update', $shipment), [
         'shipment_reference' => $shipment->shipment_reference,
         'brand' => 'UpdatedBrand',
         'incoterm' => 'DAP',

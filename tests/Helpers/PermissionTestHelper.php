@@ -10,11 +10,25 @@ class PermissionTestHelper
 {
     /**
      * Create a user with a specific permission
+     *
+     * Supports action mapping for RBAC permissions:
+     * - 'manage' + 'rbac' maps to action='manage_roles'
+     * - 'create' + 'rbac' (or 'manage_users') maps to action='manage_users'
      */
     public static function createUserWithPermission(string $action, string $resource): User
     {
         $user = User::factory()->create();
-        $permission = Permission::where('action', $action)
+
+        // Map user-friendly actions to internal action names
+        $actionMap = [
+            'manage' => 'manage_roles',
+            'manage_users' => 'manage_users',
+            'manage_roles' => 'manage_roles',
+        ];
+
+        $internalAction = $actionMap[$action] ?? $action;
+
+        $permission = Permission::where('action', $internalAction)
             ->where('resource', $resource)
             ->firstOrFail();
 
@@ -33,9 +47,16 @@ class PermissionTestHelper
         $user = User::factory()->create();
         $role = Role::factory()->create();
 
+        $actionMap = [
+            'manage' => 'manage_roles',
+            'manage_users' => 'manage_users',
+            'manage_roles' => 'manage_roles',
+        ];
+
         $permissionIds = [];
         foreach ($permissions as [$action, $resource]) {
-            $permission = Permission::where('action', $action)
+            $internalAction = $actionMap[$action] ?? $action;
+            $permission = Permission::where('action', $internalAction)
                 ->where('resource', $resource)
                 ->firstOrFail();
             $permissionIds[] = $permission->permission_id;
@@ -104,7 +125,15 @@ class PermissionTestHelper
      */
     public static function grantPermissionToUser(User $user, string $action, string $resource): void
     {
-        $permission = Permission::where('action', $action)
+        $actionMap = [
+            'manage' => 'manage_roles',
+            'manage_users' => 'manage_users',
+            'manage_roles' => 'manage_roles',
+        ];
+
+        $internalAction = $actionMap[$action] ?? $action;
+
+        $permission = Permission::where('action', $internalAction)
             ->where('resource', $resource)
             ->firstOrFail();
 
@@ -116,7 +145,15 @@ class PermissionTestHelper
      */
     public static function removePermissionFromUser(User $user, string $action, string $resource): void
     {
-        $permission = Permission::where('action', $action)
+        $actionMap = [
+            'manage' => 'manage_roles',
+            'manage_users' => 'manage_users',
+            'manage_roles' => 'manage_roles',
+        ];
+
+        $internalAction = $actionMap[$action] ?? $action;
+
+        $permission = Permission::where('action', $internalAction)
             ->where('resource', $resource)
             ->firstOrFail();
 
