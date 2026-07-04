@@ -15,9 +15,12 @@ class BrokerFactory extends Factory
     public function definition(): array
     {
         return [
-            'broker_name' => $this->faker->unique()->company(),
+            'broker_name' => $this->faker->company(),
             'contact_person' => $this->faker->name(),
-            'email' => $this->faker->unique()->companyEmail(),
+            'email' => $this->faker->unique()->email(),
+//             'broker_name' => $this->faker->unique()->company(),
+//             'contact_person' => $this->faker->name(),
+//             'email' => $this->faker->unique()->companyEmail(),
             'phone' => $this->faker->phoneNumber(),
             'is_active' => true,
         ];

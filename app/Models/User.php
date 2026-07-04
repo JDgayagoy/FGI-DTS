@@ -47,7 +47,12 @@ class User extends Authenticatable
      */
     public function hasRole($roleName): bool
     {
-        return $this->roles()->where('role_name', $roleName)->exists();
+        // Eager load roles if not already loaded
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles');
+        }
+
+        return $this->roles->contains('role_name', $roleName);
     }
 
     /**
@@ -81,7 +86,7 @@ class User extends Authenticatable
         }
 
         return $this->roles
-            ->flatMap(fn($role) => $role->permissions)
+            ->flatMap(fn ($role) => $role->permissions)
             ->pluck('name')
             ->unique()
             ->values()
