@@ -77,7 +77,7 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
         number | null
     >(null);
     const [selectedDocKey, setSelectedDocKey] = useState<string | null>(null);
-    const itemsPerPage = 20;
+    const itemsPerPage = 10;
 
     // Derive current page from filter combination
     // When filters change, the key changes and page defaults to 1
@@ -85,11 +85,16 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
     const currentPage = pageByFilter[filterKey] ?? 1;
 
     // Handler to update page for current filter combination
-    const setCurrentPage = (page: number) => {
-        setPageByFilter((prev) => ({
-            ...prev,
-            [filterKey]: page,
-        }));
+    const setCurrentPage = (page: number | ((prev: number) => number)) => {
+        setPageByFilter((prev) => {
+            const prevPage = prev[filterKey] ?? 1;
+            const nextPage = typeof page === 'function' ? page(prevPage) : page;
+            
+            return {
+                ...prev,
+                [filterKey]: nextPage,
+            };
+        });
     };
 
     // Manage body overflow when detail panel is open

@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Download, Eye } from 'lucide-react';
+import { StatusIcon } from '@/components/shipments/status-icon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { StatusIcon } from '@/components/shipments/status-icon';
 
 interface Shipment {
     date: string;
