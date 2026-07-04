@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
             'userPermissions' => fn () => Auth::check() ? Auth::user()->getPermissionNames() : [],
         ]);
         Gate::define('manage-rbac', fn (User $user) => $user->hasPermission('manage_roles', 'rbac'));
+        Gate::define('view-shipments', fn (User $user) => $user->hasPermission('view', 'shipments'));
         Gate::define('add-shipments', fn (User $user) => $user->hasPermission('add', 'shipments'));
         Gate::define('edit-shipments', fn (User $user) => $user->hasPermission('edit', 'shipments'));
         Gate::define('archive-shipments', fn (User $user) => $user->hasPermission('archive', 'shipments'));

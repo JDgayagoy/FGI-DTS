@@ -1,9 +1,7 @@
+import { usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
 import {
-    BookOpen,
-    FolderGit2,
     LayoutGrid,
-    Ship,
     BarChart3,
     List,
     HelpCircle,
@@ -13,7 +11,7 @@ import {
     Truck,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
+
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -27,7 +25,6 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
-import { usePage } from '@inertiajs/react';
 
 const mainNavItems: NavItem[] = [
     {
@@ -63,26 +60,34 @@ export function AppSidebar() {
         userPermissions?.includes(name) ?? false;
 
     const filteredMainItems = mainNavItems.filter((item) => {
-        if (item.title === 'Shipments')
-            return hasPermissionName('view_all_shipments');
-        if (item.title === 'Reports')
-            return hasPermissionName('view_all_shipments');
-        if (item.title === 'Logs')
-            return hasPermissionName('view_logs');
+        if (item.title === 'Shipments') {
+            return hasPermissionName('view-shipments');
+        }
+
+        if (item.title === 'Reports') {
+            return hasPermissionName('view-shipments');
+        }
+
+        if (item.title === 'Logs') {
+            return hasPermissionName('view-logs');
+        }
+
         return true; // Dashboard and others always visible
     });
 
     const managementItems: NavItem[] = [
-        ...(hasPermissionName('manage_users')
+        ...(hasPermissionName('create-user')
             ? [{ title: 'User Management', href: '/users', icon: Users }]
             : []),
-        ...(hasPermissionName('manage_roles')
+        ...(hasPermissionName('manage-rbac')
             ? [{ title: 'Role Management', href: '/roles', icon: Shield }]
             : []),
-        ...(hasPermissionName('add_brokers') ||
-        hasPermissionName('edit_brokers') ||
-        hasPermissionName('delete_brokers')
-            ? [{ title: 'Broker Management', href: '/brokers', icon: Truck }]
+        ...(hasPermissionName('view-brokers')
+            ? //     ||
+              // hasPermissionName('edit-brokers') ||
+              // hasPermissionName('delete-brokers') ||
+              // hasPermissionName('add-brokers')
+              [{ title: 'Broker Management', href: '/brokers', icon: Truck }]
             : []),
     ];
 
