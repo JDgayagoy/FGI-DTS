@@ -62,26 +62,28 @@ export function AppSidebar() {
     const hasPermissionName = (name: string) =>
         userPermissions?.includes(name) ?? false;
 
+    console.log(userPermissions);
+
     const filteredMainItems = mainNavItems.filter((item) => {
         if (item.title === 'Shipments')
-            return hasPermissionName('view_all_shipments');
+            return hasPermissionName('view-shipments');
         if (item.title === 'Reports')
-            return hasPermissionName('view_all_shipments');
+            return hasPermissionName('view-shipments');
         if (item.title === 'Logs')
-            return hasPermissionName('view_logs');
+            return hasPermissionName('view-logs');
         return true; // Dashboard and others always visible
     });
 
     const managementItems: NavItem[] = [
-        ...(hasPermissionName('manage_users')
+        ...(hasPermissionName('create-user')
             ? [{ title: 'User Management', href: '/users', icon: Users }]
             : []),
-        ...(hasPermissionName('manage_roles')
+        ...(hasPermissionName('manage-rbac')
             ? [{ title: 'Role Management', href: '/roles', icon: Shield }]
             : []),
-        ...(hasPermissionName('add_brokers') ||
-        hasPermissionName('edit_brokers') ||
-        hasPermissionName('delete_brokers')
+        ...(hasPermissionName('add-brokers') ||
+        hasPermissionName('edit-brokers') ||
+        hasPermissionName('delete-brokers')
             ? [{ title: 'Broker Management', href: '/brokers', icon: Truck }]
             : []),
     ];
