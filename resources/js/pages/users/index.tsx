@@ -38,7 +38,7 @@ export default function Users({ users, roles, auth }: Props) {
     const [isUpdatingRoles, setIsUpdatingRoles] = useState(false);
     const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([]);
 
-    const canCreateUser = auth.permissions.includes('manage_users');
+    const canCreateUser = auth.permissions.includes('create-user');
 
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
