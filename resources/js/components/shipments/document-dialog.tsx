@@ -26,9 +26,9 @@ export const DocumentDialog = ({
 
     const { auth } = usePage().props as any;
     const permissions = auth?.permissions || [];
-    const canUpload = permissions.includes('upload_documents');
-    const canApprove = permissions.includes('approve_documents');
-    const canReject = permissions.includes('reject_documents');
+    const canUpload = permissions.includes('upload-documents');
+    const canApprove = permissions.includes('approve-documents');
+    const canReject = permissions.includes('reject-documents');
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 

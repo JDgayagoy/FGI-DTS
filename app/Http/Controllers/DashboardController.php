@@ -16,6 +16,7 @@ class DashboardController extends Controller
         $allShipments = Shipment::with([
             'status',
             'shipmentType',
+            'broker',
             'documents.customDoc',
             'documents.currentStatus.status',
         ])->get();
@@ -66,9 +67,13 @@ class DashboardController extends Controller
         $docKeys = ['SH', 'SSDT', 'FAN', 'TAN', 'SAD', 'BL', 'FE', 'IV', 'PL', 'CI', 'DH'];
 
         $shipmentRows = $shipments->map(function ($shipment) use ($docKeys) {
+            // Index this shipment's documents by doc_name once, instead of
+            // re-scanning the collection for every key in $docKeys.
+            $docsByKey = $shipment->documents->keyBy(fn($d) => $d->customDoc?->doc_name);
+
             $docs = [];
             foreach ($docKeys as $key) {
-                $doc = $shipment->documents->first(fn($d) => $d->customDoc?->doc_name === $key);
+                $doc = $docsByKey->get($key);
                 $statusName = $doc?->currentStatus?->status?->status_name;
 
                 $docs[$key] = [
