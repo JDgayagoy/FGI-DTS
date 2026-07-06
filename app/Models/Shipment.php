@@ -46,6 +46,24 @@ class Shipment extends Model
         return $query->whereNotNull('archived_at');
     }
 
+    public function scopeSearchTerm($query, ?string $term)
+    {
+        if (! $term) {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($term) {
+            $like = "%{$term}%";
+            $q->where('shipments.shipment_reference', 'like', $like)
+                ->orWhere('shipments.brand', 'like', $like)
+                ->orWhere('shipments.incoterm', 'like', $like)
+                ->orWhere('shipments.brand_manager', 'like', $like)
+                ->orWhere('brokers.broker_name', 'like', $like)
+                ->orWhere('shipment_status_list.status_name', 'like', $like)
+                ->orWhere('shipment_types.shipment_type_name', 'like', $like);
+        });
+    }
+
     public function status()
     {
         return $this->belongsTo(ShipmentStatusList::class, 'status_id', 'status_id');

@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Download, Package, Plus } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { DocumentDialog } from '@/components/shipments/document-dialog';
 import { ModalShell } from '@/components/shipments/modal-shell';
@@ -8,10 +8,11 @@ import { ShipmentFormFields } from '@/components/shipments/shipment-form-fields'
 import { ShipmentsTable } from '@/components/shipments/shipments-table';
 import { Button } from '@/components/ui/button';
 import { usePermissions } from '@/hooks/use-permissions';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 
 import AppLayout from '@/layouts/app-layout';
 import { breadcrumbs, emptyForm } from './constants';
-import { toDatetimeLocal, incotermName } from './helpers';
+import { toDatetimeLocal } from './helpers';
 import type { Props, Shipment } from './types';
 
 export default function Shipments({
@@ -20,132 +21,90 @@ export default function Shipments({
     brokers,
     filters,
     archiveCounts,
+    statusCounts,
 }: Props) {
     const [activeDocPanel, setActiveDocPanel] = useState<number | null>(null);
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
-    const [editingShipment, setEditingShipment] = useState<Shipment | null>(
-        null,
-    );
-    const [archivingShipment, setArchivingShipment] = useState<Shipment | null>(
-        null,
-    );
+    const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
+    const [archivingShipment, setArchivingShipment] = useState<Shipment | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [sortConfig, setSortConfig] = useState<{
-        key: string;
-        direction: 'asc' | 'desc';
-    } | null>(null);
+    const [searchQuery, setSearchQuery] = useState(filters.search ?? '');
     const [editForm, setEditForm] = useState({ ...emptyForm });
     const [addForm, setAddForm] = useState({ ...emptyForm });
 
     const { hasPermission } = usePermissions();
 
     const activeShipment =
-        activeDocPanel !== null ? shipments[activeDocPanel] : null;
+        activeDocPanel !== null ? shipments.data[activeDocPanel] : null;
 
-    // ── Search, filter, sort ──────────────────────────────────────────────────
-    const filteredShipments = useMemo(() => {
-        const q = searchQuery.trim().toLowerCase();
-        let result = shipments;
+    const debouncedSearch = useDebouncedValue(searchQuery, 400);
+    const isFirstRun = useRef(true);
 
-        if (q) {
-            result = shipments.filter((s) =>
-                [
-                    s.shipment_reference,
-                    s.brand,
-                    s.incoterm,
-                    incotermName(s.incoterm),
-                    s.broker?.broker_name ?? '',
-                    s.brand_manager,
-                    s.status.status_name,
-                    s.shipment_type.shipment_type_name,
-                ]
-                    .join(' ')
-                    .toLowerCase()
-                    .includes(q),
-            );
+    const buildQuery = (overrides: Record<string, unknown> = {}) => ({
+        ...(filters.archive !== 'active' ? { archive: filters.archive } : {}),
+        ...(filters.status ? { status: filters.status } : {}),
+        ...(filters.sort ? { sort: filters.sort, direction: filters.direction } : {}),
+        ...(searchQuery ? { search: searchQuery } : {}),
+        page: shipments.current_page,
+        ...overrides,
+    });
+
+    // ── Debounced server-side search ──────────────────────────────────────────
+    useEffect(() => {
+        if (isFirstRun.current) {
+            isFirstRun.current = false;
+            return;
         }
 
-        if (sortConfig) {
-            result = [...result].sort((a, b) => {
-                let aVal: any, bVal: any;
-
-                switch (sortConfig.key) {
-                    case 'shipment_reference':
-                    case 'brand':
-                    case 'brand_manager':
-                        aVal = a[sortConfig.key as keyof Shipment];
-                        bVal = b[sortConfig.key as keyof Shipment];
-                        break;
-                    case 'broker':
-                        aVal = a.broker?.broker_name ?? '';
-                        bVal = b.broker?.broker_name ?? '';
-                        break;
-                    case 'incoterm':
-                        aVal = incotermName(a.incoterm);
-                        bVal = incotermName(b.incoterm);
-                        break;
-                    case 'actual_time_of_arrival':
-                    case 'created_at':
-                    case 'archived_at':
-                        aVal = a[sortConfig.key as keyof Shipment]
-                            ? new Date(
-                                  a[sortConfig.key as keyof Shipment] as string,
-                              ).getTime()
-                            : 0;
-                        bVal = b[sortConfig.key as keyof Shipment]
-                            ? new Date(
-                                  b[sortConfig.key as keyof Shipment] as string,
-                              ).getTime()
-                            : 0;
-                        break;
-                    case 'status':
-                        aVal = a.status.status_name;
-                        bVal = b.status.status_name;
-                        break;
-                    case 'shipment_type':
-                        aVal = a.shipment_type.shipment_type_name;
-                        bVal = b.shipment_type.shipment_type_name;
-                        break;
-                    default:
-                        aVal = a[sortConfig.key as keyof Shipment];
-                        bVal = b[sortConfig.key as keyof Shipment];
-                }
-
-                if (aVal === bVal) {
-                    return 0;
-                }
-
-                if (aVal === null || aVal === undefined) {
-                    return 1;
-                }
-
-                if (bVal === null || bVal === undefined) {
-                    return -1;
-                }
-
-                const comparison = aVal < bVal ? -1 : 1;
-
-                return sortConfig.direction === 'asc'
-                    ? comparison
-                    : -comparison;
-            });
-        }
-
-        return result;
-    }, [shipments, searchQuery, sortConfig]);
+        router.get(
+            '/shipments',
+            {
+                ...(filters.archive !== 'active' ? { archive: filters.archive } : {}),
+                ...(filters.status ? { status: filters.status } : {}),
+                ...(filters.sort ? { sort: filters.sort, direction: filters.direction } : {}),
+                ...(debouncedSearch ? { search: debouncedSearch } : {}),
+                page: 1,
+            },
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedSearch]);
 
     const handleSort = (key: string) => {
-        setSortConfig((prev) => {
-            if (prev?.key === key) {
-                if (prev.direction === 'asc') {
-                    return { key, direction: 'desc' };
-                }
+        if (filters.sort === key && filters.direction === 'desc') {
+            // third click clears sort
+            router.get('/shipments', buildQuery({ sort: undefined, direction: undefined, page: 1 }), {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            });
+            return;
+        }
 
-                return null;
-            }
+        const direction = filters.sort === key && filters.direction === 'asc' ? 'desc' : 'asc';
 
-            return { key, direction: 'asc' };
+        router.get('/shipments', buildQuery({ sort: key, direction, page: 1 }), {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const handlePageChange = (page: number) => {
+        setActiveDocPanel(null);
+        setSelectedDocId(null);
+        router.get('/shipments', buildQuery({ page }), {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
+
+    const handleTabChange = (status: string | null) => {
+        router.get('/shipments', buildQuery({ status: status ?? undefined, page: 1 }), {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
         });
     };
 
@@ -167,9 +126,7 @@ export default function Shipments({
             shipment_reference: shipment.shipment_reference,
             brand: shipment.brand,
             incoterm: shipment.incoterm,
-            actual_time_of_arrival: toDatetimeLocal(
-                shipment.actual_time_of_arrival,
-            ),
+            actual_time_of_arrival: toDatetimeLocal(shipment.actual_time_of_arrival),
             broker_id: String(shipment.broker_id ?? ''),
             brand_manager: shipment.brand_manager,
             shipment_type_id: String(shipment.shipment_type.shipment_type_id),
@@ -177,9 +134,7 @@ export default function Shipments({
     };
     const closeEditModal = () => setEditingShipment(null);
     const handleEditSubmit = () => {
-        if (!editingShipment) {
-            return;
-        }
+        if (!editingShipment) return;
 
         router.put(`/shipments/${editingShipment.shipment_id}`, editForm, {
             onSuccess: closeEditModal,
@@ -194,16 +149,14 @@ export default function Shipments({
         );
     };
 
-    const handleArchiveFilterChange = (
-        archive: Props['filters']['archive'],
-    ) => {
+    const handleArchiveFilterChange = (archive: Props['filters']['archive']) => {
         setActiveDocPanel(null);
         setSelectedDocId(null);
-        router.get('/shipments', archive === 'active' ? {} : { archive }, {
-            preserveState: true,
-            preserveScroll: true,
-            replace: true,
-        });
+        router.get(
+            '/shipments',
+            buildQuery({ archive: archive !== 'active' ? archive : undefined, page: 1 }),
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
     };
 
     const closePanel = () => {
@@ -224,8 +177,6 @@ export default function Shipments({
                         </h1>
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold gap-2"><Eye className="size-3.5" /> View All</Button>
-                        <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold gap-2"><Calendar className="size-3.5" /> Last 30 Days</Button> */}
                         <Button
                             variant="outline"
                             size="sm"
@@ -246,11 +197,13 @@ export default function Shipments({
 
                 <ShipmentsTable
                     shipments={shipments}
-                    filteredShipments={filteredShipments}
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
-                    sortConfig={sortConfig}
+                    sortConfig={filters.sort ? { key: filters.sort, direction: filters.direction } : null}
                     handleSort={handleSort}
+                    activeTab={filters.status ?? null}
+                    onTabChange={handleTabChange}
+                    statusCounts={statusCounts}
                     openEditModal={openEditModal}
                     setArchivingShipment={setArchivingShipment}
                     setActiveDocPanel={setActiveDocPanel}
@@ -258,6 +211,7 @@ export default function Shipments({
                     archiveFilter={filters.archive}
                     archiveCounts={archiveCounts}
                     setArchiveFilter={handleArchiveFilterChange}
+                    onPageChange={handlePageChange}
                 />
             </div>
 

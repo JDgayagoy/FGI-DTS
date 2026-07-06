@@ -1,3 +1,13 @@
+export interface Paginated<T> {
+    data: T[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+}
+
 export interface DocumentStatusList {
     status_id: number;
     status_name: string;
@@ -70,15 +80,26 @@ export interface Shipment {
 }
 
 export interface Props {
-    shipments: Shipment[];
+    shipments: Paginated<Shipment>;
     shipmentTypes: ShipmentType[];
     brokers: Broker[];
     filters: {
         archive: 'active' | 'archived' | 'all';
+        search: string;
+        status: string | null;
+        sort: string | null;
+        direction: 'asc' | 'desc';
     };
     archiveCounts: {
         active: number;
         archived: number;
         all: number;
+    };
+    statusCounts: {
+        all: number;
+        Completed: number;
+        Processing: number;
+        Pending: number;
+        Failed: number;
     };
 }

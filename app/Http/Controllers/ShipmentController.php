@@ -12,12 +12,14 @@ use App\Services\ActivityLogger;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ShipmentController extends Controller
 {
+
     public function index(Request $request)
     {
         $archiveFilter = $request->query('archive', 'active');
@@ -26,17 +28,60 @@ class ShipmentController extends Controller
             $archiveFilter = 'active';
         }
 
-        $shipments = Shipment::with([
-            'status',
-            'shipmentType',
-            'broker',
-            'documents.customDoc',
-            'documents.currentStatus.status',
-        ])
-            ->when($archiveFilter === 'active', fn ($query) => $query->active())
-            ->when($archiveFilter === 'archived', fn ($query) => $query->archived())
-            ->latest()
-            ->get();
+        $search = trim((string) $request->query('search', ''));
+        $status = $request->query('status');
+        $sort = $request->query('sort');
+        $direction = $request->query('direction') === 'desc' ? 'desc' : 'asc';
+        $perPage = (int) $request->query('per_page', 15);
+        $perPage = max(1, min($perPage, 100));
+
+        $sortMap = [
+            'shipment_reference' => 'shipments.shipment_reference',
+            'brand' => 'shipments.brand',
+            'incoterm' => 'shipments.incoterm',
+            'actual_time_of_arrival' => 'shipments.actual_time_of_arrival',
+            'created_at' => 'shipments.created_at',
+            'archived_at' => 'shipments.archived_at',
+            'brand_manager' => 'shipments.brand_manager',
+            'broker' => 'brokers.broker_name',
+            'status' => 'shipment_status_list.status_name',
+            'shipment_type' => 'shipment_types.shipment_type_name',
+        ];
+
+        // Base query shared by the paginated list and the tab-count aggregate.
+        // Deliberately excludes the `status` filter so counts reflect all tabs
+        // under the current archive/search context.
+        $baseQuery = fn () => Shipment::query()
+            ->leftJoin('brokers', 'brokers.broker_id', '=', 'shipments.broker_id')
+            ->leftJoin('shipment_status_list', 'shipment_status_list.status_id', '=', 'shipments.status_id')
+            ->leftJoin('shipment_types', 'shipment_types.shipment_type_id', '=', 'shipments.shipment_type_id')
+            ->when($archiveFilter === 'active', fn ($q) => $q->active())
+            ->when($archiveFilter === 'archived', fn ($q) => $q->archived())
+            ->searchTerm($search ?: null);
+
+        // ── Paginated rows ──────────────────────────────────────────────────────
+        $query = $baseQuery()
+            ->select('shipments.*')
+            ->with([
+                'status',
+                'shipmentType',
+                'broker',
+                'documents.customDoc',
+                'documents.currentStatus.status',
+            ])
+            ->when($status, fn ($q) => $q->where('shipment_status_list.status_name', $status));
+
+        $query->orderBy($sortMap[$sort] ?? 'shipments.created_at', $sort ? $direction : 'desc');
+
+        $shipments = $query->paginate($perPage)->withQueryString();
+
+        // ── Tab counts (respect archive + search, ignore the active tab itself) ──
+        $statusCounts = $baseQuery()
+            ->select('shipment_status_list.status_name', DB::raw('count(*) as aggregate'))
+            ->groupBy('shipment_status_list.status_name')
+            ->pluck('aggregate', 'status_name');
+
+        $totalForTabs = $baseQuery()->count();
 
         return Inertia::render('shipments/index', [
             'shipments' => $shipments,
@@ -44,11 +89,22 @@ class ShipmentController extends Controller
             'brokers' => Broker::where('is_active', true)->get(),
             'filters' => [
                 'archive' => $archiveFilter,
+                'search' => $search,
+                'status' => $status,
+                'sort' => $sort,
+                'direction' => $direction,
             ],
             'archiveCounts' => [
                 'active' => Shipment::active()->count(),
                 'archived' => Shipment::archived()->count(),
                 'all' => Shipment::count(),
+            ],
+            'statusCounts' => [
+                'all' => $totalForTabs,
+                'Completed' => (int) ($statusCounts['Completed'] ?? 0),
+                'Processing' => (int) ($statusCounts['Processing'] ?? 0),
+                'Pending' => (int) ($statusCounts['Pending'] ?? 0),
+                'Failed' => (int) ($statusCounts['Failed'] ?? 0),
             ],
         ]);
     }
