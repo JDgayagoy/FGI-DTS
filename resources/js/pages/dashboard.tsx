@@ -39,6 +39,7 @@ interface DocInfo {
 interface ShipmentRow {
     shipment_id: number;
     ref: string;
+    broker: string;
     date: string;
     incoterm: string;
     status: 'completed' | 'warning' | 'pending' | 'error';
@@ -144,7 +145,7 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
         }
 
         if (!shipment.date) {
-            return true;
+            return false;
         }
 
         const sDate = new Date(shipment.date);

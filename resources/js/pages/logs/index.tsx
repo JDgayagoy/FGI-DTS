@@ -183,7 +183,7 @@ export default function LogsIndex({ logs: paginator, filters }: Props) {
                                     )}
                                 >
                                     <td className="px-4 py-3 text-slate-400 font-mono text-[9px] whitespace-nowrap">
-                                        {format(new Date(log.created_at), 'dd MMM yyyy HH:mm:ss')}
+                                        {log.created_at ? format(new Date(log.created_at), 'dd MMM yyyy HH:mm:ss') : '—'}
                                     </td>
                                     <td className="px-4 py-3">
                                         {log.user ? (

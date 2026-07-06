@@ -117,7 +117,7 @@ class ShipmentController extends Controller
             'shipment_reference' => 'required|string|max:255',
             'brand' => 'required|string|max:255',
             'incoterm' => 'required|string|max:255',
-            'actual_time_of_arrival' => 'nullable|date',
+            'actual_time_of_arrival' => 'sometimes|nullable|date',
             'broker_id' => 'nullable|exists:brokers,broker_id',
             'brand_manager' => 'nullable|string|max:255',
             'shipment_type_id' => 'required|exists:shipment_types,shipment_type_id',
@@ -127,6 +127,7 @@ class ShipmentController extends Controller
             ? Carbon::parse($validated['actual_time_of_arrival'])
             : now();
 
+        $validated['actual_time_of_arrival'] = $ata->format('Y-m-d');
         $validated['year'] = $ata->year;
         $validated['month'] = $ata->month;
         $validated['status_id'] = 2; // Pending by default
