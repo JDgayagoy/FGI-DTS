@@ -160,12 +160,18 @@ class ShipmentController extends Controller
             Gate::authorize('edit-shipments');
         }
 
+        $shipmentDoc = ShipmentDocument::with('customDoc')->findOrFail($shipment_doc_id);
+
+        $oldStatus = DocumentStatus::where('shipment_doc_id', $shipment_doc_id)
+            ->where('is_current', true)
+            ->first();
+
         // Set all previous statuses for this doc to not current
         DocumentStatus::where('shipment_doc_id', $shipment_doc_id)
             ->update(['is_current' => false]);
 
         // Insert new current status
-        DocumentStatus::create([
+        $newDocStatus = DocumentStatus::create([
             'shipment_doc_id' => $shipment_doc_id,
             'status_id' => $request->status_id,
             'is_current' => true,
@@ -173,7 +179,13 @@ class ShipmentController extends Controller
             'changed_by' => Auth::id(),
         ]);
 
-        $shipmentDoc = ShipmentDocument::find($shipment_doc_id);
+        // Log the document-level status change immediately
+        ActivityLogger::log(
+            'document_status_changed',
+            "Changed document \"{$shipmentDoc->customDoc->doc_name}\" status.",
+            $shipmentDoc,
+            ['old_status_id' => $oldStatus?->status_id, 'new_status_id' => $newDocStatus->status_id],
+        );
 
         $shipment = Shipment::with('documents.currentStatus.status')
             ->find($shipmentDoc->shipment_id);
@@ -184,14 +196,17 @@ class ShipmentController extends Controller
         })->count();
 
         $newStatusId = ($totalDocs > 0 && $approvedDocs === $totalDocs) ? 4 : 2;
-        $shipment->update(['status_id' => $newStatusId]);
 
-        ActivityLogger::log(
-            'document_status_updated',
-            "Updated document status for shipment \"{$shipment->shipment_reference}\" (doc #{$shipment_doc_id}).",
-            $shipment,
-            ['shipment_doc_id' => $shipment_doc_id, 'new_status_id' => $request->status_id],
-        );
+        if ($shipment->status_id !== $newStatusId) {
+            $shipment->update(['status_id' => $newStatusId]);
+
+            ActivityLogger::log(
+                'shipment_status_recalculated',
+                "Recalculated status for shipment \"{$shipment->shipment_reference}\" following a document status change.",
+                $shipment,
+                ['shipment_doc_id' => $shipment_doc_id, 'new_shipment_status_id' => $newStatusId],
+            );
+        }
 
         return redirect()->route('shipments.index');
     }
