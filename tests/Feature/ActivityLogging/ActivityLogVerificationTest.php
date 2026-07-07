@@ -2,6 +2,7 @@
 
 use App\Models\Shipment;
 use App\Models\ShipmentType;
+use App\Models\ActivityLog;
 use Illuminate\Http\UploadedFile;
 
 use function Pest\Laravel\actingAs;
@@ -10,15 +11,17 @@ test('shipment creation logs activity', function () {
     $user = createUserWithPermission('add', 'shipments');
     $shipmentType = ShipmentType::first() ?? ShipmentType::factory()->create();
 
+    $shipmentReference = 'SHIP-'.time();
+
     $response = actingAs($user)->post(route('shipments.store'), [
-        'shipment_reference' => 'SHIP-'.time(),
+        'shipment_reference' => $shipmentReference,
         'brand' => 'TestBrand',
         'incoterm' => 'CIF',
         'shipment_type_id' => $shipmentType->shipment_type_id,
     ]);
 
     $response->assertRedirect(route('shipments.index'));
-    $shipment = Shipment::where('shipment_reference', 'SHIP-'.time())->first();
+    $shipment = Shipment::where('shipment_reference', $shipmentReference)->first();
     expect($shipment)->not->toBeNull();
 
     if ($shipment) {

@@ -180,16 +180,20 @@ class ShipmentController extends Controller
             'changed_by' => Auth::id(),
         ]);
 
-        // Log the document-level status change immediately
-        ActivityLogger::log(
-            'document_status_changed',
-            "Changed document \"{$shipmentDoc->customDoc->doc_name}\" status.",
-            $shipmentDoc,
-            ['old_status_id' => $oldStatus?->status_id, 'new_status_id' => $newDocStatus->status_id],
-        );
-
         $shipment = Shipment::with('documents.currentStatus.status')
             ->find($shipmentDoc->shipment_id);
+
+        // Log the document-level status change, attached to the parent Shipment
+        ActivityLogger::log(
+            'document_status_updated',
+            "Updated document status for shipment \"{$shipment->shipment_reference}\".",
+            $shipment,
+            [
+                'shipment_doc_id' => $shipment_doc_id,
+                'old_status_id' => $oldStatus?->status_id,
+                'new_status_id' => $newDocStatus->status_id,
+            ],
+        );
 
         $totalDocs = $shipment->documents->count();
         $approvedDocs = $shipment->documents->filter(function ($doc) {
