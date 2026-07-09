@@ -33,13 +33,25 @@ class RoleManagementController extends Controller
             'permission_ids.*' => 'exists:permissions,permission_id',
         ]);
 
-        $role->permissions()->sync($validated['permission_ids']);
+        // capture previous permission names for a readable audit trail
+        $oldPermissionNames = $role->permissions()->pluck('name')->toArray();
+
+        $role->permissions()->sync($validated['permission_ids'] ?? []);
+
+        // resolve new permission names
+        $newPermissionNames = Permission::whereIn('permission_id', $validated['permission_ids'] ?? [])->pluck('name')->toArray();
 
         ActivityLogger::log(
             'permissions_updated',
             "Updated permissions for role \"{$role->role_name}\".",
             $role,
-            ['permission_ids' => $validated['permission_ids']],
+            [
+                'permission_ids' => $validated['permission_ids'] ?? [],
+                'old_permission_names' => $oldPermissionNames,
+                'new_permission_names' => $newPermissionNames,
+                'from' => implode(', ', $oldPermissionNames),
+                'to' => implode(', ', $newPermissionNames),
+            ],
         );
 
         return redirect()->back()->with('success', 'Role permissions updated successfully.');

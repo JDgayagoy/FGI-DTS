@@ -184,6 +184,9 @@ class ShipmentController extends Controller
             ->find($shipmentDoc->shipment_id);
 
         // Log the document-level status change, attached to the parent Shipment
+        $oldStatusName = $oldStatus?->status?->status_name;
+        $newStatusName = $newDocStatus->status?->status_name;
+
         ActivityLogger::log(
             'document_status_updated',
             "Updated document status for shipment \"{$shipment->shipment_reference}\".",
@@ -192,6 +195,10 @@ class ShipmentController extends Controller
                 'shipment_doc_id' => $shipment_doc_id,
                 'old_status_id' => $oldStatus?->status_id,
                 'new_status_id' => $newDocStatus->status_id,
+                'old_status_name' => $oldStatusName,
+                'new_status_name' => $newStatusName,
+                'from' => $oldStatusName,
+                'to' => $newStatusName,
             ],
         );
 

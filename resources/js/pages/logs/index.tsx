@@ -51,6 +51,7 @@ interface Props {
         date_from?: string;
         date_to?: string;
     };
+    permissions?: Record<string, string>;
 }
 
 const ACTION_COLORS: Record<string, string> = {
@@ -85,7 +86,72 @@ function SubjectBadge({ type }: { type: string | null }) {
     );
 }
 
-export default function LogsIndex({ logs: paginator, filters }: Props) {
+function PropertyChangeSummary({ properties, permissions }: { properties: Record<string, unknown> | null, permissions?: Record<string, string> }) {
+    if (!properties) {
+        return null;
+    }
+
+    // map common permission id arrays to readable names when a lookup is provided
+    if (permissions && Array.isArray(properties.permission_ids)) {
+        const ids = properties.permission_ids as Array<string | number>;
+        const names = ids.map((id) => permissions[String(id)] ?? `#${id}`);
+        // prefer showing the mapped names as the main summary
+        properties = { ...properties, from: names.join(', '), to: names.join(', '), permission_names: names };
+    }
+
+    const fromValue = properties.from ?? properties.old_status_name ?? properties.old_status_id ?? null;
+    const toValue = properties.to ?? properties.new_status_name ?? properties.new_status_id ?? null;
+
+    const fromLabel = fromValue == null
+        ? '—'
+        : typeof fromValue === 'string'
+            ? fromValue
+            : typeof fromValue === 'number'
+                ? String(fromValue)
+                : JSON.stringify(fromValue);
+
+    const toLabel = toValue == null
+        ? '—'
+        : typeof toValue === 'string'
+            ? toValue
+            : typeof toValue === 'number'
+                ? String(toValue)
+                : JSON.stringify(toValue);
+
+    const shouldShowInlineSummary = properties.from !== undefined || properties.to !== undefined || properties.old_status_name !== undefined || properties.new_status_name !== undefined || properties.old_status_id !== undefined || properties.new_status_id !== undefined;
+
+    if (shouldShowInlineSummary) {
+        const extraEntries = Object.entries(properties).filter(([key]) => !['from', 'to', 'old_status_name', 'new_status_name', 'old_status_id', 'new_status_id', 'permission_ids', 'permission_names', 'old_permission_names', 'new_permission_names'].includes(key));
+
+        return (
+            <div className="space-y-3">
+                <div className="flex flex-wrap gap-3">
+                    <div className="rounded-lg border border-slate-200/80 bg-white px-3 py-2 dark:border-slate-800 dark:bg-slate-900/60">
+                        <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400">From</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{fromLabel}</p>
+                    </div>
+                    <div className="rounded-lg border border-slate-200/80 bg-white px-3 py-2 dark:border-slate-800 dark:bg-slate-900/60">
+                        <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400">To</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{toLabel}</p>
+                    </div>
+                </div>
+                {extraEntries.length > 0 && (
+                    <pre className="overflow-x-auto rounded-lg border border-slate-200/60 bg-white p-3 text-[10px] text-slate-600 dark:border-slate-800/60 dark:bg-slate-900/60 dark:text-slate-300">
+                        {JSON.stringify(Object.fromEntries(extraEntries), null, 2)}
+                    </pre>
+                )}
+            </div>
+        );
+    }
+
+    return (
+        <pre className="overflow-x-auto rounded-lg border border-slate-200/60 bg-white p-3 text-[10px] text-slate-600 dark:border-slate-800/60 dark:bg-slate-900/60 dark:text-slate-300">
+            {JSON.stringify(properties, null, 2)}
+        </pre>
+    );
+}
+
+export default function LogsIndex({ logs: paginator, filters, permissions }: Props) {
     const [search, setSearch] = useState(filters.action ?? '');
     const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date } | undefined>();
     const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -216,10 +282,8 @@ export default function LogsIndex({ logs: paginator, filters }: Props) {
                                 {expandedId === log.id && log.properties && (
                                     <tr key={`${log.id}-expanded`} className="bg-slate-50/80 dark:bg-slate-900/30 border-b border-slate-100 dark:border-slate-800/40">
                                         <td colSpan={6} className="px-6 py-4">
-                                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Changed Properties</p>
-                                            <pre className="text-[10px] text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900/60 rounded-lg p-3 border border-slate-200/60 dark:border-slate-800/60 overflow-x-auto">
-                                                {JSON.stringify(log.properties, null, 2)}
-                                            </pre>
+                                            <p className="mb-2 text-[9px] font-black uppercase tracking-widest text-slate-400">Changed Properties</p>
+                                            <PropertyChangeSummary properties={log.properties} permissions={permissions} />
                                         </td>
                                     </tr>
                                 )}
