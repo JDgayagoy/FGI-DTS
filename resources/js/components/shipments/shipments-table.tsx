@@ -305,7 +305,7 @@ export const ShipmentsTable = ({
                                                 <button className="rounded-lg border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-600 hover:bg-blue-50 dark:border-blue-800/40">
                                                     <Printer className="mr-1 inline h-3 w-3" /> Print
                                                 </button>
-                                                {hasPermission('edit_shipments') && (
+                                                {hasPermission('edit-shipments') && (
                                                     <button
                                                         onClick={() => openEditModal(s)}
                                                         className="rounded-lg border border-yellow-200 px-2 py-1 text-[10px] font-bold text-yellow-600 hover:bg-yellow-50 dark:border-yellow-800/40"
@@ -313,7 +313,7 @@ export const ShipmentsTable = ({
                                                         <Pencil className="mr-1 inline h-3 w-3" /> Edit
                                                     </button>
                                                 )}
-                                                {hasPermission('archive_shipments') && (
+                                                {hasPermission('archive-shipments') && (
                                                     <button
                                                         onClick={() => setArchivingShipment(s)}
                                                         disabled={!!s.archived_at}

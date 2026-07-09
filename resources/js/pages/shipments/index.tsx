@@ -184,7 +184,7 @@ export default function Shipments({
                         >
                             <Download className="size-3.5" /> Export
                         </Button>
-                        {hasPermission('add_shipments') && (
+                        {hasPermission('add-shipments') && (
                             <button
                                 onClick={openAddModal}
                                 className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700"

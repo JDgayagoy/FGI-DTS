@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -13,9 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         DB::table('permissions')
-            ->where('name', 'delete_shipments')
+            ->where('name', 'delete-shipments')
             ->update([
-                'name' => 'archive_shipments',
+                'name' => 'archive-shipments',
                 'action' => 'archive',
             ]);
     }
@@ -26,9 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         DB::table('permissions')
-            ->where('name', 'archive_shipments')
+            ->where('name', 'archive-shipments')
             ->update([
-                'name' => 'delete_shipments',
+                'name' => 'delete-shipments',
                 'action' => 'delete',
             ]);
     }

@@ -10,12 +10,12 @@ class SeedLogsPermission extends Command
 {
     protected $signature = 'seed:logs-permission';
 
-    protected $description = 'Seed the view_logs permission and assign to Super Admin and Supply chain manager roles';
+    protected $description = 'Seed the view-logs permission and assign to Super Admin and Supply chain manager roles';
 
     public function handle(): int
     {
         $permission = Permission::firstOrCreate(
-            ['name' => 'view_logs'],
+            ['name' => 'view-logs'],
             ['resource' => 'logs', 'action' => 'view'],
         );
 
