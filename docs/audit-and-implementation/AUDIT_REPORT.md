@@ -711,7 +711,7 @@ const iconType = statusIcons[t as keyof typeof statusIcons] ?? 'pending';
 
 **Description:**  
 Permission gate definitions use inconsistent naming:
-- `manage-rbac` (line 35): hyphen-based gate name
+- `manage-roles` (line 35): hyphen-based gate name
 - `approve-documents` (line 46): hyphen-based gate name
 - But the database stores: `manage_roles`, `approve` (underscores in action/resource)
 

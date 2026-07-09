@@ -52,7 +52,7 @@ Phase 5 successfully implements comprehensive authorization testing for all majo
 
 **Not Tested (Low Priority):**
 - view-brokers, add-brokers, edit-brokers, delete-brokers (broker CRUD)
-- manage-rbac, create-user (user/role management)
+- manage-roles, manage-users (user/role management)
 - view-logs (activity logs)
 
 These are lower priority as they don't affect core shipment/document workflow.
@@ -305,7 +305,7 @@ Verify all mutations are logged with correct details:
 
 These gates are admin-only and less frequently used:
 - view-brokers, add-brokers, edit-brokers, delete-brokers
-- manage-rbac, create-user
+- manage-roles, manage-users
 - view-logs
 
 **Can be tested in Phase 6+** if coverage requirements demand it.

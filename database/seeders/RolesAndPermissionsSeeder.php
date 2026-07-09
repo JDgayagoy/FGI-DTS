@@ -18,8 +18,8 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'edit-shipments', 'resource' => 'shipments', 'action' => 'edit'],
             ['name' => 'archive-shipments', 'resource' => 'shipments', 'action' => 'archive'],
             // RBAC
-            ['name' => 'manage-rbac', 'resource' => 'rbac', 'action' => 'manage_roles'],
-            ['name' => 'create-user', 'resource' => 'rbac', 'action' => 'manage_users'],
+            ['name' => 'manage-roles', 'resource' => 'rbac', 'action' => 'manage_roles'],
+            ['name' => 'manage-users', 'resource' => 'rbac', 'action' => 'manage_users'],
             // Brokers
             ['name' => 'view-brokers', 'resource' => 'brokers', 'action' => 'view'],
             ['name' => 'add-brokers', 'resource' => 'brokers', 'action' => 'add'],

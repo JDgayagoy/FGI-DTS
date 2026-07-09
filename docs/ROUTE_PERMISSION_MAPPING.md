@@ -27,8 +27,8 @@ This document provides a comprehensive mapping of all protected routes to their 
 - `shipments`
 - `documents`
 - `brokers`
-- `rbac` (Roles & Permissions management)
-- `users` (User management, but create uses `create-user`)
+- `roles` (Roles & Permissions management)
+- `users` (User management, but create uses `manage-users`)
 - `logs`
 
 ---
@@ -86,11 +86,11 @@ This document provides a comprehensive mapping of all protected routes to their 
 
 | Route | Method | Permission(s) | Controller | Status |
 |-------|--------|---------------|-----------|--------|
-| `/users` | GET | `manage-rbac` | UserManagementController@index | ✅ Middleware added |
-| `/users` | POST | `create-user` | UserManagementController@store | ✅ Middleware added |
-| `/users/{user}/roles` | PUT | `manage-rbac` | UserManagementController@updateRoles | ✅ Middleware added |
-| `/roles` | GET | `manage-rbac` | RoleManagementController@index | ✅ Middleware added |
-| `/roles/{role}/permissions` | PUT | `manage-rbac` | RoleManagementController@updatePermissions | ✅ Middleware added |
+| `/users` | GET | `manage-roles` | UserManagementController@index | ✅ Middleware added |
+| `/users` | POST | `manage-users` | UserManagementController@store | ✅ Middleware added |
+| `/users/{user}/roles` | PUT | `manage-roles` | UserManagementController@updateRoles | ✅ Middleware added |
+| `/roles` | GET | `manage-roles` | RoleManagementController@index | ✅ Middleware added |
+| `/roles/{role}/permissions` | PUT | `manage-roles` | RoleManagementController@updatePermissions | ✅ Middleware added |
 
 ---
 
@@ -203,8 +203,8 @@ View logs in `storage/logs/laravel.log` or dashboard activity feed.
 - `delete-brokers` ✅
 
 #### RBAC (3)
-- `manage-rbac` ✅
-- `create-user` ✅
+- `manage-roles` ✅
+- `manage-users` ✅
 
 #### Reports & Logs (2)
 - `view-reports` ⚠️ TODO

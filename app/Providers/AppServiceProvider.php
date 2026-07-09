@@ -32,12 +32,12 @@ class AppServiceProvider extends ServiceProvider
         Inertia::share([
             'userPermissions' => fn () => Auth::check() ? Auth::user()->getPermissionNames() : [],
         ]);
-        Gate::define('manage-rbac', fn (User $user) => $user->hasPermission('manage_roles', 'rbac'));
+        Gate::define('manage-roles', fn (User $user) => $user->hasPermission('manage_roles', 'rbac'));
         Gate::define('view-shipments', fn (User $user) => $user->hasPermission('view', 'shipments'));
         Gate::define('add-shipments', fn (User $user) => $user->hasPermission('add', 'shipments'));
         Gate::define('edit-shipments', fn (User $user) => $user->hasPermission('edit', 'shipments'));
         Gate::define('archive-shipments', fn (User $user) => $user->hasPermission('archive', 'shipments'));
-        Gate::define('create-user', fn (User $user) => $user->hasPermission('manage_users', 'rbac'));
+        Gate::define('manage-users', fn (User $user) => $user->hasPermission('manage_users', 'rbac'));
         Gate::define('view-logs', fn (User $user) => $user->hasPermission('view', 'logs'));
         Gate::define('view-brokers', fn (User $user) => $user->hasPermission('view', 'brokers'));
         Gate::define('add-brokers', fn (User $user) => $user->hasPermission('add', 'brokers'));

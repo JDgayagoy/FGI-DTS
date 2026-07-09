@@ -65,7 +65,7 @@ describe('unauthorized access blocks at middleware', function () {
         expect($response->status())->toBe(403);
     });
 
-    test('unauthorized user cannot modify permissions without manage-rbac', function () {
+    test('unauthorized user cannot modify permissions without manage-roles', function () {
         $role = Role::factory()->create();
         $user = User::factory()->create();
 
@@ -102,8 +102,8 @@ describe('authorized access passes middleware', function () {
         expect($response->status())->toBe(200);
     });
 
-    test('authorized user can access RBAC routes with manage-rbac', function () {
-        $user = createUserWithPermission('manage', 'rbac');
+    test('authorized user can access RBAC routes with manage-roles', function () {
+        $user = createUserWithPermission('manage', 'roles');
 
         $response = $this->actingAs($user)->get(route('users.index'));
 
@@ -254,17 +254,17 @@ describe('RBAC enforcement', function () {
         expect($response->status())->toBe(403);
     });
 
-    test('manage-rbac permission allows accessing user management', function () {
-        $user = createUserWithPermission('manage', 'rbac');
+    test('manage-roles permission allows accessing user management', function () {
+        $user = createUserWithPermission('manage', 'roles');
 
         $response = $this->actingAs($user)->get(route('users.index'));
 
         expect($response->status())->toBe(200);
     });
 
-    test('manage-rbac permission allows updating role permissions', function () {
+    test('manage-roles permission allows updating role permissions', function () {
         $role = Role::factory()->create();
-        $user = createUserWithPermission('manage', 'rbac');
+        $user = createUserWithPermission('manage', 'roles');
 
         $response = $this->actingAs($user)->put(route('roles.permissions.update', $role), [
             'permission_ids' => [],
@@ -284,9 +284,9 @@ describe('RBAC enforcement', function () {
         expect($response->status())->toBe(403);
     });
 
-    test('manage-rbac permission allows updating user roles', function () {
+    test('manage-roles permission allows updating user roles', function () {
         $targetUser = User::factory()->create();
-        $user = createUserWithPermission('manage', 'rbac');
+        $user = createUserWithPermission('manage', 'roles');
 
         $response = $this->actingAs($user)->put(route('users.roles.update', $targetUser), [
             'role_ids' => [],

@@ -30,10 +30,10 @@
 | Shipments | view (2x), add, edit, archive | 5 |
 | Brokers | view (2x), add, edit, delete | 5 |
 | Documents | upload, view-file, update-status | 3 |
-| RBAC | manage-rbac (4x), create-user | 5 |
+| RBAC | manage-roles (4x), manage-users | 5 |
 
 #### Permission System
-- **Format:** Kebab-case (`view-shipments`, `add-brokers`, `manage-rbac`)
+- **Format:** Kebab-case (`view-shipments`, `add-brokers`, `manage-roles`)
 - **Roles:** 4 predefined (Super Admin, Supply Chain Manager, Logis Assoc, Brand Manager)
 - **Permissions:** 31 total across 6 resources
 - **Defense-in-Depth:** Middleware (primary) + Controller gates (secondary)

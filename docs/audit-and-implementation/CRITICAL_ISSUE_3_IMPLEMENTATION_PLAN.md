@@ -146,7 +146,7 @@ ReportsFilteringTest.php (4 tests)
 **Authorization (Phase 5) — 6 tests ⏳**
 ```
 PermissionEnforcementTest.php (6 tests)
-  ⏳ manage-rbac gate enforced
+  ⏳ manage-roles gate enforced
   ⏳ add-shipments gate enforced
   ⏳ edit-shipments gate enforced
   ⏳ archive-shipments gate enforced

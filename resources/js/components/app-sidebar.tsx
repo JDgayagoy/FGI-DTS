@@ -76,10 +76,10 @@ export function AppSidebar() {
     });
 
     const managementItems: NavItem[] = [
-        ...(hasPermissionName('create-user')
+        ...(hasPermissionName('manage-users')
             ? [{ title: 'User Management', href: '/users', icon: Users }]
             : []),
-        ...(hasPermissionName('manage-rbac')
+        ...(hasPermissionName('manage-roles')
             ? [{ title: 'Role Management', href: '/roles', icon: Shield }]
             : []),
         ...(hasPermissionName('view-brokers')

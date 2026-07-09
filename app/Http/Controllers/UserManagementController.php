@@ -15,7 +15,7 @@ class UserManagementController extends Controller
 {
     public function index()
     {
-        Gate::authorize('manage-rbac');
+        Gate::authorize('manage-roles');
 
         $users = User::with('roles')->get();
         $roles = Role::all();
@@ -28,7 +28,7 @@ class UserManagementController extends Controller
 
     public function store(Request $request)
     {
-        Gate::authorize('create-user');
+        Gate::authorize('manage-users');
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -53,7 +53,7 @@ class UserManagementController extends Controller
 
     public function updateRoles(Request $request, User $user)
     {
-        Gate::authorize('manage-rbac');
+        Gate::authorize('manage-roles');
 
         $validated = $request->validate([
             'role_ids' => 'array',

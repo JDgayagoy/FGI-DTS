@@ -21,7 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
 
     // ======= RBAC Management =======
-    Route::middleware('check.permission:manage-rbac')->group(function () {
+    Route::middleware('check.permission:manage-roles')->group(function () {
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
         Route::put('/users/{user}/roles', [UserManagementController::class, 'updateRoles'])->name('users.roles.update');
 
@@ -29,9 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/roles/{role}/permissions', [RoleManagementController::class, 'updatePermissions'])->name('roles.permissions.update');
     });
 
-    // User Creation (create-user permission required)
+    // User Creation (manage-users permission required)
     Route::post('/users', [UserManagementController::class, 'store'])
-        ->middleware('check.permission:create-user')
+        ->middleware('check.permission:manage-users')
         ->name('users.store');
 
     // ======= Broker Management =======

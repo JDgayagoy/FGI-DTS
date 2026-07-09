@@ -13,7 +13,7 @@ class RoleManagementController extends Controller
 {
     public function index()
     {
-        Gate::authorize('manage-rbac');
+        Gate::authorize('manage-roles');
 
         $roles = Role::with('permissions')->get();
         $permissions = Permission::all();
@@ -26,7 +26,7 @@ class RoleManagementController extends Controller
 
     public function updatePermissions(Request $request, Role $role)
     {
-        Gate::authorize('manage-rbac');
+        Gate::authorize('manage-roles');
 
         $validated = $request->validate([
             'permission_ids' => 'array',

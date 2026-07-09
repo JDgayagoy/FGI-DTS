@@ -241,7 +241,7 @@ Tests soft-delete via `archived_at`, scope filtering, and permission checks.
 ### 5.1 Create `tests/Feature/Authorization/PermissionEnforcementTest.php` (6 tests)
 
 ```php
-test('user with manage-rbac can manage roles', function () {
+test('user with manage-roles can manage roles', function () {
     $user = createSuperAdmin();
     
     actingAs($user)
@@ -249,7 +249,7 @@ test('user with manage-rbac can manage roles', function () {
         ->assertOk();
 });
 
-test('user without manage-rbac cannot manage roles', function () {
+test('user without manage-roles cannot manage roles', function () {
     $user = createBrandManager(); // No RBAC permissions
     
     actingAs($user)
