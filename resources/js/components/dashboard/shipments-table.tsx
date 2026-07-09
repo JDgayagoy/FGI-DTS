@@ -100,7 +100,8 @@ export function ShipmentsTable({
                         {paginatedShipments.map((shipment, index) => (
                             <tr key={index} className="group border-b border-slate-50 transition-colors last:border-0 hover:bg-slate-50/50 dark:border-slate-800/40 dark:hover:bg-slate-800/10">
                                 <td className="px-6 py-3 text-[11px] font-bold text-slate-400 transition-colors group-hover:text-slate-600">
-                                    {new Date(shipment.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })}
+                                    {shipment.date ? new Date(shipment.date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' })
+                                    : 'N/A'}
                                 </td>
                                 <td className="px-6 py-3 text-xs font-black tracking-tighter text-blue-900 dark:text-blue-300">{shipment.ref}</td>
                                 <td className="px-6 py-3 text-[11px] font-bold text-slate-500">{shipment.broker}</td>

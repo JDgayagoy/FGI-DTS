@@ -117,7 +117,7 @@ class ShipmentController extends Controller
             'shipment_reference' => 'required|string|max:255',
             'brand' => 'required|string|max:255',
             'incoterm' => 'required|string|max:255',
-            'actual_time_of_arrival' => 'nullable|date',
+            'actual_time_of_arrival' => 'sometimes|nullable|date',
             'broker_id' => 'nullable|exists:brokers,broker_id',
             'brand_manager' => 'nullable|string|max:255',
             'shipment_type_id' => 'required|exists:shipment_types,shipment_type_id',
@@ -127,6 +127,7 @@ class ShipmentController extends Controller
             ? Carbon::parse($validated['actual_time_of_arrival'])
             : now();
 
+        $validated['actual_time_of_arrival'] = $ata->format('Y-m-d');
         $validated['year'] = $ata->year;
         $validated['month'] = $ata->month;
         $validated['status_id'] = 2; // Pending by default
@@ -160,12 +161,18 @@ class ShipmentController extends Controller
             Gate::authorize('edit-shipments');
         }
 
+        $shipmentDoc = ShipmentDocument::with('customDoc')->findOrFail($shipment_doc_id);
+
+        $oldStatus = DocumentStatus::where('shipment_doc_id', $shipment_doc_id)
+            ->where('is_current', true)
+            ->first();
+
         // Set all previous statuses for this doc to not current
         DocumentStatus::where('shipment_doc_id', $shipment_doc_id)
             ->update(['is_current' => false]);
 
         // Insert new current status
-        DocumentStatus::create([
+        $newDocStatus = DocumentStatus::create([
             'shipment_doc_id' => $shipment_doc_id,
             'status_id' => $request->status_id,
             'is_current' => true,
@@ -173,10 +180,20 @@ class ShipmentController extends Controller
             'changed_by' => Auth::id(),
         ]);
 
-        $shipmentDoc = ShipmentDocument::find($shipment_doc_id);
-
         $shipment = Shipment::with('documents.currentStatus.status')
             ->find($shipmentDoc->shipment_id);
+
+        // Log the document-level status change, attached to the parent Shipment
+        ActivityLogger::log(
+            'document_status_updated',
+            "Updated document status for shipment \"{$shipment->shipment_reference}\".",
+            $shipment,
+            [
+                'shipment_doc_id' => $shipment_doc_id,
+                'old_status_id' => $oldStatus?->status_id,
+                'new_status_id' => $newDocStatus->status_id,
+            ],
+        );
 
         $totalDocs = $shipment->documents->count();
         $approvedDocs = $shipment->documents->filter(function ($doc) {
@@ -184,14 +201,17 @@ class ShipmentController extends Controller
         })->count();
 
         $newStatusId = ($totalDocs > 0 && $approvedDocs === $totalDocs) ? 4 : 2;
-        $shipment->update(['status_id' => $newStatusId]);
 
-        ActivityLogger::log(
-            'document_status_updated',
-            "Updated document status for shipment \"{$shipment->shipment_reference}\" (doc #{$shipment_doc_id}).",
-            $shipment,
-            ['shipment_doc_id' => $shipment_doc_id, 'new_status_id' => $request->status_id],
-        );
+        if ($shipment->status_id !== $newStatusId) {
+            $shipment->update(['status_id' => $newStatusId]);
+
+            ActivityLogger::log(
+                'shipment_status_recalculated',
+                "Recalculated status for shipment \"{$shipment->shipment_reference}\" following a document status change.",
+                $shipment,
+                ['shipment_doc_id' => $shipment_doc_id, 'new_shipment_status_id' => $newStatusId],
+            );
+        }
 
         return redirect()->route('shipments.index');
     }
