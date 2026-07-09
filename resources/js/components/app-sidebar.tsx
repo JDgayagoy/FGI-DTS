@@ -83,11 +83,7 @@ export function AppSidebar() {
             ? [{ title: 'Role Management', href: '/roles', icon: Shield }]
             : []),
         ...(hasPermissionName('view-brokers')
-            ? //     ||
-              // hasPermissionName('edit-brokers') ||
-              // hasPermissionName('delete-brokers') ||
-              // hasPermissionName('add-brokers')
-              [{ title: 'Broker Management', href: '/brokers', icon: Truck }]
+            ? [{ title: 'Broker Management', href: '/brokers', icon: Truck }]
             : []),
     ];
 

@@ -136,7 +136,7 @@ export default function Roles({ roles, permissions }: Props) {
                     <div className="p-6 space-y-6">
                         {Object.entries(permissionsByResource).map(([resource, resourcePerms]) => (
                             <div key={resource} className="space-y-3">
-                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2 dark:border-slate-800">
+                                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-slate-800">
                                     {resource}
                                 </h3>
                                 <div className="grid gap-3 sm:grid-cols-2">
@@ -146,7 +146,7 @@ export default function Roles({ roles, permissions }: Props) {
                                             <div
                                                 key={permission.permission_id}
                                                 onClick={() => togglePermission(permission.permission_id)}
-                                                className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2.5 transition-all ${
+                                                className={`flex cursor-pointer items-center justify-between rounded-lg border px-2 py-1.5 transition-all ${
                                                     isSelected
                                                         ? 'border-purple-600 bg-purple-50/50 dark:border-purple-500 dark:bg-purple-900/20'
                                                         : 'border-slate-200 hover:border-slate-300 dark:border-slate-800 dark:hover:border-slate-700'
