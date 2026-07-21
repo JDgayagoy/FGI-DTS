@@ -83,14 +83,7 @@ class ReportsController extends Controller
         $completedIdsStr = empty($completedStatusIds) ? '0' : implode(',', $completedStatusIds);
 
         $completeVsIncomplete = $applyShipmentFilters(Shipment::query())
-<<<<<<< HEAD
             ->select('actual_time_of_arrival', 'status_id')
-=======
-            ->selectRaw("DATE_FORMAT(actual_time_of_arrival, '%b') as month,
-                         MONTH(actual_time_of_arrival) as month_num,
-                         SUM(CASE WHEN status_id IN ($completedIdsStr) THEN 1 ELSE 0 END) as completed,
-                         SUM(CASE WHEN status_id NOT IN ($completedIdsStr) THEN 1 ELSE 0 END) as incomplete")
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
             ->whereNotNull('actual_time_of_arrival')
             ->get()
             ->groupBy(fn ($shipment) => $shipment->actual_time_of_arrival->format('Y-m'))

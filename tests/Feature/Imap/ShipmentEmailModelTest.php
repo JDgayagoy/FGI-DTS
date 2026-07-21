@@ -3,8 +3,8 @@
 use App\Models\Shipment;
 use App\Models\ShipmentEmail;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 

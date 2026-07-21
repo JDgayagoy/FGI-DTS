@@ -5,13 +5,14 @@ namespace App\Services;
 use App\Models\ShipmentEmail;
 use App\Models\User;
 use App\Notifications\ShipmentEmailDetectedNotification;
+use Illuminate\Support\Carbon;
 
 class ShipmentEmailProcessor
 {
     public function __construct(private EmailShipmentParser $parser) {}
 
     /**
-     * @param  array{uid:string,from_address:string,from_name:?string,subject:string,body:string,received_at:\Illuminate\Support\Carbon}  $message
+     * @param  array{uid:string,from_address:string,from_name:?string,subject:string,body:string,received_at:Carbon}  $message
      */
     public function process(User $user, array $message): ShipmentEmail
     {

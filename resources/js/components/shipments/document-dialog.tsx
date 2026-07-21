@@ -1,20 +1,10 @@
-<<<<<<< HEAD
-import { CheckCircle, FileText, Upload, X, XCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { type Shipment, type ShipmentDocument } from '@/pages/shipments/types';
-import { isApproved, isRejected } from '@/pages/shipments/helpers';
-import { DocStatusIndicator } from './doc-status-indicator';
-import { useRef } from 'react';
 import { router, usePage } from '@inertiajs/react';
-=======
-import { router } from '@inertiajs/react';
 import { CheckCircle, FileText, Upload, X, XCircle } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { isApproved, isRejected } from '@/pages/shipments/helpers';
-import type {Shipment, ShipmentDocument} from '@/pages/shipments/types';
+import { type Shipment, type ShipmentDocument } from '@/pages/shipments/types';
 import { DocStatusIndicator } from './doc-status-indicator';
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 
 interface DocumentDialogProps {
     activeShipment: Shipment;
@@ -34,17 +24,15 @@ export const DocumentDialog = ({
     const selectedDoc: ShipmentDocument | null =
         activeShipment.documents.find((d) => d.shipment_doc_id === selectedDocId) ?? null;
 
-<<<<<<< HEAD
     const { auth } = usePage().props as any;
     const permissions = auth?.permissions || [];
     const canUpload = permissions.includes('upload-documents');
     const canApprove = permissions.includes('approve-documents');
     const canReject = permissions.includes('reject-documents');
-=======
+
     const [tab, setTab] = useState<'documents' | 'emails'>('documents');
     const [expandedEmailId, setExpandedEmailId] = useState<number | null>(null);
     const emails = activeShipment.emails ?? [];
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 

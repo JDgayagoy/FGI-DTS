@@ -31,6 +31,13 @@ class EmailShipmentParser
             }
         }
 
+        if (preg_match('/\bFGI-[A-Za-z0-9]+\b/i', $haystack, $matches)) {
+            return [
+                'matched_ref' => mb_strtoupper($matches[0]),
+                'shipment' => null,
+            ];
+        }
+
         return ['matched_ref' => null, 'shipment' => null];
     }
 }

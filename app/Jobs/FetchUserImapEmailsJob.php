@@ -41,26 +41,50 @@ class FetchUserImapEmailsJob implements ShouldQueue
                 'username' => $setting->username,
                 'password' => $setting->password, // decrypted by cast
                 'protocol' => 'imap',
+                'timeout' => 15,
             ]);
 
             $client->connect();
+
             $folder = $client->getFolder('INBOX');
-            $messages = $folder->messages()->unseen()->limit(50)->get();
+
+            $query = $folder->messages()->unseen();
+
+            // Only fetch emails since the last successful sync
+            if ($setting->last_synced_at) {
+                $query->since($setting->last_synced_at->format('d-M-Y'));
+            }
+
+            $messages = $query
+                ->fetchOrderDesc()
+                ->limit(50)
+                ->get();
 
             foreach ($messages as $message) {
+                $subject = trim((string) $message->getSubject());
+
+                if (! preg_match('/\bFGI-[A-Za-z0-9]+\b/i', $subject)) {
+                    continue;
+                }
+
                 $this->processMessage($setting, [
                     'uid' => (string) $message->getUid(),
                     'from_address' => optional($message->getFrom()[0] ?? null)->mail ?? '',
                     'from_name' => optional($message->getFrom()[0] ?? null)->personal,
-                    'subject' => (string) $message->getSubject(),
+                    'subject' => $subject,
                     'body' => $message->hasTextBody()
                         ? $message->getTextBody()
                         : strip_tags((string) $message->getHTMLBody()),
                     'received_at' => Carbon::parse($message->getDate()),
                 ]);
+
+                // Optional: mark processed emails as read
+                // $message->setFlag('Seen');
             }
 
-            $setting->update(['last_synced_at' => now()]);
+            $setting->update([
+                'last_synced_at' => now(),
+            ]);
         } catch (\Throwable $e) {
             Log::error('IMAP fetch failed', [
                 'user_id' => $this->userId,

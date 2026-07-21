@@ -1,9 +1,7 @@
 <?php
 
 use App\Models\Shipment;
-use App\Models\ShipmentEmail;
 use App\Models\User;
-use App\Notifications\ShipmentEmailDetectedNotification;
 use App\Services\ShipmentEmailProcessor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;

@@ -1,10 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Download, Package, Plus } from 'lucide-react';
-<<<<<<< HEAD
 import { useEffect, useRef, useState } from 'react';
-=======
-import { useState, useMemo, useEffect } from 'react';
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 import type { ReactNode } from 'react';
 import { DocumentDialog } from '@/components/shipments/document-dialog';
 import { ModalShell } from '@/components/shipments/modal-shell';
@@ -16,11 +12,7 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value';
 
 import AppLayout from '@/layouts/app-layout';
 import { breadcrumbs, emptyForm } from './constants';
-<<<<<<< HEAD
 import { toDatetimeLocal } from './helpers';
-=======
-import { toDatetimeLocal, incotermName, formatDate } from './helpers';
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 import type { Props, Shipment } from './types';
 
 import jsPDF from 'jspdf';
@@ -60,11 +52,8 @@ export default function Shipments({
     shipmentTypes,
     brokers,
     filters,
-<<<<<<< HEAD
     archiveCounts,
     statusCounts,
-=======
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 }: Props) {
     const [activeDocPanel, setActiveDocPanel] = useState<number | null>(null);
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
@@ -226,7 +215,6 @@ export default function Shipments({
         );
     };
 
-<<<<<<< HEAD
     const handleArchiveFilterChange = (archive: Props['filters']['archive']) => {
         setActiveDocPanel(null);
         setSelectedDocId(null);
@@ -235,20 +223,6 @@ export default function Shipments({
             buildQuery({ archive: archive !== 'active' ? archive : undefined, page: 1 }),
             { preserveState: true, preserveScroll: true, replace: true },
         );
-=======
-    const handleFilterChange = (value: string) => {
-        setActiveDocPanel(null);
-        setSelectedDocId(null);
-
-        if (value === '') {
-            router.get('/shipments', {}, { preserveState: true, preserveScroll: true, replace: true });
-        } else if (value === 'archived' || value === 'all') {
-            router.get('/shipments', { archive: value }, { preserveState: true, preserveScroll: true, replace: true });
-        } else if (value.startsWith('broker:')) {
-            const brokerId = value.replace('broker:', '');
-            router.get('/shipments', { broker_id: brokerId }, { preserveState: true, preserveScroll: true, replace: true });
-        }
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
     };
 
     const currentFilter = filters.broker_id

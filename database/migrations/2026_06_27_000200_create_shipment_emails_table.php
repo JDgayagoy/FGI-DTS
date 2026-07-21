@@ -23,7 +23,7 @@ return new class extends Migration
                 'matched', 'pending_review', 'dismissed', 'shipment_created', 'skipped',
             ]);
             $table->timestamp('received_at');
-            $table->timestamp('processed_at');
+            $table->timestamp('processed_at')->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'imap_message_uid']);

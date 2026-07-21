@@ -2,11 +2,8 @@
 
 use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\DashboardController;
-<<<<<<< HEAD
 use App\Http\Controllers\LogController;
-=======
 use App\Http\Controllers\NotificationController;
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\ShipmentController;
@@ -22,15 +19,12 @@ Route::inertia('/', 'auth/login', [
 Route::middleware(['auth', 'verified'])->group(function () {
     // Public to authenticated users (no specific permission required)
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-<<<<<<< HEAD
-=======
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/shipment-emails/{shipmentEmail}/dismiss', [ShipmentEmailController::class, 'dismiss'])->name('shipment-emails.dismiss');
     Route::post('/shipment-emails/{shipmentEmail}/created', [ShipmentEmailController::class, 'markCreated'])->name('shipment-emails.created');
 
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
 
@@ -49,7 +43,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('users.store');
 
     // ======= Broker Management =======
-    // View brokers
     Route::get('brokers', [BrokerController::class, 'index'])
         ->middleware('check.permission:view-brokers')
         ->name('brokers.index');
@@ -58,23 +51,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('check.permission:view-brokers')
         ->name('brokers.show');
 
-    // Create broker
     Route::post('brokers', [BrokerController::class, 'store'])
         ->middleware('check.permission:add-brokers')
         ->name('brokers.store');
 
-    // Update broker
     Route::patch('brokers/{broker}', [BrokerController::class, 'update'])
         ->middleware('check.permission:edit-brokers')
         ->name('brokers.update');
 
-    // Delete broker
     Route::delete('brokers/{broker}', [BrokerController::class, 'destroy'])
         ->middleware('check.permission:delete-brokers')
         ->name('brokers.destroy');
 
     // ======= Shipment & Document Management =======
-    // Document routes (must be above resource route for specificity)
     Route::post('shipments/documents/{shipment_doc_id}/upload', [ShipmentController::class, 'uploadDocument'])
         ->middleware('check.permission:upload-documents')
         ->name('shipments.documents.upload');
@@ -91,7 +80,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('check.permission:archive-shipments')
         ->name('shipments.archive');
 
-<<<<<<< HEAD
+    Route::patch('shipments/{shipment}/restore', [ShipmentController::class, 'restore'])
+        ->name('shipments.restore');
+
     // View shipments
     Route::get('shipments', [ShipmentController::class, 'index'])
         ->middleware('check.permission:view-shipments')
@@ -110,15 +101,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('shipments/{shipment}', [ShipmentController::class, 'update'])
         ->middleware('check.permission:edit-shipments')
         ->name('shipments.update');
-=======
-    Route::patch('shipments/{shipment}/restore', [ShipmentController::class, 'restore'])
-        ->name('shipments.restore');
 
-    // Resource route LAST
-    Route::resource('shipments', ShipmentController::class)->parameters([
-        'shipments' => 'shipment:shipment_id',
-    ]);
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
+    // Delete shipment
+    Route::delete('shipments/{shipment}', [ShipmentController::class, 'destroy'])
+        ->middleware('check.permission:delete-shipments')
+        ->name('shipments.destroy');
 });
 
 require __DIR__.'/settings.php';

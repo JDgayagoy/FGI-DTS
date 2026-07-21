@@ -2,6 +2,7 @@
 
 use App\Models\ShipmentEmail;
 use App\Models\User;
+use App\Notifications\ShipmentEmailDetectedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -58,7 +59,7 @@ it('forbids touching another users email', function () {
 it('marks all notifications read', function () {
     $user = User::factory()->create();
     $email = pendingEmail($user);
-    $user->notify(new App\Notifications\ShipmentEmailDetectedNotification($email));
+    $user->notify(new ShipmentEmailDetectedNotification($email));
 
     expect($user->unreadNotifications()->count())->toBe(1);
 

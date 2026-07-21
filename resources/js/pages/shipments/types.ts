@@ -97,14 +97,11 @@ export interface Props {
     brokers: Broker[];
     filters: {
         archive: 'active' | 'archived' | 'all';
-<<<<<<< HEAD
         search: string;
         status: string | null;
         sort: string | null;
         direction: 'asc' | 'desc';
-=======
-        broker_id: string | null;
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
+        broker_id?: string | null;
     };
     archiveCounts: {
         active: number;

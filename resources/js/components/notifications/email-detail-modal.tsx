@@ -21,7 +21,11 @@ export function EmailDetailModal({ notification, onClose }: Props) {
     const createShipment = () => {
         onClose();
         const params = new URLSearchParams();
-        if (data.matched_ref) params.set('new_ref', data.matched_ref);
+
+        if (data.matched_ref) {
+params.set('new_ref', data.matched_ref);
+}
+
         params.set('email_id', String(emailId));
         router.visit(`/shipments?${params.toString()}`);
     };

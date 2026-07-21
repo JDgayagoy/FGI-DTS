@@ -56,11 +56,7 @@ export default function EmailIntegration() {
     };
 
     const testConnection = () => {
-        // Persist first so the server tests the latest values.
-        router.put('/settings/imap', form, {
-            preserveScroll: true,
-            onSuccess: () => router.post('/settings/imap/test', {}, { preserveScroll: true }),
-        });
+        router.post('/settings/imap/test', {}, { preserveScroll: true });
     };
 
     const remove = () => {
@@ -182,10 +178,10 @@ export default function EmailIntegration() {
                     <Button onClick={save}>Save Settings</Button>
                 </div>
 
-                {props.imapTest && (
-                    <p className={props.imapTest.ok ? 'text-sm text-green-600' : 'text-sm text-red-600'}>
-                        {props.imapTest.ok ? '✓ ' : '✕ '}
-                        {props.imapTest.message}
+                {props.flash?.imapTest && (
+                    <p className={props.flash.imapTest.ok ? 'text-sm text-green-600' : 'text-sm text-red-600'}>
+                        {props.flash.imapTest.ok ? '✓ ' : '✕ '}
+                        {props.flash.imapTest.message}
                     </p>
                 )}
 
