@@ -231,6 +231,17 @@ export default function Shipments({
         ? ''
         : filters.archive;
 
+    const handleFilterChange = (value: string) => {
+        if (value.startsWith('broker:')) {
+            const brokerId = value.replace('broker:', '');
+            router.get('/shipments', buildQuery({ broker_id: brokerId, archive: undefined, page: 1 }), {
+                preserveState: true, preserveScroll: true, replace: true,
+            });
+        } else {
+            handleArchiveFilterChange((value || 'active') as Props['filters']['archive']);
+        }
+    };
+
     const closePanel = () => {
         setActiveDocPanel(null);
         setSelectedDocId(null);
@@ -253,7 +264,7 @@ export default function Shipments({
                             variant="outline"
                             size="sm"
                             className="h-8 gap-2 text-[10px] font-bold"
-                            onClick={() => exportToPDF(filteredShipments)}
+                            onClick={() => exportToPDF(shipments.data)}
                         >
                             <Download className="size-3.5" /> Export
                         </Button>

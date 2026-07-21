@@ -130,9 +130,6 @@ export function AccuracyChart({ data }: AccuracyChartProps) {
           </Pie>
         </PieChart>
       </ChartContainer>
-      <div className="-mt-1 flex items-center gap-1.5 text-[10px] font-bold text-green-500 uppercase tracking-wider">
-        <TrendingUp className="size-3" /> 5.2% increase
-      </div>
     </div>
   )
 }

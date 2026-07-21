@@ -50,9 +50,6 @@ export function CompleteVsIncompleteChart({ data }: { data: ChartDataPoint[] }) 
 
             <div className="flex w-full items-start gap-2 text-xs mt-10">
                 <div className="grid gap-2">
-                    <div className="flex items-center gap-2 leading-none font-bold text-green-500 uppercase tracking-wider">
-                        Trending up by 5.2% this month <TrendingUp className="h-3.5 w-3.5" />
-                    </div>
                     <div className="flex items-center gap-2 leading-none text-slate-400 font-bold uppercase tracking-widest text-[10px]">
                         Last 6 Months
                     </div>
