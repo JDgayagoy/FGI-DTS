@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Download, Package, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
@@ -61,8 +61,8 @@ export default function Shipments({
     const [archivingShipment, setArchivingShipment] = useState<Shipment | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState(filters.search ?? '');
-    const [editForm, setEditForm] = useState({ ...emptyForm });
-    const [addForm, setAddForm] = useState({ ...emptyForm });
+    const { data: editForm, setData: setEditForm, put: putEdit, errors: editErrors, clearErrors: clearEditErrors, reset: resetEditForm } = useForm({ ...emptyForm });
+    const { data: addForm, setData: setAddForm, post: postAdd, errors: addErrors, clearErrors: clearAddErrors, reset: resetAddForm } = useForm({ ...emptyForm });
 
     const { hasPermission } = usePermissions();
 
@@ -78,6 +78,7 @@ export default function Shipments({
                 shipment_reference: newRef,
                 shipment_type_id: String(shipmentTypes[0]?.shipment_type_id ?? ''),
             });
+            clearAddErrors();
             setShowAddModal(true);
 
             if (emailId) {
@@ -166,15 +167,17 @@ export default function Shipments({
 
     // ── Add / Edit handlers ───────────────────────────────────────────────────
     const openAddModal = () => {
+        resetAddForm();
         setAddForm({
             ...emptyForm,
             shipment_type_id: String(shipmentTypes[0]?.shipment_type_id ?? ''),
         });
+        clearAddErrors();
         setShowAddModal(true);
     };
     const closeAddModal = () => setShowAddModal(false);
     const handleAddSubmit = () =>
-        router.post('/shipments', addForm, {
+        postAdd('/shipments', {
             onSuccess: () => {
                 closeAddModal();
                 const emailId = (window as Window & { __emailId?: string }).__emailId;
@@ -188,6 +191,7 @@ export default function Shipments({
 
     const openEditModal = (shipment: Shipment) => {
         setEditingShipment(shipment);
+        resetEditForm();
         setEditForm({
             shipment_reference: shipment.shipment_reference,
             brand: shipment.brand,
@@ -197,12 +201,13 @@ export default function Shipments({
             brand_manager: shipment.brand_manager,
             shipment_type_id: String(shipment.shipment_type.shipment_type_id),
         });
+        clearEditErrors();
     };
     const closeEditModal = () => setEditingShipment(null);
     const handleEditSubmit = () => {
         if (!editingShipment) return;
 
-        router.put(`/shipments/${editingShipment.shipment_id}`, editForm, {
+        putEdit(`/shipments/${editingShipment.shipment_id}`, {
             onSuccess: closeEditModal,
         });
     };
@@ -320,6 +325,7 @@ export default function Shipments({
                     <ShipmentFormFields
                         form={addForm}
                         setForm={setAddForm}
+                        errors={addErrors}
                         shipmentTypes={shipmentTypes}
                         brokers={brokers}
                     />
@@ -336,6 +342,7 @@ export default function Shipments({
                     <ShipmentFormFields
                         form={editForm}
                         setForm={setEditForm}
+                        errors={editErrors}
                         shipmentTypes={shipmentTypes}
                         brokers={brokers}
                     />

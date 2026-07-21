@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Truck, Plus, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import {  useState } from 'react';
 import type {ReactNode} from 'react';
@@ -38,19 +38,19 @@ export default function Brokers({ brokers }: Props) {
     const [isCreating, setIsCreating] = useState(false);
     const [editingBroker, setEditingBroker] = useState<Broker | null>(null);
     const [deletingBroker, setDeletingBroker] = useState<Broker | null>(null);
-    const [form, setForm] = useState({ ...emptyBrokerForm });
-    const [editForm, setEditForm] = useState({ ...emptyBrokerForm });
-    const [processing, setProcessing] = useState(false);
-    const [errors, setErrors] = useState<Partial<typeof emptyBrokerForm>>({});
+    const { data: form, setData: setForm, post: postBroker, processing: creatingBroker, errors: createErrors, clearErrors: clearCreateErrors, reset: resetCreate } = useForm({ ...emptyBrokerForm });
+    const { data: editForm, setData: setEditForm, put: putBroker, processing: updatingBroker, errors: editErrors, clearErrors: clearEditErrors, reset: resetEdit } = useForm({ ...emptyBrokerForm });
 
     const openCreateModal = () => {
+        resetCreate();
         setForm({ ...emptyBrokerForm });
-        setErrors({});
+        clearCreateErrors();
         setIsCreating(true);
     };
 
     const openEditModal = (broker: Broker) => {
         setEditingBroker(broker);
+        resetEdit();
         setEditForm({
             broker_name: broker.broker_name,
             contact_person: broker.contact_person ?? '',
@@ -58,30 +58,25 @@ export default function Brokers({ brokers }: Props) {
             phone: broker.phone ?? '',
             is_active: broker.is_active,
         });
-        setErrors({});
+        clearEditErrors();
     };
 
     const handleCreate = () => {
-        setProcessing(true);
-        router.post('/brokers', form, {
+        postBroker('/brokers', {
             onSuccess: () => {
- setIsCreating(false); setForm({ ...emptyBrokerForm }); 
-},
-            onError: (e) => setErrors(e as any),
-            onFinish: () => setProcessing(false),
+                setIsCreating(false);
+                resetCreate();
+            },
         });
     };
 
     const handleUpdate = () => {
         if (!editingBroker) {
-return;
-}
+            return;
+        }
 
-        setProcessing(true);
-        router.put(`/brokers/${editingBroker.broker_id}`, editForm, {
+        putBroker(`/brokers/${editingBroker.broker_id}`, {
             onSuccess: () => setEditingBroker(null),
-            onError: (e) => setErrors(e as any),
-            onFinish: () => setProcessing(false),
         });
     };
 
@@ -198,9 +193,9 @@ return;
                     onClose={() => setIsCreating(false)}
                     onSubmit={handleCreate}
                     submitLabel="Create Broker"
-                    loading={processing}
+                    loading={creatingBroker}
                 >
-                    <BrokerFormFields form={form} setForm={setForm} errors={errors} />
+                    <BrokerFormFields form={form} setForm={setForm} errors={createErrors} />
                 </ModalShell>
             )}
 
@@ -212,9 +207,9 @@ return;
                     onClose={() => setEditingBroker(null)}
                     onSubmit={handleUpdate}
                     submitLabel="Save Changes"
-                    loading={processing}
+                    loading={updatingBroker}
                 >
-                    <BrokerFormFields form={editForm} setForm={setEditForm} errors={errors} />
+                    <BrokerFormFields form={editForm} setForm={setEditForm} errors={editErrors} />
                 </ModalShell>
             )}
 
