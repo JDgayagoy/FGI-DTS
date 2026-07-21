@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -28,6 +29,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        if (app()->isProduction()) {
+            URL::forceScheme('https');
+        }
         // Share user permissions with all Inertia responses
         Inertia::share([
             'userPermissions' => fn () => Auth::check() ? Auth::user()->getPermissionNames() : [],
