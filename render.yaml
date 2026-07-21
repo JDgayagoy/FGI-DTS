@@ -3,7 +3,7 @@ services:
     name: fgi-dts
     runtime: docker
     plan: free
-    branch: main
+    branch: prod
     buildCommand: ""
     dockerfilePath: ./Dockerfile
     envVars:
@@ -19,8 +19,8 @@ services:
         sync: false  # Set to your Render URL after first deploy
       - key: DB_CONNECTION
         value: pgsql
-      - key: DATABASE_URL
-        sync: false  # Set from Neon
+      - key: DB_URL
+        sync: false  # Set from Neon - format: postgresql://user:pass@host/dbname?sslmode=require
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_STORE
