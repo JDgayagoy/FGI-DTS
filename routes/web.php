@@ -12,7 +12,7 @@ use Laravel\Fortify\Features;
 
 Route::inertia('/', 'auth/login', [
     // 'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+])->middleware('guest')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Public to authenticated users (no specific permission required)
