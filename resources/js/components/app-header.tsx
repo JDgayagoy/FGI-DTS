@@ -1,9 +1,11 @@
-import { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { useState } from 'react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { EmailDetailModal } from '@/components/notifications/email-detail-modal';
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,8 +31,6 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { EmailDetailModal } from '@/components/notifications/email-detail-modal';
-import { NotificationDropdown } from '@/components/notifications/notification-dropdown';
 import { UserMenuContent } from '@/components/user-menu-content';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';

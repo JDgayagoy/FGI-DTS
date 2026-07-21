@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Notifications\ShipmentEmailDetectedNotification;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -46,7 +47,7 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'notifications' => fn () => $request->user()
                 ? $request->user()->unreadNotifications()
-                    ->where('type', \App\Notifications\ShipmentEmailDetectedNotification::class)
+                    ->where('type', ShipmentEmailDetectedNotification::class)
                     ->latest()
                     ->take(10)
                     ->get()
@@ -59,7 +60,7 @@ class HandleInertiaRequests extends Middleware
                 : [],
             'unread_notification_count' => fn () => $request->user()
                 ? $request->user()->unreadNotifications()
-                    ->where('type', \App\Notifications\ShipmentEmailDetectedNotification::class)
+                    ->where('type', ShipmentEmailDetectedNotification::class)
                     ->count()
                 : 0,
         ];

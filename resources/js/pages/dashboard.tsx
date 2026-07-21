@@ -2,8 +2,12 @@ import { Head, router } from '@inertiajs/react';
 
 const DOC_KEYS = ['SH', 'SSDT', 'FAN', 'TAN', 'SAD', 'BL', 'FE', 'IV', 'PL', 'CI', 'DH'];
 
-function exportDashboardCSV(shipments: { ref: string; date: string; broker: string; incoterm: string; status: string; docs: Record<string, string> }[]) {
-    const headers = ['Reference', 'Date', 'Broker', 'Incoterm', 'Status', ...DOC_KEYS];
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+function exportDashboardPDF(shipments: { ref: string; date: string; broker: string; incoterm: string; status: string; docs: Record<string, string> }[]) {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const headers = [['Reference', 'Date', 'Broker', 'Incoterm', 'Status', ...DOC_KEYS]];
     const rows = shipments.map(s => [
         s.ref,
         s.date ?? '',
@@ -12,30 +16,31 @@ function exportDashboardCSV(shipments: { ref: string; date: string; broker: stri
         s.status,
         ...DOC_KEYS.map(k => s.docs[k] ?? 'missing'),
     ]);
-    const csv = [headers, ...rows]
-        .map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
-        .join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dashboard-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+
+    doc.text("Dashboard Export", 14, 15);
+    autoTable(doc, {
+        head: headers,
+        body: rows,
+        startY: 20,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [59, 130, 246] }
+    });
+
+    doc.save(`dashboard-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 import {
     Search, Download, Ship, FileText, X, Printer,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { dashboard } from '@/routes';
 import { useState, useEffect } from 'react';
-import { cn } from '@/lib/utils';
 import { AccuracyChart } from '@/components/dashboard/accuracy-chart';
 import { CompletionChart } from '@/components/dashboard/completion-chart';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { ShipmentsTable } from '@/components/dashboard/shipments-table';
 import { StatusIcon } from '@/components/shipments/status-icon';
+import { Button } from '@/components/ui/button';
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { dashboard } from '@/routes';
 
 interface Metrics {
     totalShipments: number;
@@ -84,6 +89,7 @@ interface Props {
     activeFilters: {
         brokerId: string | null;
     };
+    chartData: { date: string; completed: number; total: number }[];
 }
 
 const columns = [
@@ -100,7 +106,7 @@ const columns = [
     { key: 'DH', label: 'DH' },
 ];
 
-export default function Dashboard({ metrics, shipmentRows, brokers, activeFilters }: Props) {
+export default function Dashboard({ metrics, shipmentRows, brokers, activeFilters, chartData }: Props) {
     const [activeTab, setActiveTab] = useState('All tasks');
     const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date } | undefined>();
     const [searchQuery, setSearchQuery] = useState('');
@@ -109,7 +115,9 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
     const [selectedDocKey, setSelectedDocKey] = useState<string | null>(null);
     const itemsPerPage = 20;
 
-    useEffect(() => { setCurrentPage(1); }, [activeTab, dateRange, searchQuery]);
+    useEffect(() => {
+ setCurrentPage(1); 
+}, [activeTab, dateRange, searchQuery]);
 
     const handleBrokerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
@@ -126,7 +134,10 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
         } else {
             document.body.style.overflow = 'unset';
         }
-        return () => { document.body.style.overflow = 'unset'; };
+
+        return () => {
+ document.body.style.overflow = 'unset'; 
+};
     }, [activeShipmentIndex]);
 
     const stats = {
@@ -141,6 +152,7 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
         if (searchQuery && !shipment.ref?.toLowerCase().includes(searchQuery.toLowerCase())) {
             return false;
         }
+
         if (activeTab !== 'All tasks') {
             const tabMapping: Record<string, string> = {
                 'Completed': 'completed',
@@ -148,15 +160,26 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
                 'Pending': 'pending',
                 'Incomplete': 'error',
             };
-            if (shipment.status !== tabMapping[activeTab]) return false;
+
+            if (shipment.status !== tabMapping[activeTab]) {
+return false;
+}
         }
-        if (!dateRange?.from) return true;
-        if (!shipment.date) return true;
+
+        if (!dateRange?.from) {
+return true;
+}
+
+        if (!shipment.date) {
+return true;
+}
+
         const sDate = new Date(shipment.date);
         const from = new Date(dateRange.from);
         from.setHours(0, 0, 0, 0);
         const to = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
         to.setHours(23, 59, 59, 999);
+
         return sDate >= from && sDate <= to;
     });
 
@@ -211,7 +234,7 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
                                 </option>
                             ))}
                         </select>
-                        <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200 dark:border-slate-800 rounded-lg gap-2 px-3 bg-white dark:bg-slate-900/50" onClick={() => exportDashboardCSV(filteredForTable)}>
+                        <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200 dark:border-slate-800 rounded-lg gap-2 px-3 bg-white dark:bg-slate-900/50" onClick={() => exportDashboardPDF(filteredForTable)}>
                             <Download className="size-3.5" /> Export
                         </Button>
                     </div>
@@ -219,7 +242,7 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
 
                 <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
-                        <CompletionChart />
+                        <CompletionChart chartData={chartData} />
                         <div className="bg-white dark:bg-slate-900/40 rounded-xl p-4 border border-slate-200/60 dark:border-slate-800/60 flex flex-col justify-center h-[130px] shadow-sm">
                             <div className="flex items-center gap-2 mb-3">
                                 <div className="size-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -298,6 +321,7 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
                                 {Object.entries(filteredShipments[activeShipmentIndex]?.docs || {}).map(([key, docInfo]) => {
                                     const isSelected = selectedDocKey === key;
                                     const info = docInfo as DocInfo;
+
                                     return (
                                         <li
                                             key={key}
@@ -357,6 +381,7 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
                             <div className="flex-1 overflow-hidden bg-slate-50/50 dark:bg-slate-900/20">
                                 {selectedDocKey ? (() => {
                                     const docInfo = filteredShipments[activeShipmentIndex]?.docs[selectedDocKey] as DocInfo;
+
                                     if (docInfo?.file_path && docInfo?.shipment_doc_id) {
                                         return (
                                             <iframe
@@ -366,6 +391,7 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
                                             />
                                         );
                                     }
+
                                     return (
                                         <div className="flex h-full flex-col items-center justify-center gap-4 text-slate-300">
                                             <FileText className="size-10" />

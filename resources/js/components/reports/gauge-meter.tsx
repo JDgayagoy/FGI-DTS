@@ -20,6 +20,7 @@ export function GaugeMeter({ percent = 0 }: { percent: number }) {
         const x2 = cx + r * Math.cos(currentAngle);
         const y2 = cy + r * Math.sin(currentAngle);
         const d = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`;
+
         return { d, color: seg.color };
     });
 

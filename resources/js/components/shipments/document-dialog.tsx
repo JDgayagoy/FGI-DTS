@@ -1,10 +1,10 @@
-import { CheckCircle, FileText, Upload, X, XCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { type Shipment, type ShipmentDocument } from '@/pages/shipments/types';
-import { isApproved, isRejected } from '@/pages/shipments/helpers';
-import { DocStatusIndicator } from './doc-status-indicator';
-import { useRef, useState } from 'react';
 import { router } from '@inertiajs/react';
+import { CheckCircle, FileText, Upload, X, XCircle } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { isApproved, isRejected } from '@/pages/shipments/helpers';
+import type {Shipment, ShipmentDocument} from '@/pages/shipments/types';
+import { DocStatusIndicator } from './doc-status-indicator';
 
 interface DocumentDialogProps {
     activeShipment: Shipment;
@@ -32,7 +32,10 @@ export const DocumentDialog = ({
 
     const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !selectedDoc) return;
+
+        if (!file || !selectedDoc) {
+return;
+}
 
         const formData = new FormData();
         formData.append('file', file);
@@ -94,6 +97,7 @@ export const DocumentDialog = ({
                         <ul className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
                         {activeShipment.documents.map((doc) => {
                             const isSelected = selectedDocId === doc.shipment_doc_id;
+
                             return (
                                 <li
                                     key={doc.shipment_doc_id}

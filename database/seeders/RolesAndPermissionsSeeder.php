@@ -41,7 +41,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Super Admin: User and Role management only
         $superAdminPermissionIds = Permission::whereIn('name', [
             'manage_users',
-            'manage_roles'
+            'manage_roles',
         ])->pluck('permission_id')->toArray();
         $superAdmin->permissions()->sync($superAdminPermissionIds);
 
@@ -54,7 +54,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_all_brokers',
             'add_brokers',
             'edit_brokers',
-            'delete_brokers'
+            'delete_brokers',
         ])->pluck('permission_id')->toArray();
         $supplyChainManager->permissions()->sync($scmPermissionIds);
 
@@ -64,7 +64,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'add_shipments',
             'edit_shipments',
             'delete_shipments',
-            'view_all_brokers'
+            'view_all_brokers',
         ])->pluck('permission_id')->toArray();
         $logisAssoc->permissions()->sync($shipmentPermissionIds);
 
@@ -73,7 +73,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_all_shipments',
             'add_shipments',
             'edit_shipments',
-            'view_all_brokers'
+            'view_all_brokers',
         ])->pluck('permission_id')->toArray();
         $brandManager->permissions()->sync($brandPermissionIds);
     }

@@ -14,8 +14,12 @@ import { breadcrumbs, emptyForm } from './constants';
 import { toDatetimeLocal, incotermName, formatDate } from './helpers';
 import type { Props, Shipment } from './types';
 
-function exportToCSV(shipments: Shipment[]) {
-    const headers = ['SR#', 'Brand', 'Service Type', 'Incoterm', 'ATA', 'Broker', 'Brand Manager', 'Status', 'Created At', 'Archived At', 'Docs Approved/Total'];
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+function exportToPDF(shipments: Shipment[]) {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const headers = [['SR#', 'Brand', 'Service Type', 'Incoterm', 'ATA', 'Broker', 'Brand Manager', 'Status', 'Created At', 'Archived At', 'Docs Approved/Total']];
     const rows = shipments.map(s => [
         s.shipment_reference,
         s.brand,
@@ -29,16 +33,17 @@ function exportToCSV(shipments: Shipment[]) {
         formatDate(s.archived_at),
         `${s.documents.filter(d => d.current_status?.status?.status_name === 'Approved').length}/${s.documents.length}`,
     ]);
-    const csv = [headers, ...rows]
-        .map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
-        .join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `shipments-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+
+    doc.text("Shipments Export", 14, 15);
+    autoTable(doc, {
+        head: headers,
+        body: rows,
+        startY: 20,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [59, 130, 246] }
+    });
+
+    doc.save(`shipments-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
 export default function Shipments({
@@ -71,6 +76,7 @@ export default function Shipments({
         const params = new URLSearchParams(window.location.search);
         const newRef = params.get('new_ref');
         const emailId = params.get('email_id');
+
         if (newRef) {
             setAddForm({
                 ...emptyForm,
@@ -78,9 +84,11 @@ export default function Shipments({
                 shipment_type_id: String(shipmentTypes[0]?.shipment_type_id ?? ''),
             });
             setShowAddModal(true);
+
             if (emailId) {
                 (window as Window & { __emailId?: string }).__emailId = emailId;
             }
+
             // Strip query params so a refresh doesn't reopen the modal.
             window.history.replaceState({}, '', '/shipments');
         }
@@ -210,6 +218,7 @@ export default function Shipments({
             onSuccess: () => {
                 closeAddModal();
                 const emailId = (window as Window & { __emailId?: string }).__emailId;
+
                 if (emailId) {
                     router.post(`/shipment-emails/${emailId}/created`, {}, { preserveScroll: true });
                     delete (window as Window & { __emailId?: string }).__emailId;
@@ -294,7 +303,7 @@ export default function Shipments({
                             variant="outline"
                             size="sm"
                             className="h-8 gap-2 text-[10px] font-bold"
-                            onClick={() => exportToCSV(filteredShipments)}
+                            onClick={() => exportToPDF(filteredShipments)}
                         >
                             <Download className="size-3.5" /> Export
                         </Button>

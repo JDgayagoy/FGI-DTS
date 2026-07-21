@@ -42,7 +42,7 @@ class BrokerController extends Controller
         Gate::authorize('edit-brokers');
 
         $validated = $request->validate([
-            'broker_name' => 'required|string|max:255|unique:brokers,broker_name,' . $broker->broker_id . ',broker_id',
+            'broker_name' => 'required|string|max:255|unique:brokers,broker_name,'.$broker->broker_id.',broker_id',
             'contact_person' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:255',

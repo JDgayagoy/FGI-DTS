@@ -14,7 +14,7 @@ class ShipmentFactory extends Factory
     {
         // Ensure shipment type exists for foreign key constraint
         $shipmentTypeId = DB::table('shipment_types')->first()?->shipment_type_id;
-        if (!$shipmentTypeId) {
+        if (! $shipmentTypeId) {
             $shipmentTypeId = DB::table('shipment_types')->insertGetId([
                 'shipment_type_name' => 'Sea',
             ]);
@@ -22,7 +22,7 @@ class ShipmentFactory extends Factory
 
         // Ensure status exists for foreign key constraint
         $statusId = DB::table('shipment_status_list')->first()?->status_id;
-        if (!$statusId) {
+        if (! $statusId) {
             $statusId = DB::table('shipment_status_list')->insertGetId([
                 'status_name' => 'Pending',
             ]);

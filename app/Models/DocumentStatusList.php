@@ -7,18 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class DocumentStatusList extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  protected $table = 'document_status_list';
-  protected $primaryKey = 'status_id';
-  public $timestamps = false;
+    protected $table = 'document_status_list';
 
-  protected $fillable = [
-    'status_name',
-  ];
+    protected $primaryKey = 'status_id';
 
-  public function documentStatuses()
-  {
-    return $this->hasMany(DocumentStatus::class, 'status_id', 'status_id');
-  }
+    public $timestamps = false;
+
+    protected $fillable = [
+        'status_name',
+    ];
+
+    public function documentStatuses()
+    {
+        return $this->hasMany(DocumentStatus::class, 'status_id', 'status_id');
+    }
 }

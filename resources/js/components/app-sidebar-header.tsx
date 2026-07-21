@@ -1,9 +1,9 @@
+import { usePage } from '@inertiajs/react';
+import { Bell, Mail, ChevronDown } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
-import { Bell, Mail, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { usePage } from '@inertiajs/react';
 
 export function AppSidebarHeader({
     breadcrumbs = [],

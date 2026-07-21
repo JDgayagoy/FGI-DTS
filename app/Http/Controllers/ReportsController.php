@@ -71,11 +71,18 @@ class ReportsController extends Controller
             ? round(($approvedDocs / $totalDocs) * 100)
             : 0;
 
+        $completedStatusIds = DB::table('shipment_status_list')
+            ->where('status_name', 'Completed')
+            ->pluck('status_id')
+            ->toArray();
+            
+        $completedIdsStr = empty($completedStatusIds) ? '0' : implode(',', $completedStatusIds);
+
         $completeVsIncomplete = $applyShipmentFilters(Shipment::query())
             ->selectRaw("DATE_FORMAT(actual_time_of_arrival, '%b') as month,
                          MONTH(actual_time_of_arrival) as month_num,
-                         SUM(CASE WHEN status_id = (SELECT status_id FROM shipment_status_list WHERE status_name = 'Completed') THEN 1 ELSE 0 END) as completed,
-                         SUM(CASE WHEN status_id != (SELECT status_id FROM shipment_status_list WHERE status_name = 'Completed') THEN 1 ELSE 0 END) as incomplete")
+                         SUM(CASE WHEN status_id IN ($completedIdsStr) THEN 1 ELSE 0 END) as completed,
+                         SUM(CASE WHEN status_id NOT IN ($completedIdsStr) THEN 1 ELSE 0 END) as incomplete")
             ->whereNotNull('actual_time_of_arrival')
             ->groupByRaw("MONTH(actual_time_of_arrival), DATE_FORMAT(actual_time_of_arrival, '%b')")
             ->orderByRaw('MONTH(actual_time_of_arrival)')

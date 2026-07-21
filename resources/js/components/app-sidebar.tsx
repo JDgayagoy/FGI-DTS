@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import {
     BookOpen,
     FolderGit2,
@@ -27,7 +28,6 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
-import { usePage } from '@inertiajs/react';
 
 const mainNavItems: NavItem[] = [
     {
@@ -76,10 +76,14 @@ export function AppSidebar() {
         userPermissions?.includes(name) ?? false;
 
     const filteredMainItems = mainNavItems.filter((item) => {
-        if (item.title === 'Shipments')
-            return hasPermissionName('view_all_shipments');
-        if (item.title === 'Reports')
-            return hasPermissionName('view_all_shipments');
+        if (item.title === 'Shipments') {
+return hasPermissionName('view_all_shipments');
+}
+
+        if (item.title === 'Reports') {
+return hasPermissionName('view_all_shipments');
+}
+
         return true; // Dashboard and others always visible
     });
 

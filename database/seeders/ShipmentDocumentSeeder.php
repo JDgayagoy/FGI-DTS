@@ -16,7 +16,7 @@ class ShipmentDocumentSeeder extends Seeder
         foreach ($shipmentIds as $shipmentId) {
             foreach ($customDocIds as $docId) {
                 $rows[] = [
-                    'shipment_id'   => $shipmentId,
+                    'shipment_id' => $shipmentId,
                     'custom_doc_id' => $docId,
                 ];
             }

@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
+
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 it('renders the dashboard page and shows correct totals', function () {
     $user = User::factory()->create();

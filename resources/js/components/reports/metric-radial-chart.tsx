@@ -1,6 +1,7 @@
-import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import * as React from "react"
+import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts"
+import { ChartContainer, ChartTooltip, ChartTooltipContent  } from "@/components/ui/chart"
+import type {ChartConfig} from "@/components/ui/chart";
 
 interface Props {
   chartData: any[];

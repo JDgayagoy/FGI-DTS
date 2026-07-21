@@ -1,11 +1,14 @@
 import { INCOTERMS } from './constants';
-import { type ShipmentDocument } from './types';
+import type {ShipmentDocument} from './types';
 
 export const incotermName = (code: string) =>
     INCOTERMS.find((i) => i.code === code)?.name ?? code;
 
 export const formatDate = (dateString: string | null) => {
-    if (!dateString) return '—';
+    if (!dateString) {
+return '—';
+}
+
     return new Date(dateString).toLocaleDateString('en-US', {
         month: '2-digit',
         day: '2-digit',
@@ -14,7 +17,10 @@ export const formatDate = (dateString: string | null) => {
 };
 
 export const toDatetimeLocal = (dateString: string | null) => {
-    if (!dateString) return '';
+    if (!dateString) {
+return '';
+}
+
     return new Date(dateString).toISOString().slice(0, 16);
 };
 
