@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: fgi-dts
+    runtime: docker
+    plan: free
+    branch: main
+    buildCommand: ""
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_NAME
+        value: FGI-DTS
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: APP_URL
+        sync: false  # Set to your Render URL after first deploy
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        sync: false  # Set from Neon
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: FILESYSTEM_DISK
+        value: r2
+      - key: CLOUDFLARE_R2_ACCESS_KEY_ID
+        sync: false
+      - key: CLOUDFLARE_R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: CLOUDFLARE_R2_BUCKET
+        sync: false
+      - key: CLOUDFLARE_R2_ENDPOINT
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error

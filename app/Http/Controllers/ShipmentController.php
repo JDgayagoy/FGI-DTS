@@ -254,14 +254,15 @@ class ShipmentController extends Controller
         ]);
 
         $doc = ShipmentDocument::findOrFail($shipment_doc_id);
+        $disk = config('filesystems.default');
 
         // Delete old file if exists
-        if ($doc->file_path && Storage::disk('public')->exists($doc->file_path)) {
-            Storage::disk('public')->delete($doc->file_path);
+        if ($doc->file_path && Storage::disk($disk)->exists($doc->file_path)) {
+            Storage::disk($disk)->delete($doc->file_path);
         }
 
         $file = $request->file('file');
-        $path = $file->store("shipment-docs/{$doc->shipment_id}", 'public');
+        $path = $file->store("shipment-docs/{$doc->shipment_id}", $disk);
 
         $doc->update([
             'file_path' => $path,
@@ -281,14 +282,15 @@ class ShipmentController extends Controller
     public function viewDocument(int $shipment_doc_id)
     {
         $doc = ShipmentDocument::findOrFail($shipment_doc_id);
+        $disk = config('filesystems.default');
 
-        if (! $doc->file_path || ! Storage::disk('public')->exists($doc->file_path)) {
+        if (! $doc->file_path || ! Storage::disk($disk)->exists($doc->file_path)) {
             abort(404);
         }
 
-        return response()->file(Storage::disk('public')->path($doc->file_path), [
-            'Content-Type' => 'application/pdf',
-        ]);
+        return response()->stream(function () use ($disk, $doc) {
+            echo Storage::disk($disk)->get($doc->file_path);
+        }, 200, ['Content-Type' => 'application/pdf']);
     }
 
     public function update(Request $request, Shipment $shipment)
