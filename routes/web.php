@@ -9,8 +9,17 @@ use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\ShipmentEmailController;
 use App\Http\Controllers\UserManagementController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+
+Route::get('/secret-seed', function () {
+    Artisan::call('db:seed', ['--class' => 'ShipmentTypeSeeder']);
+    Artisan::call('db:seed', ['--class' => 'DocumentStatusListSeeder']);
+    Artisan::call('db:seed', ['--class' => 'CustomDocSeeder']);
+    Artisan::call('db:seed', ['--class' => 'ShipmentStatusListSeeder']);
+    return 'Seeded successfully!';
+});
 
 Route::inertia('/', 'auth/login', [
     // 'canRegister' => Features::enabled(Features::registration()),
