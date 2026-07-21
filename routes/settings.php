@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
-use App\Http\Controllers\Settings\UserImapSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -22,9 +21,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
-
-    Route::get('settings/email-integration', [UserImapSettingController::class, 'show'])->name('imap.show');
-    Route::put('settings/imap', [UserImapSettingController::class, 'update'])->name('imap.update');
-    Route::post('settings/imap/test', [UserImapSettingController::class, 'test'])->name('imap.test');
-    Route::delete('settings/imap', [UserImapSettingController::class, 'destroy'])->name('imap.destroy');
 });

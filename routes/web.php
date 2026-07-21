@@ -2,15 +2,10 @@
 
 use App\Http\Controllers\BrokerController;
 use App\Http\Controllers\DashboardController;
-<<<<<<< HEAD
 use App\Http\Controllers\LogController;
-=======
-use App\Http\Controllers\NotificationController;
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\RoleManagementController;
 use App\Http\Controllers\ShipmentController;
-use App\Http\Controllers\ShipmentEmailController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -22,15 +17,6 @@ Route::inertia('/', 'auth/login', [
 Route::middleware(['auth', 'verified'])->group(function () {
     // Public to authenticated users (no specific permission required)
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-<<<<<<< HEAD
-=======
-
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
-    Route::post('/shipment-emails/{shipmentEmail}/dismiss', [ShipmentEmailController::class, 'dismiss'])->name('shipment-emails.dismiss');
-    Route::post('/shipment-emails/{shipmentEmail}/created', [ShipmentEmailController::class, 'markCreated'])->name('shipment-emails.created');
-
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
 
@@ -91,7 +77,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('check.permission:archive-shipments')
         ->name('shipments.archive');
 
-<<<<<<< HEAD
     // View shipments
     Route::get('shipments', [ShipmentController::class, 'index'])
         ->middleware('check.permission:view-shipments')
@@ -110,15 +95,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('shipments/{shipment}', [ShipmentController::class, 'update'])
         ->middleware('check.permission:edit-shipments')
         ->name('shipments.update');
-=======
-    Route::patch('shipments/{shipment}/restore', [ShipmentController::class, 'restore'])
-        ->name('shipments.restore');
-
-    // Resource route LAST
-    Route::resource('shipments', ShipmentController::class)->parameters([
-        'shipments' => 'shipment:shipment_id',
-    ]);
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 });
 
 require __DIR__.'/settings.php';

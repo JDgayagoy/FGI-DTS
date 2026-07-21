@@ -1,12 +1,11 @@
+import AppLayout from '@/layouts/app-layout';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { Shield, ShieldAlert, ShieldCheck, Users as UsersIcon, Edit2, Check, UserPlus } from 'lucide-react';
-import {  useState } from 'react';
-import type {ReactNode} from 'react';
-import { ModalShell } from '@/components/shipments/modal-shell';
+import { type ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ModalShell } from '@/components/shipments/modal-shell';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
 
 interface Role {
     role_id: number;
@@ -66,10 +65,7 @@ export default function Users({ users, roles, auth }: Props) {
     };
 
     const handleUpdateRoles = () => {
-        if (!editingUser) {
-return;
-}
-
+        if (!editingUser) return;
         setIsUpdatingRoles(true);
         router.put(`/users/${editingUser.id}/roles`, { role_ids: selectedRoleIds }, {
             onSuccess: closeEditModal,
@@ -90,7 +86,6 @@ return;
 
     const toggleCreateRole = (roleId: number) => {
         const current = data.role_ids;
-
         if (current.includes(roleId)) {
             setData('role_ids', current.filter(id => id !== roleId));
         } else {
@@ -219,7 +214,6 @@ return;
                             <div className="grid gap-3">
                                 {roles.map((role) => {
                                     const isSelected = data.role_ids.includes(role.role_id);
-
                                     return (
                                         <div
                                             key={role.role_id}
@@ -264,7 +258,6 @@ return;
                         <div className="grid gap-4">
                             {roles.map((role) => {
                                 const isSelected = selectedRoleIds.includes(role.role_id);
-
                                 return (
                                     <div
                                         key={role.role_id}

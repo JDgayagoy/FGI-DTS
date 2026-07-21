@@ -1,11 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
-import { useState } from 'react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
-import { EmailDetailModal } from '@/components/notifications/email-detail-modal';
-import { NotificationDropdown } from '@/components/notifications/notification-dropdown';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,7 +33,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useInitials } from '@/hooks/use-initials';
 import { cn, toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
-import type { AppNotification, BreadcrumbItem, NavItem } from '@/types';
+import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -71,7 +68,6 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const { auth } = page.props;
     const getInitials = useInitials();
     const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
-    const [selectedNotification, setSelectedNotification] = useState<AppNotification | null>(null);
 
     return (
         <>
@@ -181,7 +177,6 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                     </div>
 
                     <div className="ml-auto flex items-center space-x-2">
-                        <NotificationDropdown onSelect={setSelectedNotification} />
                         <div className="relative flex items-center space-x-1">
                             <Button
                                 variant="ghost"
@@ -247,12 +242,6 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                 </div>
-            )}
-            {selectedNotification && (
-                <EmailDetailModal
-                    notification={selectedNotification}
-                    onClose={() => setSelectedNotification(null)}
-                />
             )}
         </>
     );

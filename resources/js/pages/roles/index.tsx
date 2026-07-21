@@ -1,10 +1,9 @@
+import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { Shield, ShieldAlert, ShieldCheck, Key as KeyIcon, Edit2, Check } from 'lucide-react';
-import {  useState } from 'react';
-import type {ReactNode} from 'react';
-import { ModalShell } from '@/components/shipments/modal-shell';
+import { type ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
+import { ModalShell } from '@/components/shipments/modal-shell';
 
 interface Permission {
     permission_id: number;
@@ -50,10 +49,7 @@ export default function Roles({ roles, permissions }: Props) {
     };
 
     const handleSubmit = () => {
-        if (!editingRole) {
-return;
-}
-
+        if (!editingRole) return;
         router.put(`/roles/${editingRole.role_id}/permissions`, { permission_ids: selectedPermissionIds }, {
             onSuccess: closeEditModal,
             preserveScroll: true,
@@ -65,9 +61,7 @@ return;
         if (!acc[curr.resource]) {
             acc[curr.resource] = [];
         }
-
         acc[curr.resource].push(curr);
-
         return acc;
     }, {} as Record<string, Permission[]>);
 
@@ -148,7 +142,6 @@ return;
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     {resourcePerms.map((permission) => {
                                         const isSelected = selectedPermissionIds.includes(permission.permission_id);
-
                                         return (
                                             <div
                                                 key={permission.permission_id}

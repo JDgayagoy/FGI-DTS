@@ -7,25 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
-    protected $table = 'roles';
+  protected $table = 'roles';
+  protected $primaryKey = 'role_id';
+  public $timestamps = false;
 
-    protected $primaryKey = 'role_id';
+  protected $fillable = [
+    'role_name',
+  ];
 
-    public $timestamps = false;
+  public function users()
+  {
+    return $this->belongsToMany(User::class, 'user_roles', 'role_id', 'user_id');
+  }
 
-    protected $fillable = [
-        'role_name',
-    ];
-
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'user_roles', 'role_id', 'user_id');
-    }
-
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class, 'role_permissions', 'role_id', 'permission_id');
-    }
+  public function permissions()
+  {
+    return $this->belongsToMany(Permission::class, 'role_permissions', 'role_id', 'permission_id');
+  }
 }

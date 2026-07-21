@@ -1,10 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { Download, Package, Plus } from 'lucide-react';
-<<<<<<< HEAD
 import { useEffect, useRef, useState } from 'react';
-=======
-import { useState, useMemo, useEffect } from 'react';
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 import type { ReactNode } from 'react';
 import { DocumentDialog } from '@/components/shipments/document-dialog';
 import { ModalShell } from '@/components/shipments/modal-shell';
@@ -16,55 +12,16 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value';
 
 import AppLayout from '@/layouts/app-layout';
 import { breadcrumbs, emptyForm } from './constants';
-<<<<<<< HEAD
 import { toDatetimeLocal } from './helpers';
-=======
-import { toDatetimeLocal, incotermName, formatDate } from './helpers';
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 import type { Props, Shipment } from './types';
-
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-
-function exportToPDF(shipments: Shipment[]) {
-    const doc = new jsPDF({ orientation: 'landscape' });
-    const headers = [['SR#', 'Brand', 'Service Type', 'Incoterm', 'ATA', 'Broker', 'Brand Manager', 'Status', 'Created At', 'Archived At', 'Docs Approved/Total']];
-    const rows = shipments.map(s => [
-        s.shipment_reference,
-        s.brand,
-        s.shipment_type.shipment_type_name,
-        incotermName(s.incoterm),
-        formatDate(s.actual_time_of_arrival),
-        s.broker?.broker_name ?? '',
-        s.brand_manager,
-        s.status.status_name,
-        formatDate(s.created_at),
-        formatDate(s.archived_at),
-        `${s.documents.filter(d => d.current_status?.status?.status_name === 'Approved').length}/${s.documents.length}`,
-    ]);
-
-    doc.text("Shipments Export", 14, 15);
-    autoTable(doc, {
-        head: headers,
-        body: rows,
-        startY: 20,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [59, 130, 246] }
-    });
-
-    doc.save(`shipments-${new Date().toISOString().slice(0, 10)}.pdf`);
-}
 
 export default function Shipments({
     shipments,
     shipmentTypes,
     brokers,
     filters,
-<<<<<<< HEAD
     archiveCounts,
     statusCounts,
-=======
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 }: Props) {
     const [activeDocPanel, setActiveDocPanel] = useState<number | null>(null);
     const [selectedDocId, setSelectedDocId] = useState<number | null>(null);
@@ -76,30 +33,6 @@ export default function Shipments({
     const [addForm, setAddForm] = useState({ ...emptyForm });
 
     const { hasPermission } = usePermissions();
-
-    // Open Add modal pre-filled when arriving from an email notification.
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const newRef = params.get('new_ref');
-        const emailId = params.get('email_id');
-
-        if (newRef) {
-            setAddForm({
-                ...emptyForm,
-                shipment_reference: newRef,
-                shipment_type_id: String(shipmentTypes[0]?.shipment_type_id ?? ''),
-            });
-            setShowAddModal(true);
-
-            if (emailId) {
-                (window as Window & { __emailId?: string }).__emailId = emailId;
-            }
-
-            // Strip query params so a refresh doesn't reopen the modal.
-            window.history.replaceState({}, '', '/shipments');
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     const activeShipment =
         activeDocPanel !== null ? shipments.data[activeDocPanel] : null;
@@ -185,17 +118,7 @@ export default function Shipments({
     };
     const closeAddModal = () => setShowAddModal(false);
     const handleAddSubmit = () =>
-        router.post('/shipments', addForm, {
-            onSuccess: () => {
-                closeAddModal();
-                const emailId = (window as Window & { __emailId?: string }).__emailId;
-
-                if (emailId) {
-                    router.post(`/shipment-emails/${emailId}/created`, {}, { preserveScroll: true });
-                    delete (window as Window & { __emailId?: string }).__emailId;
-                }
-            },
-        });
+        router.post('/shipments', addForm, { onSuccess: closeAddModal });
 
     const openEditModal = (shipment: Shipment) => {
         setEditingShipment(shipment);
@@ -226,7 +149,6 @@ export default function Shipments({
         );
     };
 
-<<<<<<< HEAD
     const handleArchiveFilterChange = (archive: Props['filters']['archive']) => {
         setActiveDocPanel(null);
         setSelectedDocId(null);
@@ -235,27 +157,7 @@ export default function Shipments({
             buildQuery({ archive: archive !== 'active' ? archive : undefined, page: 1 }),
             { preserveState: true, preserveScroll: true, replace: true },
         );
-=======
-    const handleFilterChange = (value: string) => {
-        setActiveDocPanel(null);
-        setSelectedDocId(null);
-
-        if (value === '') {
-            router.get('/shipments', {}, { preserveState: true, preserveScroll: true, replace: true });
-        } else if (value === 'archived' || value === 'all') {
-            router.get('/shipments', { archive: value }, { preserveState: true, preserveScroll: true, replace: true });
-        } else if (value.startsWith('broker:')) {
-            const brokerId = value.replace('broker:', '');
-            router.get('/shipments', { broker_id: brokerId }, { preserveState: true, preserveScroll: true, replace: true });
-        }
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
     };
-
-    const currentFilter = filters.broker_id
-        ? `broker:${filters.broker_id}`
-        : filters.archive === 'active'
-        ? ''
-        : filters.archive;
 
     const closePanel = () => {
         setActiveDocPanel(null);
@@ -279,7 +181,6 @@ export default function Shipments({
                             variant="outline"
                             size="sm"
                             className="h-8 gap-2 text-[10px] font-bold"
-                            onClick={() => exportToPDF(filteredShipments)}
                         >
                             <Download className="size-3.5" /> Export
                         </Button>
@@ -307,23 +208,10 @@ export default function Shipments({
                     setArchivingShipment={setArchivingShipment}
                     setActiveDocPanel={setActiveDocPanel}
                     setSelectedDocId={setSelectedDocId}
-<<<<<<< HEAD
                     archiveFilter={filters.archive}
                     archiveCounts={archiveCounts}
                     setArchiveFilter={handleArchiveFilterChange}
                     onPageChange={handlePageChange}
-=======
-                    brokers={brokers}
-                    currentFilter={currentFilter}
-                    onFilterChange={handleFilterChange}
-                    onRestore={(shipment) =>
-                        router.patch(
-                            `/shipments/${shipment.shipment_id}/restore`,
-                            undefined,
-                            { preserveScroll: true },
-                        )
-                    }
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                 />
             </div>
 

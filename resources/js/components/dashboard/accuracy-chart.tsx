@@ -1,16 +1,15 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
 import * as React from "react"
+import { TrendingUp } from "lucide-react"
 import { Label, Pie, PieChart } from "recharts"
 
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent
-  
+  ChartTooltipContent,
+  type ChartConfig,
 } from "@/components/ui/chart"
-import type {ChartConfig} from "@/components/ui/chart";
 
 export const description = "Accuracy Rate Donut"
 

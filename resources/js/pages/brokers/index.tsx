@@ -1,12 +1,11 @@
+import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
 import { Truck, Plus, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import {  useState } from 'react';
-import type {ReactNode} from 'react';
-import { ModalShell } from '@/components/shipments/modal-shell';
+import { type ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ModalShell } from '@/components/shipments/modal-shell';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
 
 interface Broker {
     broker_id: number;
@@ -64,19 +63,14 @@ export default function Brokers({ brokers }: Props) {
     const handleCreate = () => {
         setProcessing(true);
         router.post('/brokers', form, {
-            onSuccess: () => {
- setIsCreating(false); setForm({ ...emptyBrokerForm }); 
-},
+            onSuccess: () => { setIsCreating(false); setForm({ ...emptyBrokerForm }); },
             onError: (e) => setErrors(e as any),
             onFinish: () => setProcessing(false),
         });
     };
 
     const handleUpdate = () => {
-        if (!editingBroker) {
-return;
-}
-
+        if (!editingBroker) return;
         setProcessing(true);
         router.put(`/brokers/${editingBroker.broker_id}`, editForm, {
             onSuccess: () => setEditingBroker(null),
@@ -86,10 +80,7 @@ return;
     };
 
     const handleDelete = () => {
-        if (!deletingBroker) {
-return;
-}
-
+        if (!deletingBroker) return;
         router.delete(`/brokers/${deletingBroker.broker_id}`, {
             onSuccess: () => setDeletingBroker(null),
         });
