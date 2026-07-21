@@ -49,4 +49,7 @@ RUN php artisan storage:link || true
 EXPOSE 8000
 
 # Start command: migrate then serve
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan migrate --force \
+    && php artisan db:seed --class=RolesAndPermissionsSeeder --force \
+    && php artisan db:seed --class=UserSeeder --force \
+    && php artisan serve --host=0.0.0.0 --port=8000
