@@ -28,11 +28,11 @@ class ShipmentController extends Controller
             $archiveFilter = 'active';
         }
 
-<<<<<<< HEAD
         $search = trim((string) $request->query('search', ''));
         $status = $request->query('status');
         $sort = $request->query('sort');
         $direction = $request->query('direction') === 'desc' ? 'desc' : 'asc';
+        $brokerId = $request->query('broker_id');
         $perPage = (int) $request->query('per_page', 15);
         $perPage = max(1, min($perPage, 100));
 
@@ -58,6 +58,7 @@ class ShipmentController extends Controller
             ->leftJoin('shipment_types', 'shipment_types.shipment_type_id', '=', 'shipments.shipment_type_id')
             ->when($archiveFilter === 'active', fn ($q) => $q->active())
             ->when($archiveFilter === 'archived', fn ($q) => $q->archived())
+            ->when($brokerId, fn ($q) => $q->where('shipments.broker_id', $brokerId))
             ->searchTerm($search ?: null);
 
         // ── Paginated rows ──────────────────────────────────────────────────────
@@ -69,6 +70,7 @@ class ShipmentController extends Controller
                 'broker',
                 'documents.customDoc',
                 'documents.currentStatus.status',
+                'emails',
             ])
             ->when($status, fn ($q) => $q->where('shipment_status_list.status_name', $status));
 
@@ -83,23 +85,6 @@ class ShipmentController extends Controller
             ->pluck('aggregate', 'status_name');
 
         $totalForTabs = $baseQuery()->count();
-=======
-        $brokerId = $request->query('broker_id');
-
-        $shipments = Shipment::with([
-            'status',
-            'shipmentType',
-            'broker',
-            'documents.customDoc',
-            'documents.currentStatus.status',
-            'emails',
-        ])
-            ->when($archiveFilter === 'active', fn ($query) => $query->active())
-            ->when($archiveFilter === 'archived', fn ($query) => $query->archived())
-            ->when($brokerId, fn ($query) => $query->where('broker_id', $brokerId))
-            ->latest()
-            ->get();
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 
         return Inertia::render('shipments/index', [
             'shipments' => $shipments,
@@ -107,14 +92,11 @@ class ShipmentController extends Controller
             'brokers' => Broker::where('is_active', true)->get(),
             'filters' => [
                 'archive' => $archiveFilter,
-<<<<<<< HEAD
                 'search' => $search,
                 'status' => $status,
                 'sort' => $sort,
                 'direction' => $direction,
-=======
                 'broker_id' => $brokerId,
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
             ],
             'archiveCounts' => [
                 'active' => Shipment::active()->count(),

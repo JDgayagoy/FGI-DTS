@@ -2,11 +2,7 @@ import { Archive, Eye, Pencil, Printer, Search, X } from 'lucide-react';
 import { usePermissions } from '@/hooks/use-permissions';
 import { cn } from '@/lib/utils';
 import { formatDate, incotermName } from '@/pages/shipments/helpers';
-<<<<<<< HEAD
-import type { Paginated, Shipment } from '@/pages/shipments/types';
-=======
-import type { Broker, Shipment } from '@/pages/shipments/types';
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
+import type { Broker, Paginated, Shipment } from '@/pages/shipments/types';
 import { Highlight } from './highlight';
 import { StatusIcon } from './status-icon';
 import { PaginationControls } from './pagination-controls';
@@ -28,7 +24,6 @@ interface ShipmentsTableProps {
     setArchivingShipment: (shipment: Shipment) => void;
     setActiveDocPanel: (index: number) => void;
     setSelectedDocId: (id: null) => void;
-<<<<<<< HEAD
     archiveFilter: 'active' | 'archived' | 'all';
     archiveCounts: {
         active: number;
@@ -44,12 +39,10 @@ interface ShipmentsTableProps {
     };
     setArchiveFilter: (filter: 'active' | 'archived' | 'all') => void;
     onPageChange: (page: number) => void;
-=======
     brokers: Broker[];
     currentFilter: string;
     onFilterChange: (value: string) => void;
     onRestore: (shipment: Shipment) => void;
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 }
 
 const SortableHeader = ({
@@ -95,18 +88,15 @@ export const ShipmentsTable = ({
     setArchivingShipment,
     setActiveDocPanel,
     setSelectedDocId,
-<<<<<<< HEAD
     archiveFilter,
     archiveCounts,
     statusCounts,
     setArchiveFilter,
     onPageChange,
-=======
     brokers = [],
     currentFilter,
     onFilterChange,
     onRestore,
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 }: ShipmentsTableProps) => {
     const { hasPermission } = usePermissions();
     const rows = shipments.data;
@@ -152,7 +142,6 @@ export const ShipmentsTable = ({
                     })}
                 </div>
                 <div className="mb-1 flex flex-wrap items-center justify-end gap-2">
-<<<<<<< HEAD
                     <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-800 dark:bg-slate-950/40">
                         {ARCHIVE_FILTERS.map((filter) => {
                             const isActive = archiveFilter === filter.value;
@@ -177,23 +166,18 @@ export const ShipmentsTable = ({
                                                 : 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
                                         )}
                                     >
-                                        {archiveCounts[filter.value]}
+                                        {archiveCounts[filter.value as 'active' | 'archived' | 'all']}
                                     </span>
                                 </button>
                             );
                         })}
                     </div>
-=======
                     <select
                         value={currentFilter}
                         onChange={(e) => onFilterChange(e.target.value)}
                         className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300"
                     >
-                        <option value="">Active (Default)</option>
-                        <optgroup label="Visibility">
-                            <option value="archived">Archived</option>
-                            <option value="all">All</option>
-                        </optgroup>
+                        <option value="">All Brokers</option>
                         {brokers.length > 0 && (
                             <optgroup label="Brokers">
                                 {brokers.map((b) => (
@@ -204,7 +188,6 @@ export const ShipmentsTable = ({
                             </optgroup>
                         )}
                     </select>
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                     <div className="relative">
                         <Search className="absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-slate-400" />
                         <input
@@ -348,20 +331,7 @@ export const ShipmentsTable = ({
                                                         <Pencil className="mr-1 inline h-3 w-3" /> Edit
                                                     </button>
                                                 )}
-<<<<<<< HEAD
                                                 {hasPermission('archive-shipments') && (
-                                                    <button
-                                                        onClick={() => setArchivingShipment(s)}
-                                                        disabled={!!s.archived_at}
-                                                        className="rounded-lg border border-orange-200 px-2 py-1 text-[10px] font-bold text-orange-600 hover:bg-orange-50 disabled:opacity-40 dark:border-orange-800/40"
-                                                    >
-                                                        <Archive className="mr-1 inline h-3 w-3" />
-                                                        {s.archived_at ? 'Archived' : 'Archive'}
-                                                    </button>
-=======
-                                                {hasPermission(
-                                                    'delete_shipments',
-                                                ) && (
                                                     s.archived_at ? (
                                                         <button
                                                             onClick={() => onRestore(s)}
@@ -379,7 +349,7 @@ export const ShipmentsTable = ({
                                                             Archive
                                                         </button>
                                                     )
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
+
                                                 )}
                                             </div>
                                         </td>

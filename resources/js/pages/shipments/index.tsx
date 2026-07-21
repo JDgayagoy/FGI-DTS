@@ -281,12 +281,10 @@ export default function Shipments({
                     setArchivingShipment={setArchivingShipment}
                     setActiveDocPanel={setActiveDocPanel}
                     setSelectedDocId={setSelectedDocId}
-<<<<<<< HEAD
                     archiveFilter={filters.archive}
                     archiveCounts={archiveCounts}
                     setArchiveFilter={handleArchiveFilterChange}
                     onPageChange={handlePageChange}
-=======
                     brokers={brokers}
                     currentFilter={currentFilter}
                     onFilterChange={handleFilterChange}
@@ -297,7 +295,6 @@ export default function Shipments({
                             { preserveScroll: true },
                         )
                     }
->>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                 />
             </div>
 
