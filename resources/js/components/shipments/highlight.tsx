@@ -1,5 +1,7 @@
 export const Highlight = ({ text, query }: { text: string; query: string }) => {
-    if (!query.trim()) return <>{text}</>;
+    if (!query.trim()) {
+return <>{text}</>;
+}
 
     const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     const parts = text.split(regex);

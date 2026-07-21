@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { type ReactNode } from 'react';
+import type {ReactNode} from 'react';
 
 interface ModalShellProps {
     title: string;

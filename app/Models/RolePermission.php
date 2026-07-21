@@ -7,25 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class RolePermission extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  protected $table = 'role_permissions';
-  public $timestamps = false;
-  protected $primaryKey = null;
-  public $incrementing = false;
+    protected $table = 'role_permissions';
 
-  protected $fillable = [
-    'role_id',
-    'permission_id',
-  ];
+    public $timestamps = false;
 
-  public function role()
-  {
-    return $this->belongsTo(Role::class, 'role_id', 'role_id');
-  }
+    protected $primaryKey = null;
 
-  public function permission()
-  {
-    return $this->belongsTo(Permission::class, 'permission_id', 'permission_id');
-  }
+    public $incrementing = false;
+
+    protected $fillable = [
+        'role_id',
+        'permission_id',
+    ];
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'role_id');
+    }
+
+    public function permission()
+    {
+        return $this->belongsTo(Permission::class, 'permission_id', 'permission_id');
+    }
 }

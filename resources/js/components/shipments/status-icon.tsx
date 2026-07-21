@@ -2,9 +2,14 @@ export const StatusIcon = ({ type }: { type: string }) => {
     const t = type.toLowerCase();
 
     let iconType: 'ok' | 'error' | 'warning' | 'pending' = 'pending';
-    if (['completed', 'ok', 'approved'].includes(t)) iconType = 'ok';
-    else if (['failed', 'error', 'rejected'].includes(t)) iconType = 'error';
-    else if (['processing', 'warning', 'incomplete'].includes(t)) iconType = 'warning';
+
+    if (['completed', 'ok', 'approved'].includes(t)) {
+iconType = 'ok';
+} else if (['failed', 'error', 'rejected'].includes(t)) {
+iconType = 'error';
+} else if (['processing', 'warning', 'incomplete'].includes(t)) {
+iconType = 'warning';
+}
 
     const config = {
         ok: { // Green

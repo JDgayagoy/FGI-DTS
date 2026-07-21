@@ -44,6 +44,17 @@ export interface ShipmentDocument {
     } | null;
 }
 
+export interface ShipmentEmail {
+    id: number;
+    from_address: string;
+    from_name: string | null;
+    subject: string;
+    body_excerpt: string;
+    matched_ref: string | null;
+    action_taken: string;
+    received_at: string | null;
+}
+
 export interface ShipmentStatus {
     status_id: number;
     status_name: string;
@@ -77,6 +88,7 @@ export interface Shipment {
     status: ShipmentStatus;
     shipment_type: ShipmentType;
     documents: ShipmentDocument[];
+    emails?: ShipmentEmail[];
 }
 
 export interface Props {
@@ -85,10 +97,14 @@ export interface Props {
     brokers: Broker[];
     filters: {
         archive: 'active' | 'archived' | 'all';
+<<<<<<< HEAD
         search: string;
         status: string | null;
         sort: string | null;
         direction: 'asc' | 'desc';
+=======
+        broker_id: string | null;
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
     };
     archiveCounts: {
         active: number;

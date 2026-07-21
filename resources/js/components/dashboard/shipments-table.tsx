@@ -163,9 +163,13 @@ export function ShipmentsTable({
                     <div className="mx-2 flex items-center gap-1">
                         {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
                             let pageNum = i + 1;
+
                             if (totalPages > 5 && currentPage > 3) {
                                 pageNum = currentPage - 2 + i;
-                                if (pageNum > totalPages) pageNum = totalPages - (4 - i);
+
+                                if (pageNum > totalPages) {
+pageNum = totalPages - (4 - i);
+}
                             }
 
                             return (

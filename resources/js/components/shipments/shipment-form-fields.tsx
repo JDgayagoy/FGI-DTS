@@ -1,5 +1,6 @@
-import { BRAND_MANAGERS, emptyForm } from '@/pages/shipments/constants';
-import { type Broker, type ShipmentType } from '@/pages/shipments/types';
+import type { emptyForm } from '@/pages/shipments/constants';
+import { BRAND_MANAGERS } from '@/pages/shipments/constants';
+import type {Broker, ShipmentType} from '@/pages/shipments/types';
 import { IncotermSelect } from './incoterm-select';
 
 export const ShipmentFormFields = ({

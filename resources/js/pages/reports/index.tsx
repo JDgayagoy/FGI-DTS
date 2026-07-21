@@ -1,19 +1,47 @@
-import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
-import { type ReactNode } from 'react';
-import { FileBarChart2 } from 'lucide-react';
+import { FileBarChart2, Download } from 'lucide-react';
+import type {ReactNode} from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { Button } from '@/components/ui/button';
 
-import { type Props } from './types';
-import { breadcrumbs } from './constants';
 
-import { FilterBar } from '@/components/reports/filter-bar';
-import { MetricRadialChart } from '@/components/reports/metric-radial-chart';
-import { MetricCard } from '@/components/reports/metric-card';
-import { CompletenessChart } from '@/components/reports/completeness-chart';
 import { CompleteVsIncompleteChart } from '@/components/reports/complete-vs-incomplete-chart';
+import { CompletenessChart } from '@/components/reports/completeness-chart';
 import { DocumentStatusChart } from '@/components/reports/document-status-chart';
+import { FilterBar } from '@/components/reports/filter-bar';
+import { MetricCard } from '@/components/reports/metric-card';
+import { MetricRadialChart } from '@/components/reports/metric-radial-chart';
+import AppLayout from '@/layouts/app-layout';
+import { breadcrumbs } from './constants';
+import type {Props} from './types';
 
 export default function Reports({ metrics, charts, filterOptions, activeFilters }: Props) {
+    function exportReportsPDF(metrics: any) {
+        const doc = new jsPDF();
+        doc.text("Reports Export", 14, 15);
+        
+        autoTable(doc, {
+            head: [['Metric', 'Value']],
+            body: [
+                ['Total Shipments', metrics.totalShipments],
+                ['Completed Shipments', metrics.completedShipments],
+                ['Pending Shipments', metrics.pendingShipments],
+                ['Processing Shipments', metrics.processingShipments],
+                ['Failed Shipments', metrics.failedShipments],
+                ['Total Documents Required', metrics.totalDocs],
+                ['Approved Documents', metrics.approvedDocs],
+                ['Pending Documents', metrics.pendingDocs],
+                ['Rejected Documents', metrics.rejectedDocs],
+                ['Completion Rate (%)', metrics.completionRate],
+            ],
+            startY: 20,
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [59, 130, 246] }
+        });
+        
+        doc.save(`reports-${new Date().toISOString().slice(0, 10)}.pdf`);
+    }
     const shipmentChartConfig = {
         completed: { label: "Completed", color: "#3b82f6" },
         pending: { label: "Pending", color: "#eab308" },
@@ -56,9 +84,19 @@ export default function Reports({ metrics, charts, filterOptions, activeFilters 
             <div className="flex min-h-screen flex-col bg-[#F9FAFB] dark:bg-[#030712] p-6 gap-5 font-sans text-slate-900 dark:text-slate-100">
 
                 {/* Header */}
-                <div className="flex items-center gap-3">
-                    <FileBarChart2 className="h-6 w-6 text-slate-400" />
-                    <h1 className="text-2xl font-black tracking-tighter text-slate-800 dark:text-slate-200">Reports</h1>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <FileBarChart2 className="h-6 w-6 text-slate-400" />
+                        <h1 className="text-2xl font-black tracking-tighter text-slate-800 dark:text-slate-200">Reports</h1>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-2 text-[10px] font-bold"
+                        onClick={() => exportReportsPDF(metrics)}
+                    >
+                        <Download className="size-3.5" /> Export
+                    </Button>
                 </div>
 
                 {/* Filters */}

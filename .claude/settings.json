@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git -C \"c:/Github/FGI-DTS\" log --oneline -5)",
+      "Bash(ls \"C:/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/\")",
+      "Read(//c/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/**)",
+      "Bash(bash C:/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/task-brief c:/Github/FGI-DTS/docs/superpowers/plans/2026-06-26-broker-filter.md 1)",
+      "Bash(git -C \"c:/Github/FGI-DTS\" rev-parse HEAD)",
+      "Bash(git commit *)",
+      "Bash(bash C:/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/review-package bdb76247c169aaa789b8ce12d089a340a0828d52 HEAD)",
+      "Bash(bash C:/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/task-brief c:/Github/FGI-DTS/docs/superpowers/plans/2026-06-26-broker-filter.md 2)",
+      "Bash(bash C:/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/review-package 69e6e8936024947bacc3e7eb79a345cc4cfeaffd HEAD)",
+      "Bash(bash C:/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/review-package 69b1a7126391b03b81c878de7a97cff7f5e33b10 HEAD)",
+      "Bash(npm run *)",
+      "Bash(bash C:/Users/jdgms/.claude/plugins/cache/claude-plugins-official/superpowers/6.0.3/skills/subagent-driven-development/scripts/review-package aa34c572c5fd007df62961d7efd5dbd9da8951a7 HEAD)",
+      "Bash(composer require *)",
+      "Bash(php artisan *)",
+      "Bash(mysql -u root -h 127.0.0.1 -P 3306 fgi_dts -e \"SELECT 1;\")",
+      "PowerShell(mysql -u root -h 127.0.0.1 -P 3306 fgi_dts -e \"SELECT 1;\" 2>&1)",
+      "PowerShell(if \\(-not $?\\) { \"MySQL not reachable\" })",
+      "PowerShell(Get-Process -Name \"mysqld\" -ErrorAction SilentlyContinue)",
+      "PowerShell(netstat -an)",
+      "PowerShell(head -5)",
+      "PowerShell(Get-Command docker -ErrorAction SilentlyContinue)",
+      "Read(//c/xampp/mysql/bin//**)",
+      "Read(//c/wamp64/bin/**)",
+      "PowerShell(& \"C:\\\\xampp\\\\mysql\\\\bin\\\\mysqld.exe\" --install-manual \"MySQL_XAMPP\" 2>&1)",
+      "PowerShell(Start-Service \"MySQL_XAMPP\" 2>&1)",
+      "Bash(bash __TRACKED_VAR__/scripts/review-package 13486c5 39cd1bb)",
+      "Bash(bash __TRACKED_VAR__/scripts/task-brief docs/superpowers/plans/2026-06-27-imap-email-tracking.md 2)",
+      "Bash(bash __TRACKED_VAR__/scripts/review-package 39cd1bb 950179127adac30462504c9a4cf7b473410d78f9)",
+      "Bash(bash __TRACKED_VAR__/scripts/task-brief docs/superpowers/plans/2026-06-27-imap-email-tracking.md 3)",
+      "PowerShell(head -20)"
+    ]
+  }
+}

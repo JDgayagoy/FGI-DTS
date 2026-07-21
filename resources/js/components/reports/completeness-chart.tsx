@@ -1,13 +1,14 @@
 import { TrendingUp } from "lucide-react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { type ChartDataPoint } from '@/pages/reports/types';
 
 import {
     ChartContainer,
     ChartTooltip,
-    ChartTooltipContent,
-    type ChartConfig,
+    ChartTooltipContent
+    
 } from "@/components/ui/chart"
+import type {ChartConfig} from "@/components/ui/chart";
+import type {ChartDataPoint} from '@/pages/reports/types';
 
 const chartConfig = {
     documents: {

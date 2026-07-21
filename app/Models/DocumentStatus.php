@@ -7,42 +7,44 @@ use Illuminate\Database\Eloquent\Model;
 
 class DocumentStatus extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  protected $table = 'document_statuses';
-  protected $primaryKey = 'doc_status_id';
-  public $timestamps = false;
+    protected $table = 'document_statuses';
 
-  protected $fillable = [
-    'shipment_doc_id',
-    'status_id',
-    'is_current',
-    'changed_at',
-    'changed_by',
-  ];
+    protected $primaryKey = 'doc_status_id';
 
-  protected $casts = [
-    'changed_at' => 'datetime',
-    'is_current' => 'boolean',
-  ];
+    public $timestamps = false;
 
-  public function shipmentDocument()
-  {
-    return $this->belongsTo(ShipmentDocument::class, 'shipment_doc_id', 'shipment_doc_id');
-  }
+    protected $fillable = [
+        'shipment_doc_id',
+        'status_id',
+        'is_current',
+        'changed_at',
+        'changed_by',
+    ];
 
-  public function status()
-  {
-    return $this->belongsTo(DocumentStatusList::class, 'status_id', 'status_id');
-  }
+    protected $casts = [
+        'changed_at' => 'datetime',
+        'is_current' => 'boolean',
+    ];
 
-  public function changedByUser()
-  {
-    return $this->belongsTo(User::class, 'changed_by', 'id');
-  }
+    public function shipmentDocument()
+    {
+        return $this->belongsTo(ShipmentDocument::class, 'shipment_doc_id', 'shipment_doc_id');
+    }
 
-  public function scopeCurrent($query)
-  {
-    return $query->where('is_current', true);
-  }
+    public function status()
+    {
+        return $this->belongsTo(DocumentStatusList::class, 'status_id', 'status_id');
+    }
+
+    public function changedByUser()
+    {
+        return $this->belongsTo(User::class, 'changed_by', 'id');
+    }
+
+    public function scopeCurrent($query)
+    {
+        return $query->where('is_current', true);
+    }
 }

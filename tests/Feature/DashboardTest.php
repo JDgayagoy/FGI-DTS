@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\User;
+
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 it('renders the dashboard page and shows correct totals', function () {
     $user = User::factory()->create();
@@ -20,6 +20,7 @@ it('renders the dashboard page and shows correct totals', function () {
 it('shows the correct tabs in the shipments section', function () {
     $user = User::factory()->create();
 
+<<<<<<< HEAD
     $response = actingAs($user)
         ->get(route('dashboard'));
 
@@ -28,4 +29,13 @@ it('shows the correct tabs in the shipments section', function () {
     // Verify required props are present
     $props = $response->getOriginalContent()->getData()['page']['props'];
     expect($props)->toHaveKeys(['metrics', 'shipmentRows']);
+=======
+    actingAs($user)
+        ->get(route('dashboard'))
+        ->assertSee('All tasks')
+        ->assertSee('Completed')
+        ->assertSee('In Progress')
+        ->assertSee('Pending Approval')
+        ->assertSee('Incomplete');
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 });

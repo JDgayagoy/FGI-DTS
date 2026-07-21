@@ -4,10 +4,11 @@ import { Label, Pie, PieChart } from "recharts"
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
+  ChartTooltipContent
+  
 } from "@/components/ui/chart"
-import { type DocumentStatusDist } from '@/pages/reports/types';
+import type {ChartConfig} from "@/components/ui/chart";
+import type {DocumentStatusDist} from '@/pages/reports/types';
 
 const chartConfig = {
   value: {

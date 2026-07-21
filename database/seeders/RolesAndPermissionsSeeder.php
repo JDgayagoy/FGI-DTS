@@ -44,12 +44,22 @@ class RolesAndPermissionsSeeder extends Seeder
         $supplyChainManager = Role::firstOrCreate(['role_name' => 'Supply chain manager']);
 
         // 3. Assign Permissions to Roles
+<<<<<<< HEAD
         // Super Admin: ALL permissions (complete access)
         $allPermissionIds = Permission::pluck('permission_id')->toArray();
         $superAdmin->permissions()->sync($allPermissionIds);
+=======
+        // Super Admin: User and Role management only
+        $superAdminPermissionIds = Permission::whereIn('name', [
+            'manage_users',
+            'manage_roles',
+        ])->pluck('permission_id')->toArray();
+        $superAdmin->permissions()->sync($superAdminPermissionIds);
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 
         // Supply Chain Manager: All permissions except RBAC
         $scmPermissionIds = Permission::whereIn('name', [
+<<<<<<< HEAD
             'view-shipments',
             'add-shipments',
             'edit-shipments',
@@ -59,25 +69,52 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit-brokers',
             'delete-brokers',
             'view-logs',
+=======
+            'view_all_shipments',
+            'add_shipments',
+            'edit_shipments',
+            'delete_shipments',
+            'view_all_brokers',
+            'add_brokers',
+            'edit_brokers',
+            'delete_brokers',
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
         ])->pluck('permission_id')->toArray();
         $supplyChainManager->permissions()->sync($scmPermissionIds);
 
         // Logis Assoc: All shipment permissions + view brokers
+<<<<<<< HEAD
         $logisAssocPermissionIds = Permission::whereIn('name', [
             'view-shipments',
             'add-shipments',
             'edit-shipments',
             'archive-shipments',
             'view-brokers',
+=======
+        $shipmentPermissionIds = Permission::whereIn('name', [
+            'view_all_shipments',
+            'add_shipments',
+            'edit_shipments',
+            'delete_shipments',
+            'view_all_brokers',
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
         ])->pluck('permission_id')->toArray();
         $logisAssoc->permissions()->sync($logisAssocPermissionIds);
 
         // Brand Manager: add, view, edit shipments (no delete) + view brokers
+<<<<<<< HEAD
         $brandManagerPermissionIds = Permission::whereIn('name', [
             'view-shipments',
             'add-shipments',
             'edit-shipments',
             'view-brokers',
+=======
+        $brandPermissionIds = Permission::whereIn('name', [
+            'view_all_shipments',
+            'add_shipments',
+            'edit_shipments',
+            'view_all_brokers',
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
         ])->pluck('permission_id')->toArray();
         $brandManager->permissions()->sync($brandManagerPermissionIds);
     }

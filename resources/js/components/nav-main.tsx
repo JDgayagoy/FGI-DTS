@@ -2,6 +2,11 @@ import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import {
     SidebarGroup,
     SidebarGroupLabel,
     SidebarMenu,
@@ -13,11 +18,6 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import type { NavItem } from '@/types';
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
@@ -34,7 +34,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     };
 
     const hasActiveSubItem = (item: NavItem): boolean => {
-        if (!item.items) return false;
+        if (!item.items) {
+return false;
+}
+
         return item.items.some(
             (subItem) => subItem.href && isCurrentUrl(subItem.href),
         );

@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import {
     LayoutGrid,
     BarChart3,
@@ -61,6 +62,7 @@ export function AppSidebar() {
 
     const filteredMainItems = mainNavItems.filter((item) => {
         if (item.title === 'Shipments') {
+<<<<<<< HEAD
             return hasPermissionName('view-shipments');
         }
 
@@ -71,6 +73,14 @@ export function AppSidebar() {
         if (item.title === 'Logs') {
             return hasPermissionName('view-logs');
         }
+=======
+return hasPermissionName('view_all_shipments');
+}
+
+        if (item.title === 'Reports') {
+return hasPermissionName('view_all_shipments');
+}
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 
         return true; // Dashboard and others always visible
     });

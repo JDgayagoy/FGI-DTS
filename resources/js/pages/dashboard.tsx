@@ -1,6 +1,43 @@
+<<<<<<< HEAD
 import { Head } from '@inertiajs/react';
 import { Search, Download, Ship, FileText, X, Printer } from 'lucide-react';
 import { useState, useEffect } from 'react'; // Remove unused imports if needed
+=======
+import { Head, router } from '@inertiajs/react';
+
+const DOC_KEYS = ['SH', 'SSDT', 'FAN', 'TAN', 'SAD', 'BL', 'FE', 'IV', 'PL', 'CI', 'DH'];
+
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
+function exportDashboardPDF(shipments: { ref: string; date: string; broker: string; incoterm: string; status: string; docs: Record<string, string> }[]) {
+    const doc = new jsPDF({ orientation: 'landscape' });
+    const headers = [['Reference', 'Date', 'Broker', 'Incoterm', 'Status', ...DOC_KEYS]];
+    const rows = shipments.map(s => [
+        s.ref,
+        s.date ?? '',
+        s.broker,
+        s.incoterm,
+        s.status,
+        ...DOC_KEYS.map(k => s.docs[k] ?? 'missing'),
+    ]);
+
+    doc.text("Dashboard Export", 14, 15);
+    autoTable(doc, {
+        head: headers,
+        body: rows,
+        startY: 20,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [59, 130, 246] }
+    });
+
+    doc.save(`dashboard-${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+import {
+    Search, Download, Ship, FileText, X, Printer,
+} from 'lucide-react';
+import { useState, useEffect } from 'react';
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 import { AccuracyChart } from '@/components/dashboard/accuracy-chart';
 import { CompletionChart } from '@/components/dashboard/completion-chart';
 import { ShipmentsTable } from '@/components/dashboard/shipments-table';
@@ -41,14 +78,25 @@ interface ShipmentRow {
     ref: string;
     broker: string;
     date: string;
+    broker: string;
     incoterm: string;
     status: 'completed' | 'warning' | 'pending' | 'error';
     docs: Record<string, DocInfo>;
 }
 
+interface BrokerOption {
+    broker_id: number;
+    broker_name: string;
+}
+
 interface Props {
     metrics: Metrics;
     shipmentRows: ShipmentRow[];
+    brokers: BrokerOption[];
+    activeFilters: {
+        brokerId: string | null;
+    };
+    chartData: { date: string; completed: number; total: number }[];
 }
 
 const columns = [
@@ -65,7 +113,7 @@ const columns = [
     { key: 'DH', label: 'DH' },
 ];
 
-export default function Dashboard({ metrics, shipmentRows }: Props) {
+export default function Dashboard({ metrics, shipmentRows, brokers, activeFilters, chartData }: Props) {
     const [activeTab, setActiveTab] = useState('All tasks');
     const [dateRange, setDateRange] = useState<
         { from?: Date; to?: Date } | undefined
@@ -80,10 +128,25 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
     const [selectedDocKey, setSelectedDocKey] = useState<string | null>(null);
     const itemsPerPage = 10;
 
+<<<<<<< HEAD
     // Derive current page from filter combination
     // When filters change, the key changes and page defaults to 1
     const filterKey = `${activeTab}|${dateRange?.from?.toISOString()}|${dateRange?.to?.toISOString()}|${searchQuery}`;
     const currentPage = pageByFilter[filterKey] ?? 1;
+=======
+    useEffect(() => {
+ setCurrentPage(1); 
+}, [activeTab, dateRange, searchQuery]);
+
+    const handleBrokerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value;
+        router.get(
+            '/dashboard',
+            value ? { broker_id: value } : {},
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
+    };
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 
     // Handler to update page for current filter combination
     const setCurrentPage = (page: number | ((prev: number) => number)) => {
@@ -107,8 +170,13 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
         }
 
         return () => {
+<<<<<<< HEAD
             document.body.style.overflow = 'unset';
         };
+=======
+ document.body.style.overflow = 'unset'; 
+};
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
     }, [activeShipmentIndex]);
 
     const stats = {
@@ -136,6 +204,7 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
             };
 
             if (shipment.status !== tabMapping[activeTab]) {
+<<<<<<< HEAD
                 return false;
             }
         }
@@ -147,6 +216,19 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
         if (!shipment.date) {
             return false;
         }
+=======
+return false;
+}
+        }
+
+        if (!dateRange?.from) {
+return true;
+}
+
+        if (!shipment.date) {
+return true;
+}
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
 
         const sDate = new Date(shipment.date);
         const from = new Date(dateRange.from);
@@ -200,22 +282,46 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
                             />
                         </div>
                         <DatePickerWithRange onRangeChange={setDateRange} />
+<<<<<<< HEAD
                         <Button
                             variant="outline"
                             size="sm"
                             className="h-8 gap-2 rounded-lg border-slate-200 bg-white px-3 text-[10px] font-bold dark:border-slate-800 dark:bg-slate-900/50"
                         >
+=======
+                        <select
+                            value={activeFilters.brokerId ?? ''}
+                            onChange={handleBrokerChange}
+                            className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300"
+                        >
+                            <option value="">All Brokers</option>
+                            {brokers.map((b) => (
+                                <option key={b.broker_id} value={String(b.broker_id)}>
+                                    {b.broker_name}
+                                </option>
+                            ))}
+                        </select>
+                        <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200 dark:border-slate-800 rounded-lg gap-2 px-3 bg-white dark:bg-slate-900/50" onClick={() => exportDashboardPDF(filteredForTable)}>
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                             <Download className="size-3.5" /> Export
                         </Button>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-12 gap-4">
+<<<<<<< HEAD
                     <div className="col-span-12 flex flex-col gap-4 lg:col-span-4">
                         <CompletionChart />
                         <div className="flex h-[130px] flex-col justify-center rounded-xl border border-slate-200/60 bg-white p-4 shadow-sm dark:border-slate-800/60 dark:bg-slate-900/40">
                             <div className="mb-3 flex items-center gap-2">
                                 <div className="flex size-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+=======
+                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-4">
+                        <CompletionChart chartData={chartData} />
+                        <div className="bg-white dark:bg-slate-900/40 rounded-xl p-4 border border-slate-200/60 dark:border-slate-800/60 flex flex-col justify-center h-[130px] shadow-sm">
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="size-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                                     <Ship className="size-4" />
                                 </div>
                                 <span className="text-[12px] font-bold tracking-widest text-slate-400 uppercase">
@@ -333,7 +439,11 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
                                 ).map(([key, docInfo]) => {
                                     const isSelected = selectedDocKey === key;
                                     const info = docInfo as DocInfo;
+<<<<<<< HEAD
                                     
+=======
+
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                                     return (
                                         <li
                                             key={key}
@@ -416,6 +526,7 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
                             </div>
 
                             <div className="flex-1 overflow-hidden bg-slate-50/50 dark:bg-slate-900/20">
+<<<<<<< HEAD
                                 {selectedDocKey ? (
                                     (() => {
                                         const docInfo = filteredShipments[
@@ -437,6 +548,12 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
                                             );
                                         }
                                         
+=======
+                                {selectedDocKey ? (() => {
+                                    const docInfo = filteredShipments[activeShipmentIndex]?.docs[selectedDocKey] as DocInfo;
+
+                                    if (docInfo?.file_path && docInfo?.shipment_doc_id) {
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                                         return (
                                             <div className="flex h-full flex-col items-center justify-center gap-4 text-slate-300">
                                                 <FileText className="size-10" />
@@ -445,8 +562,20 @@ export default function Dashboard({ metrics, shipmentRows }: Props) {
                                                 </p>
                                             </div>
                                         );
+<<<<<<< HEAD
                                     })()
                                 ) : (
+=======
+                                    }
+
+                                    return (
+                                        <div className="flex h-full flex-col items-center justify-center gap-4 text-slate-300">
+                                            <FileText className="size-10" />
+                                            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">No PDF uploaded yet</p>
+                                        </div>
+                                    );
+                                })() : (
+>>>>>>> 4f28a96f5f13a3d2109e7031a2906e997c357c9e
                                     <div className="flex h-full flex-col items-center justify-center gap-4 text-slate-300">
                                         <FileText className="size-10" />
                                         <p className="text-[10px] font-black tracking-[0.3em] text-slate-400 uppercase">
