@@ -76,6 +76,12 @@ const TABS = [
     { label: 'Failed', filter: 'Failed' },
 ];
 
+const ARCHIVE_FILTERS = [
+    { label: 'Active', value: 'active' },
+    { label: 'Archived', value: 'archived' },
+    { label: 'All', value: 'all' },
+] as const;
+
 export const ShipmentsTable = ({
     shipments,
     searchQuery,
