@@ -53,7 +53,7 @@ class HandleInertiaRequests extends Middleware
                     ->get()
                     ->map(fn ($n) => [
                         'id' => $n->id,
-                        'data' => $n->data,
+                        'data' => is_string($n->data) ? json_decode($n->data, true) : $n->data,
                         'read_at' => $n->read_at,
                         'created_at' => $n->created_at?->toIso8601String(),
                     ])

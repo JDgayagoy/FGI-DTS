@@ -21,6 +21,11 @@ Route::get('/secret-seed', function () {
     return 'Seeded successfully!';
 });
 
+Route::get('/run-scheduler-secret-fgi2026dts', function () {
+    Artisan::call('schedule:run');
+    return 'Scheduler executed';
+});
+
 Route::inertia('/', 'auth/login', [
     // 'canRegister' => Features::enabled(Features::registration()),
 ])->middleware('guest')->name('home');

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ShipmentEmail extends Model
 {
+    use \App\Traits\HasOptimisticLocking;
+
     protected $fillable = [
         'user_id',
         'shipment_id',

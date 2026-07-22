@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserImapSetting extends Model
 {
+    use \App\Traits\HasOptimisticLocking;
+
     protected $fillable = [
         'user_id',
         'imap_host',

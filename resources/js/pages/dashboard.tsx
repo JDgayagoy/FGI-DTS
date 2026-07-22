@@ -39,6 +39,7 @@ import { StatusIcon } from '@/components/shipments/status-icon';
 import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 
@@ -131,11 +132,10 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
         setCurrentPage(1); 
     }, [activeTab, dateRange, searchQuery]);
 
-    const handleBrokerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value;
+    const handleBrokerChange = (value: string) => {
         router.get(
             '/dashboard',
-            value ? { broker_id: value } : {},
+            value !== 'all' ? { broker_id: value } : {},
             { preserveState: true, preserveScroll: true, replace: true },
         );
     };
@@ -255,18 +255,22 @@ export default function Dashboard({ metrics, shipmentRows, brokers, activeFilter
                             />
                         </div>
                         <DatePickerWithRange onRangeChange={setDateRange} />
-                        <select
-                            value={activeFilters.brokerId ?? ''}
-                            onChange={handleBrokerChange}
-                            className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300"
+                        <Select
+                            value={activeFilters.brokerId ?? 'all'}
+                            onValueChange={handleBrokerChange}
                         >
-                            <option value="">All Brokers</option>
-                            {brokers.map((b) => (
-                                <option key={b.broker_id} value={String(b.broker_id)}>
-                                    {b.broker_name}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger className="h-8 w-[140px] rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300">
+                                <SelectValue placeholder="All Brokers" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Brokers</SelectItem>
+                                {brokers.map((b) => (
+                                    <SelectItem key={b.broker_id} value={String(b.broker_id)}>
+                                        {b.broker_name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold border-slate-200 dark:border-slate-800 rounded-lg gap-2 px-3 bg-white dark:bg-slate-900/50" onClick={() => exportDashboardPDF(filteredForTable)}>
                             <Download className="size-3.5" /> Export
                         </Button>

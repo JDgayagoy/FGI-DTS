@@ -5,9 +5,11 @@ use App\Models\Shipment;
 use App\Models\ShipmentEmail;
 use App\Models\User;
 use App\Models\UserImapSetting;
+use App\Notifications\ShipmentEmailDetectedNotification;
 use App\Services\ShipmentEmailProcessor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Notification;
 use Webklex\IMAP\Facades\Client;
 use Webklex\PHPIMAP\Client as ImapClient;
 use Webklex\PHPIMAP\Folder;
@@ -54,6 +56,7 @@ it('processes a new message into a shipment_email', function () {
 });
 
 it('skips a uid already processed for the user', function () {
+    Notification::fake();
     $user = User::factory()->create();
     $setting = imapSetting($user);
 
@@ -72,6 +75,7 @@ it('skips a uid already processed for the user', function () {
     $job->processMessage($setting, imapMessage());
 
     expect(ShipmentEmail::where('user_id', $user->id)->count())->toBe(1);
+    Notification::assertNothingSent();
 });
 
 it('fetches newest unseen messages before applying the inbox limit', function () {
@@ -189,4 +193,26 @@ it('processes fetched messages when the shipment reference is followed by extra 
         ->subject->toBe('FGI-001 TRACKING UPDATE')
         ->matched_ref->toBe('FGI-001')
         ->action_taken->toBe('matched');
+});
+
+it('creates a notification for a new unmatched FGI email', function () {
+    Notification::fake();
+    $user = User::factory()->create();
+    $setting = imapSetting($user);
+
+    $job = new FetchUserImapEmailsJob($user->id);
+    $job->processMessage($setting, imapMessage([
+        'uid' => 'UID-UNMATCHED-1',
+        'subject' => 'FGI-999 Tracking update',
+    ]));
+
+    $email = ShipmentEmail::where('user_id', $user->id)->first();
+
+    expect($email)
+        ->subject->toBe('FGI-999 Tracking update')
+        ->matched_ref->toBe('FGI-999')
+        ->shipment_id->toBeNull()
+        ->action_taken->toBe('pending_review');
+
+    Notification::assertSentTo($user, ShipmentEmailDetectedNotification::class);
 });

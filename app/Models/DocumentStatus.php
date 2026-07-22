@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class DocumentStatus extends Model
 {
+    use \App\Traits\HasOptimisticLocking;
+
     use HasFactory;
 
     protected $table = 'document_statuses';

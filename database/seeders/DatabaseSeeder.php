@@ -8,6 +8,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+        
         $this->call([
             ShipmentStatusListSeeder::class,
             DocumentStatusListSeeder::class,
@@ -20,5 +22,8 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             UserSeeder::class,
         ]);
+        
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+        
     }
 }

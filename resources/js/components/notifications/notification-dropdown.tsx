@@ -34,7 +34,7 @@ export function NotificationDropdown({ onSelect }: Props) {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative h-9 w-9">
+                <Button variant="ghost" size="icon" className="relative h-9 w-9 overflow-visible">
                     <Bell className="!size-5 opacity-80" />
                     {count > 0 && (
                         <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
@@ -69,7 +69,7 @@ export function NotificationDropdown({ onSelect }: Props) {
                                 >
                                     <span className="text-sm font-medium">New shipment email</span>
                                     <span className="text-xs text-muted-foreground">
-                                        {n.data.from_address}
+                                        {n.data?.from_address ?? 'Unknown sender'}
                                     </span>
                                     <span className="text-[10px] text-muted-foreground">
                                         {n.created_at ? new Date(n.created_at).toLocaleString() : ''}

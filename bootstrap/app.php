@@ -28,5 +28,17 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\App\Exceptions\StaleModelException $e, \Illuminate\Http\Request $request) {
+            if ($request->header('X-Inertia')) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 409);
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $e->getMessage()], 409);
+            }
+
+            return back()->with('error', $e->getMessage());
+        });
     })->create();

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomDoc extends Model
 {
+    use \App\Traits\HasOptimisticLocking;
+
     use HasFactory;
 
     protected $table = 'custom_docs';

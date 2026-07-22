@@ -31,7 +31,7 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->beforeEach(function () {
         // Seed all required test data (statuses, permissions, roles, etc.)
-        $this->seed(DatabaseSeeder::class);
+        $this->seedTestData();
     })
     ->in('Feature');
 

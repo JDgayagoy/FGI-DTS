@@ -56,3 +56,16 @@ it('prefers the longer ref on overlapping matches', function () {
 
     expect($result['shipment']->shipment_id)->toBe($long->shipment_id);
 });
+
+it('returns the detected FGI ref when no shipment matches', function () {
+    Shipment::factory()->create(['shipment_reference' => 'FGI-001']);
+
+    $result = app(EmailShipmentParser::class)->parse(
+        from: 'broker@x.com',
+        subject: 'FGI-999 Tracking update',
+        body: 'No matching shipment exists yet.',
+    );
+
+    expect($result['matched_ref'])->toBe('FGI-999');
+    expect($result['shipment'])->toBeNull();
+});

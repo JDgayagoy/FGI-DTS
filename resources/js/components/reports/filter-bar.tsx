@@ -1,6 +1,22 @@
 import { router } from '@inertiajs/react';
-import { SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Filter } from 'lucide-react';
 import { useState } from 'react';
+import { format } from 'date-fns';
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 import type { FilterOptions, ActiveFilters } from '@/pages/reports/types';
 
 interface Props {
@@ -48,116 +64,140 @@ export function FilterBar({ filterOptions, activeFilters }: Props) {
         router.get('/reports');
     };
 
+    // Calculate active filter count (excluding date)
+    const activeCount = [brand, brandManager, serviceType, brokerId, archiveStatus].filter(Boolean).length;
+
     return (
         <div className="flex flex-wrap items-end gap-3">
-            {/* Date range */}
+            {/* Date range - kept outside since it has its own popover picker */}
             <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Date From
+                    Date Range
                 </label>
-                <input
-                    type="date"
-                    value={dateFrom}
-                    onChange={(e) => setDateFrom(e.target.value)}
-                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
-                />
-            </div>
-            <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Date To
-                </label>
-                <input
-                    type="date"
-                    value={dateTo}
-                    onChange={(e) => setDateTo(e.target.value)}
-                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
+                <DatePickerWithRange 
+                    buttonClassName="h-[34px] w-[210px] rounded-xl border border-slate-200/60 bg-white px-3 text-[11px] font-semibold text-slate-700 shadow-sm hover:border-slate-300/80 focus:ring-0 dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
+                    initialFrom={activeFilters.dateFrom ?? ''} 
+                    initialTo={activeFilters.dateTo ?? ''}
+                    onRangeChange={(range) => {
+                        setDateFrom(range?.from ? format(range.from, 'yyyy-MM-dd') : '');
+                        setDateTo(range?.to ? format(range.to, 'yyyy-MM-dd') : '');
+                    }} 
                 />
             </div>
 
-            {/* Brand */}
             <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Brand
+                    Additional Filters
                 </label>
-                <select
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
-                >
-                    <option value="">All Brands</option>
-                    {filterOptions.brands.map((b) => (
-                        <option key={b}>{b}</option>
-                    ))}
-                </select>
-            </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button 
+                            variant="outline" 
+                            className="h-[34px] rounded-xl border-slate-200/60 bg-white px-4 text-[11px] font-bold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
+                        >
+                            <Filter className="mr-2 h-3.5 w-3.5 text-slate-400" />
+                            Filter Data
+                            {activeCount > 0 && (
+                                <span className="ml-2 rounded-full bg-blue-100 px-1.5 py-0.5 text-[9px] font-black text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                    {activeCount}
+                                </span>
+                            )}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56 rounded-xl">
+                        <DropdownMenuLabel className="text-[10px] font-black tracking-widest uppercase text-slate-400">Filter By</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        
+                        <DropdownMenuGroup>
+                            {/* Brand */}
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="text-[11px] font-semibold">
+                                    Brand
+                                    {brand && <span className="ml-auto text-[10px] text-blue-600 dark:text-blue-400">1 selected</span>}
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent className="w-48 rounded-xl max-h-[300px] overflow-y-auto">
+                                    <DropdownMenuRadioGroup value={brand || 'all'} onValueChange={(v) => setBrand(v === 'all' ? '' : v)}>
+                                        <DropdownMenuRadioItem value="all" className="text-[11px]" onSelect={(e) => e.preventDefault()}>All Brands</DropdownMenuRadioItem>
+                                        <DropdownMenuSeparator />
+                                        {filterOptions.brands.map((b) => (
+                                            <DropdownMenuRadioItem key={b} value={b} className="text-[11px]" onSelect={(e) => e.preventDefault()}>{b}</DropdownMenuRadioItem>
+                                        ))}
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuSubContent>
+                            </DropdownMenuSub>
 
-            {/* Broker */}
-            <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Broker
-                </label>
-                <select
-                    value={brokerId}
-                    onChange={(e) => setBrokerId(e.target.value)}
-                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
-                >
-                    <option value="">All Brokers</option>
-                    {filterOptions.brokers.map((b) => (
-                        <option key={b.id} value={b.id}>
-                            {b.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                            {/* Broker */}
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="text-[11px] font-semibold">
+                                    Broker
+                                    {brokerId && <span className="ml-auto text-[10px] text-blue-600 dark:text-blue-400">1 selected</span>}
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent className="w-56 rounded-xl max-h-[300px] overflow-y-auto">
+                                    <DropdownMenuRadioGroup value={brokerId || 'all'} onValueChange={(v) => setBrokerId(v === 'all' ? '' : v)}>
+                                        <DropdownMenuRadioItem value="all" className="text-[11px]" onSelect={(e) => e.preventDefault()}>All Brokers</DropdownMenuRadioItem>
+                                        <DropdownMenuSeparator />
+                                        {filterOptions.brokers.map((b) => (
+                                            <DropdownMenuRadioItem key={b.id} value={b.id.toString()} className="text-[11px]" onSelect={(e) => e.preventDefault()}>
+                                                {b.name}
+                                            </DropdownMenuRadioItem>
+                                        ))}
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuSubContent>
+                            </DropdownMenuSub>
 
-            {/* Brand Manager */}
-            <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Brand Manager
-                </label>
-                <select
-                    value={brandManager}
-                    onChange={(e) => setBrandManager(e.target.value)}
-                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
-                >
-                    <option value="">All Brand Managers</option>
-                    {filterOptions.brandManagers.map((b) => (
-                        <option key={b}>{b}</option>
-                    ))}
-                </select>
-            </div>
+                            {/* Brand Manager */}
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="text-[11px] font-semibold">
+                                    Brand Manager
+                                    {brandManager && <span className="ml-auto text-[10px] text-blue-600 dark:text-blue-400">1 selected</span>}
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent className="w-48 rounded-xl max-h-[300px] overflow-y-auto">
+                                    <DropdownMenuRadioGroup value={brandManager || 'all'} onValueChange={(v) => setBrandManager(v === 'all' ? '' : v)}>
+                                        <DropdownMenuRadioItem value="all" className="text-[11px]" onSelect={(e) => e.preventDefault()}>All Brand Managers</DropdownMenuRadioItem>
+                                        <DropdownMenuSeparator />
+                                        {filterOptions.brandManagers.map((b) => (
+                                            <DropdownMenuRadioItem key={b} value={b} className="text-[11px]" onSelect={(e) => e.preventDefault()}>{b}</DropdownMenuRadioItem>
+                                        ))}
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuSubContent>
+                            </DropdownMenuSub>
 
-            {/* Service Type */}
-            <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Service Type
-                </label>
-                <select
-                    value={serviceType}
-                    onChange={(e) => setServiceType(e.target.value)}
-                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
-                >
-                    <option value="">All Types</option>
-                    {filterOptions.serviceTypes.map((s) => (
-                        <option key={s}>{s}</option>
-                    ))}
-                </select>
-            </div>
+                            {/* Service Type */}
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="text-[11px] font-semibold">
+                                    Service Type
+                                    {serviceType && <span className="ml-auto text-[10px] text-blue-600 dark:text-blue-400">1 selected</span>}
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent className="w-48 rounded-xl max-h-[300px] overflow-y-auto">
+                                    <DropdownMenuRadioGroup value={serviceType || 'all'} onValueChange={(v) => setServiceType(v === 'all' ? '' : v)}>
+                                        <DropdownMenuRadioItem value="all" className="text-[11px]" onSelect={(e) => e.preventDefault()}>All Types</DropdownMenuRadioItem>
+                                        <DropdownMenuSeparator />
+                                        {filterOptions.serviceTypes.map((s) => (
+                                            <DropdownMenuRadioItem key={s} value={s} className="text-[11px]" onSelect={(e) => e.preventDefault()}>{s}</DropdownMenuRadioItem>
+                                        ))}
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuSubContent>
+                            </DropdownMenuSub>
 
-            {/* Archive Status */}
-            <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Status
-                </label>
-                <select
-                    value={archiveStatus}
-                    onChange={(e) => setArchiveStatus(e.target.value)}
-                    className="rounded-xl border border-slate-200/60 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm focus:outline-none dark:border-slate-800/60 dark:bg-slate-900/40 dark:text-slate-300"
-                >
-                    <option value="">All Shipments</option>
-                    <option value="active">Active Only</option>
-                    <option value="archived">Archived Only</option>
-                </select>
+                            {/* Archive Status */}
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="text-[11px] font-semibold">
+                                    Archive Status
+                                    {archiveStatus && <span className="ml-auto text-[10px] text-blue-600 dark:text-blue-400">1 selected</span>}
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent className="w-40 rounded-xl">
+                                    <DropdownMenuRadioGroup value={archiveStatus || 'all'} onValueChange={(v) => setArchiveStatus(v === 'all' ? '' : v)}>
+                                        <DropdownMenuRadioItem value="all" className="text-[11px]" onSelect={(e) => e.preventDefault()}>All Shipments</DropdownMenuRadioItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuRadioItem value="active" className="text-[11px]" onSelect={(e) => e.preventDefault()}>Active Only</DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value="archived" className="text-[11px]" onSelect={(e) => e.preventDefault()}>Archived Only</DropdownMenuRadioItem>
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuSubContent>
+                            </DropdownMenuSub>
+                        </DropdownMenuGroup>
+                        
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             <div className="ml-auto flex gap-2">
