@@ -1,6 +1,7 @@
-import { Head, router, useForm } from '@inertiajs/react';
-import { Truck, Plus, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import {  useState } from 'react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Truck, Plus, Edit2, Trash2, CheckCircle, XCircle, TriangleAlert } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import type {ReactNode} from 'react';
 import { ModalShell } from '@/components/shipments/modal-shell';
 import { Button } from '@/components/ui/button';
@@ -92,6 +93,18 @@ return;
             onSuccess: () => setDeletingBroker(null),
         });
     };
+
+    const { flash } = usePage<{ flash: { stale_error?: string | null } }>().props;
+
+    useEffect(() => {
+        if (flash?.stale_error) {
+            toast.error("Couldn't save changes", {
+                description: flash.stale_error,
+                duration: 5000,
+                position: 'top-center',
+            });
+        }
+    }, [flash?.stale_error]);
 
     return (
         <>

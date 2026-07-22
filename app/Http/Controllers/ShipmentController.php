@@ -294,7 +294,10 @@ class ShipmentController extends Controller
 
         $version = $validated['version'];
         unset($validated['version']);
-        $shipment->syncOriginalAttribute('version', $version);
+
+        if ((int) $version !== $shipment->version) {
+            return redirect()->back()->with('stale_error', 'Couldn\'t save changes. Your data is behind — someone else may have edited this record. Please reload and try again.');
+        }
 
         $old = $shipment->only(array_keys($validated));
         $shipment->update($validated);

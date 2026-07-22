@@ -1,8 +1,9 @@
-import { Head, router, useForm } from '@inertiajs/react';
-import { Download, Package, Plus } from 'lucide-react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Download, Package, Plus, TriangleAlert } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { DocumentDialog } from '@/components/shipments/document-dialog';
+import { toast } from 'sonner';
 import { ModalShell } from '@/components/shipments/modal-shell';
 import { ShipmentFormFields } from '@/components/shipments/shipment-form-fields';
 import { ShipmentsTable } from '@/components/shipments/shipments-table';
@@ -234,8 +235,8 @@ export default function Shipments({
     const currentFilter = filters.broker_id
         ? `broker:${filters.broker_id}`
         : filters.archive === 'active'
-        ? ''
-        : filters.archive;
+            ? ''
+            : filters.archive;
 
     const handleFilterChange = (value: string) => {
         if (value.startsWith('broker:')) {
@@ -252,6 +253,18 @@ export default function Shipments({
         setActiveDocPanel(null);
         setSelectedDocId(null);
     };
+
+    const { flash } = usePage<{ flash: { stale_error?: string | null } }>().props;
+
+    useEffect(() => {
+        if (flash?.stale_error) {
+            toast.error("Couldn't save changes", {
+                description: flash.stale_error,
+                duration: 5000,
+                position: 'top-center',
+            });
+        }
+    }, [flash?.stale_error]);
 
     return (
         <>

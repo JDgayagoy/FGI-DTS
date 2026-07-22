@@ -55,7 +55,10 @@ class BrokerController extends Controller
 
         $version = $validated['version'];
         unset($validated['version']);
-        $broker->syncOriginalAttribute('version', $version);
+
+        if ((int) $version !== $broker->version) {
+            return redirect()->back()->with('stale_error', 'Couldn\'t save changes. Your data is behind — someone else may have edited this record. Please reload and try again.');
+        }
 
         $old = $broker->only(array_keys($validated));
         $broker->update($validated);

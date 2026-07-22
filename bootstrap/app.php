@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\StaleModelException;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -7,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,11 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\App\Exceptions\StaleModelException $e, \Illuminate\Http\Request $request) {
+        $exceptions->render(function (StaleModelException $e, Request $request) {
             if ($request->header('X-Inertia')) {
-                return response()->json([
-                    'message' => $e->getMessage(),
-                ], 409);
+                return redirect()->back()->with('stale_error', 'Couldn\'t save changes. Your data is behind — someone else may have edited this record. Please reload and try again.');
             }
 
             if ($request->expectsJson()) {

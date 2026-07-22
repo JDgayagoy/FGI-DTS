@@ -45,6 +45,9 @@ class HandleInertiaRequests extends Middleware
                 'permissions' => $request->user() ? $request->user()->roles->flatMap->permissions->pluck('name')->unique()->values() : [],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'stale_error' => $request->session()->get('stale_error'),
+            ],
             'notifications' => fn () => $request->user()
                 ? $request->user()->unreadNotifications()
                     ->where('type', ShipmentEmailDetectedNotification::class)
