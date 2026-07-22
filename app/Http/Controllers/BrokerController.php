@@ -50,7 +50,12 @@ class BrokerController extends Controller
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:255',
             'is_active' => 'boolean',
+            'version' => 'required|integer',
         ]);
+
+        $version = $validated['version'];
+        unset($validated['version']);
+        $broker->syncOriginalAttribute('version', $version);
 
         $old = $broker->only(array_keys($validated));
         $broker->update($validated);

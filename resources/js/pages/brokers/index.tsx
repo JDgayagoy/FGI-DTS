@@ -15,6 +15,7 @@ interface Broker {
     email: string | null;
     phone: string | null;
     is_active: boolean;
+    version: number;
 }
 
 interface Props {
@@ -32,6 +33,7 @@ const emptyBrokerForm = {
     email: '',
     phone: '',
     is_active: true as boolean,
+    version: 0,
 };
 
 export default function Brokers({ brokers }: Props) {
@@ -39,7 +41,7 @@ export default function Brokers({ brokers }: Props) {
     const [editingBroker, setEditingBroker] = useState<Broker | null>(null);
     const [deletingBroker, setDeletingBroker] = useState<Broker | null>(null);
     const { data: form, setData: setForm, post: postBroker, processing: creatingBroker, errors: createErrors, clearErrors: clearCreateErrors, reset: resetCreate } = useForm({ ...emptyBrokerForm });
-    const { data: editForm, setData: setEditForm, put: putBroker, processing: updatingBroker, errors: editErrors, clearErrors: clearEditErrors, reset: resetEdit } = useForm({ ...emptyBrokerForm });
+    const { data: editForm, setData: setEditForm, patch: patchBroker, processing: updatingBroker, errors: editErrors, clearErrors: clearEditErrors, reset: resetEdit } = useForm({ ...emptyBrokerForm });
 
     const openCreateModal = () => {
         resetCreate();
@@ -57,6 +59,7 @@ export default function Brokers({ brokers }: Props) {
             email: broker.email ?? '',
             phone: broker.phone ?? '',
             is_active: broker.is_active,
+            version: broker.version,
         });
         clearEditErrors();
     };
@@ -75,7 +78,7 @@ export default function Brokers({ brokers }: Props) {
             return;
         }
 
-        putBroker(`/brokers/${editingBroker.broker_id}`, {
+        patchBroker(`/brokers/${editingBroker.broker_id}`, {
             onSuccess: () => setEditingBroker(null),
         });
     };
