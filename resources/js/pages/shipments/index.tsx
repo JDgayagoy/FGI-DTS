@@ -62,7 +62,7 @@ export default function Shipments({
     const [showAddModal, setShowAddModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState(filters.search ?? '');
     const { data: editForm, setData: setEditForm, patch: patchEdit, errors: editErrors, clearErrors: clearEditErrors, reset: resetEditForm } = useForm({ ...emptyForm });
-    const { data: addForm, setData: setAddForm, post: postAdd, errors: addErrors, clearErrors: clearAddErrors, reset: resetAddForm } = useForm({ ...emptyForm });
+    const { data: addForm, setData: setAddForm, post: postAdd, processing: addProcessing, errors: addErrors, clearErrors: clearAddErrors, reset: resetAddForm } = useForm({ ...emptyForm });
 
     const { hasPermission } = usePermissions();
 
@@ -322,6 +322,7 @@ export default function Shipments({
                     onClose={closeAddModal}
                     onSubmit={handleAddSubmit}
                     submitLabel="Create Shipment"
+                    loading={addProcessing}
                 >
                     <ShipmentFormFields
                         form={addForm}
