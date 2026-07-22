@@ -102,6 +102,12 @@ return;
                 description: flash.stale_error,
                 duration: 5000,
                 position: 'top-center',
+                classNames: {
+                    toast: 'bg-destructive dark:bg-destructive/60 border-none text-white shadow-lg',
+                    title: 'text-white font-bold',
+                    description: 'text-white/80',
+                    icon: 'text-white',
+                },
             });
         }
     }, [flash?.stale_error]);
