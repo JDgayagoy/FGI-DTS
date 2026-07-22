@@ -2,6 +2,7 @@
 
 use App\Models\Shipment;
 use App\Models\User;
+use App\Notifications\ShipmentEmailDetectedNotification;
 use App\Services\ShipmentEmailProcessor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -45,10 +46,10 @@ it('marks pending_review and notifies when ref has no shipment', function () {
         $user,
         sampleMessage(['uid' => 'UID-101', 'subject' => 'About FGI-999']),
     );
-
-    // FGI-999 not in DB -> no parser match -> skipped (see note)
-    expect($email->action_taken)->toBe('skipped');
-    Notification::assertNothingSent();
+    expect($email->action_taken)->toBe('pending_review');
+    expect($email->shipment_id)->toBeNull();
+    expect($email->matched_ref)->toBe('FGI-999');
+    Notification::assertSentTo($user, ShipmentEmailDetectedNotification::class);
 });
 
 it('marks skipped and is silent when no ref found', function () {

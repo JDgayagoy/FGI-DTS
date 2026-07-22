@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Broker extends Model
 {
+    use \App\Traits\HasOptimisticLocking;
+
     use HasFactory;
 
     protected $table = 'brokers';

@@ -6,6 +6,7 @@ import type { Broker, Paginated, Shipment } from '@/pages/shipments/types';
 import { Highlight } from './highlight';
 import { StatusIcon } from './status-icon';
 import { PaginationControls } from './pagination-controls';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface SortConfig {
     key: string;
@@ -178,22 +179,24 @@ export const ShipmentsTable = ({
                             );
                         })}
                     </div>
-                    <select
-                        value={currentFilter}
-                        onChange={(e) => onFilterChange(e.target.value)}
-                        className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300"
-                    >
-                        <option value="">All Brokers</option>
-                        {brokers.length > 0 && (
-                            <optgroup label="Brokers">
-                                {brokers.map((b) => (
-                                    <option key={b.broker_id} value={`broker:${b.broker_id}`}>
-                                        {b.broker_name}
-                                    </option>
-                                ))}
-                            </optgroup>
-                        )}
-                    </select>
+                    <Select value={currentFilter || 'all'} onValueChange={(val) => onFilterChange(val === 'all' ? '' : val)}>
+                        <SelectTrigger className="h-8 w-[140px] rounded-lg border border-slate-200 bg-white px-2 text-[10px] font-bold text-slate-600 focus:ring-2 focus:ring-blue-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300">
+                            <SelectValue placeholder="All Brokers" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Brokers</SelectItem>
+                            {brokers.length > 0 && (
+                                <SelectGroup>
+                                    <SelectLabel>Brokers</SelectLabel>
+                                    {brokers.map((b) => (
+                                        <SelectItem key={b.broker_id} value={`broker:${b.broker_id}`}>
+                                            {b.broker_name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            )}
+                        </SelectContent>
+                    </Select>
                     <div className="relative">
                         <Search className="absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-slate-400" />
                         <input

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ShipmentDocument extends Model
 {
+    use \App\Traits\HasOptimisticLocking;
+
     use HasFactory;
 
     protected $table = 'shipment_documents';
