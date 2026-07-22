@@ -80,6 +80,7 @@ export interface Shipment {
     brand: string;
     incoterm: string;
     actual_time_of_arrival: string | null;
+    version: number;
     broker_id: number | null;
     broker: Broker | null;
     brand_manager: string;

@@ -61,7 +61,7 @@ export default function Shipments({
     const [archivingShipment, setArchivingShipment] = useState<Shipment | null>(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState(filters.search ?? '');
-    const { data: editForm, setData: setEditForm, put: putEdit, errors: editErrors, clearErrors: clearEditErrors, reset: resetEditForm } = useForm({ ...emptyForm });
+    const { data: editForm, setData: setEditForm, patch: patchEdit, errors: editErrors, clearErrors: clearEditErrors, reset: resetEditForm } = useForm({ ...emptyForm });
     const { data: addForm, setData: setAddForm, post: postAdd, errors: addErrors, clearErrors: clearAddErrors, reset: resetAddForm } = useForm({ ...emptyForm });
 
     const { hasPermission } = usePermissions();
@@ -200,6 +200,7 @@ export default function Shipments({
             broker_id: String(shipment.broker_id ?? ''),
             brand_manager: shipment.brand_manager,
             shipment_type_id: String(shipment.shipment_type.shipment_type_id),
+            version: shipment.version,
         });
         clearEditErrors();
     };
@@ -207,7 +208,7 @@ export default function Shipments({
     const handleEditSubmit = () => {
         if (!editingShipment) return;
 
-        putEdit(`/shipments/${editingShipment.shipment_id}`, {
+        patchEdit(`/shipments/${editingShipment.shipment_id}`, {
             onSuccess: closeEditModal,
         });
     };

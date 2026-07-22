@@ -289,7 +289,12 @@ class ShipmentController extends Controller
             'broker_id' => 'nullable|exists:brokers,broker_id',
             'brand_manager' => 'nullable|string|max:255',
             'shipment_type_id' => 'sometimes|exists:shipment_types,shipment_type_id',
+            'version' => 'required|integer',
         ]);
+
+        $version = $validated['version'];
+        unset($validated['version']);
+        $shipment->syncOriginalAttribute('version', $version);
 
         $old = $shipment->only(array_keys($validated));
         $shipment->update($validated);

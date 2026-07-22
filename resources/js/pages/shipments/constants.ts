@@ -33,4 +33,5 @@ export const emptyForm = {
     broker_id: '',
     brand_manager: '',
     shipment_type_id: '',
+    version: 0,
 };
